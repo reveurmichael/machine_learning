@@ -24,6 +24,9 @@ ensure_project_root()
 
 # Import extension-specific components using relative imports
 from .agent_bfs import BFSAgent
+from extensions.common.utils.game_state_utils import (
+    extract_head_position, extract_body_positions
+)
 
 
 class BFS512TokenAgent(BFSAgent):
@@ -53,12 +56,12 @@ class BFS512TokenAgent(BFSAgent):
         the recorded game state, ensuring perfect consistency with dataset generation.
         """
         # SSOT: Use centralized utilities for all position extractions
-        head_pos = BFSAgent.extract_head_position(game_state)
+        head_pos = extract_head_position(game_state)
         apple_pos = list(game_state.get('apple_position', [0, 0]))
         grid_size = game_state.get('grid_size', 10)
         
         # SSOT: Use centralized body positions calculation
-        body_positions = BFSAgent.extract_body_positions(game_state)
+        body_positions = extract_body_positions(game_state)
         
         # Calculate basic metrics
         path_length = len(path) - 1

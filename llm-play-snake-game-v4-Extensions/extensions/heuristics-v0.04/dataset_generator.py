@@ -30,6 +30,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from utils.print_utils import print_info, print_warning, print_success, print_error
 from agents.agent_bfs import BFSAgent
+from extensions.common.utils.game_state_utils import (
+    extract_head_position, extract_body_positions, extract_apple_position, 
+    extract_grid_size, to_serializable
+)
+from heuristics_utils import (
+    calculate_manhattan_distance, calculate_valid_moves_ssot, 
+    count_free_space_in_direction
+)
 
 # Import common CSV utilities for SSOT compliance
 from extensions.common.utils.csv_utils import CSVFeatureExtractor, create_csv_record_with_explanation
@@ -188,8 +196,8 @@ class DatasetGenerator:
                         break
 
                     # SSOT: Use centralized utilities for all position extractions
-                    head_pos_for_check = BFSAgent.extract_head_position(game_state)
-                    body_positions_for_check = BFSAgent.extract_body_positions(game_state)
+                    head_pos_for_check = extract_head_position(game_state)
+                    body_positions_for_check = extract_body_positions(game_state)
 
                     current_explanation = explanations[i]
                     current_metrics = metrics_list[i]
@@ -265,16 +273,16 @@ class DatasetGenerator:
         round_num = record.get('round_num')
 
         # SSOT: Use centralized utilities from BFSAgent for all position and calculation extractions
-        head_pos = BFSAgent.extract_head_position(game_state)
-        body_positions = BFSAgent.extract_body_positions(game_state)
+        head_pos = extract_head_position(game_state)
+        body_positions = extract_body_positions(game_state)
         apple_position = game_state.get('apple_position') # Directly extract apple_position from game_state
-        grid_size = BFSAgent.extract_grid_size(game_state)
+        grid_size = extract_grid_size(game_state)
 
         # SSOT: body_positions can be empty for initial moves when snake is only 1 segment long
         # This is valid behavior and should be included in the dataset
 
-        manhattan_distance = BFSAgent.calculate_manhattan_distance(game_state)
-        valid_moves = BFSAgent.calculate_valid_moves_ssot(game_state)
+        manhattan_distance = calculate_manhattan_distance(game_state)
+        valid_moves = calculate_valid_moves_ssot(game_state)
 
         # Ensure imports are within the method for clarity and to avoid circular dependencies if moved later
         # Removed redundant import: from extensions.common.utils.game_analysis_utils import calculate_danger_assessment, calculate_apple_direction
@@ -305,7 +313,7 @@ class DatasetGenerator:
 
         # Validate head position before processing (redundant with initial check in _process_single_game, but for robustness)
         # SSOT: Use centralized utilities for all position extractions
-        pre_move_head = BFSAgent.extract_head_position(game_state)
+        pre_move_head = extract_head_position(game_state)
         if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
             raise RuntimeError(f"[SSOT] Invalid head position in game state for round {round_num}: {pre_move_head}")
 
@@ -331,10 +339,10 @@ class DatasetGenerator:
         apple_dir_right = apple_direction_info.get('right', False)
 
         # Calculate free space features
-        free_space_up = BFSAgent.count_free_space_in_direction(game_state, "UP")
-        free_space_down = BFSAgent.count_free_space_in_direction(game_state, "DOWN")
-        free_space_left = BFSAgent.count_free_space_in_direction(game_state, "LEFT")
-        free_space_right = BFSAgent.count_free_space_in_direction(game_state, "RIGHT")
+        free_space_up = count_free_space_in_direction(game_state, "UP")
+        free_space_down = count_free_space_in_direction(game_state, "DOWN")
+        free_space_left = count_free_space_in_direction(game_state, "LEFT")
+        free_space_right = count_free_space_in_direction(game_state, "RIGHT")
 
         # Check if the move is valid (SSOT validation - agent should only choose valid moves)
         if move_direction not in valid_moves:
@@ -415,16 +423,16 @@ class DatasetGenerator:
         algorithm = game_state.get('algorithm', self.algorithm) 
 
         # SSOT: Use centralized utilities from BFSAgent for position extractions
-        head_pos = BFSAgent.extract_head_position(game_state)
+        head_pos = extract_head_position(game_state)
         if not snake_positions:
             return "Invalid game state: Snake has no positions."
 
         # SSOT: Use centralized body positions calculation from BFSAgent
-        body_positions = BFSAgent.extract_body_positions(game_state)
+        body_positions = extract_body_positions(game_state)
         # SSOT: body_positions can be empty for initial moves when snake is only 1 segment long
         # This is valid behavior and should be included in the dataset
-        manhattan_distance = BFSAgent.calculate_manhattan_distance(game_state)
-        valid_moves = BFSAgent.calculate_valid_moves_ssot(game_state)
+        manhattan_distance = calculate_manhattan_distance(game_state)
+        valid_moves = calculate_valid_moves_ssot(game_state)
         # Remove any direct calculations of these values below
 
         # Validate positions
@@ -443,10 +451,10 @@ class DatasetGenerator:
 
         # Calculate free space features
         # PRE-EXECUTION: Free space in each direction from current head position
-        free_space_up = BFSAgent.count_free_space_in_direction(game_state, "UP")
-        free_space_down = BFSAgent.count_free_space_in_direction(game_state, "DOWN")
-        free_space_left = BFSAgent.count_free_space_in_direction(game_state, "LEFT")
-        free_space_right = BFSAgent.count_free_space_in_direction(game_state, "RIGHT")
+        free_space_up = count_free_space_in_direction(game_state, "UP")
+        free_space_down = count_free_space_in_direction(game_state, "DOWN")
+        free_space_left = count_free_space_in_direction(game_state, "LEFT")
+        free_space_right = count_free_space_in_direction(game_state, "RIGHT")
 
         # Convert coordinates to tuple format for consistent representation
         head_pos_tuple = self._convert_coordinates_to_tuples(head_pos)

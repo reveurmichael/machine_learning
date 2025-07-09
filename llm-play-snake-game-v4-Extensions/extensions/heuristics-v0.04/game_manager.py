@@ -66,6 +66,8 @@ from dataset_generator import DatasetGenerator
 
 # Import BFSAgent for SSOT utilities
 from agents.agent_bfs import BFSAgent
+from extensions.common.utils.game_state_utils import to_serializable
+from heuristics_utils import calculate_manhattan_distance, calculate_valid_moves_ssot, bfs_pathfind
 
 # Import state management for robust pre/post state separation
 from state_management import StateManager, validate_explanation_head_consistency
@@ -324,8 +326,8 @@ class HeuristicGameManager(BaseGameManager):
             # Validate move against pre-move state using centralized utilities
             head = pre_state.get_head_position()
             body_positions = pre_state.get_snake_positions()
-            manhattan_distance = BFSAgent.calculate_manhattan_distance(dict(pre_state.game_state))
-            valid_moves = BFSAgent.calculate_valid_moves_ssot(dict(pre_state.game_state))
+            manhattan_distance = calculate_manhattan_distance(dict(pre_state.game_state))
+            valid_moves = calculate_valid_moves_ssot(dict(pre_state.game_state))
 
             if move == "NO_PATH_FOUND":
                 if valid_moves:
@@ -355,7 +357,7 @@ class HeuristicGameManager(BaseGameManager):
 
             # --- POST-MOVE VALIDATION ---
             # Check if there are any valid moves left after move
-            post_valid_moves = BFSAgent.calculate_valid_moves_ssot(dict(post_state.game_state))
+            post_valid_moves = calculate_valid_moves_ssot(dict(post_state.game_state))
             if not post_valid_moves:
                 print_error("[DEBUG] No valid moves left after move. Ending game as TRAPPED/NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
@@ -368,7 +370,7 @@ class HeuristicGameManager(BaseGameManager):
             obstacles = set(tuple(p) for p in post_snake_positions[:-1])
 
             # Simple BFS pathfinding implementation
-            path_to_apple = BFSAgent._bfs_pathfind(post_head, post_apple, obstacles, post_state.get_grid_size())
+            path_to_apple = bfs_pathfind(post_head, post_apple, obstacles, post_state.get_grid_size())
             if path_to_apple is None:
                 print_error("Apple unreachable after move. Ending game as NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
@@ -494,7 +496,7 @@ class HeuristicGameManager(BaseGameManager):
         # game_count is incremented before this method is called, so it's already correct
         game_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
         with open(game_file, 'w', encoding='utf-8') as f:
-            json.dump(BFSAgent.to_serializable(game_data), f, indent=2)
+            json.dump(to_serializable(game_data), f, indent=2)
 
     def _display_game_results(self, game_duration: float) -> None:
         """Display game results."""

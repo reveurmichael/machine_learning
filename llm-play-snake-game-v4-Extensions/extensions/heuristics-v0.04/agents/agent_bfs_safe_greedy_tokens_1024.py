@@ -30,6 +30,9 @@ from utils.moves_utils import position_to_direction
 # Import extension-specific components using relative imports
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
 from .agent_bfs import BFSAgent
+from extensions.common.utils.game_state_utils import (
+    extract_head_position, extract_body_positions, extract_apple_position
+)
 
 if TYPE_CHECKING:
     pass
@@ -63,12 +66,12 @@ class BFSSafeGreedy1024TokenAgent(BFSSafeGreedyAgent):
         the recorded game state, ensuring perfect consistency with dataset generation.
         """
         # SSOT: Use centralized utilities for all position extractions
-        head_pos = BFSAgent.extract_head_position(game_state)
-        apple_pos = BFSAgent.extract_apple_position(game_state)
+        head_pos = extract_head_position(game_state)
+        apple_pos = extract_apple_position(game_state)
         grid_size = game_state.get('grid_size', 10)
         
         # SSOT: Use centralized body positions calculation
-        body_positions = BFSAgent.extract_body_positions(game_state)
+        body_positions = extract_body_positions(game_state)
         
         # Calculate metrics
         path_length = len(path) - 1
@@ -130,8 +133,8 @@ class BFSSafeGreedy1024TokenAgent(BFSSafeGreedyAgent):
         Generate moderately detailed explanation for tail chase move (1024 tokens max).
         """
         # SSOT: Use centralized utilities for all position extractions
-        head_pos = BFSAgent.extract_head_position(game_state)
-        apple_pos = BFSAgent.extract_apple_position(game_state)
+        head_pos = extract_head_position(game_state)
+        apple_pos = extract_apple_position(game_state)
         grid_size = game_state.get('grid_size', 10)
         
         # Calculate metrics

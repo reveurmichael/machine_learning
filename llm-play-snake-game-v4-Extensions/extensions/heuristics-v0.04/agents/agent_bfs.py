@@ -285,7 +285,7 @@ class BFSAgent(BaseAgent):
         
         # PRE-EXECUTION: All calculations use pre-move state values
         path_length = len(path) - 1  # Exclude starting position
-        obstacles_avoided = self._count_obstacles_in_path(path, set(tuple(p) for p in body_positions))
+        obstacles_avoided = count_obstacles_in_path(path, set(tuple(p) for p in body_positions))
         snake_length = len(game_state.get('snake_positions', []))
         efficiency_ratio = manhattan_distance / max(path_length, 1)
         is_optimal = path_length == manhattan_distance
@@ -400,7 +400,7 @@ class BFSAgent(BaseAgent):
         remaining_free_cells = grid_size * grid_size - body_count
 
         # Check if apple is blocked by body
-        apple_neighbors = self._get_neighbors(tuple(apple_pos), grid_size)
+        apple_neighbors = get_neighbors(tuple(apple_pos), grid_size)
         blocked_neighbors = sum(1 for pos in apple_neighbors if pos in set(tuple(p) for p in snake_positions))
         
         # Analyze space fragmentation
@@ -487,366 +487,17 @@ class BFSAgent(BaseAgent):
 
         return explanation_dict
 
-    def _count_obstacles_in_path(self, path: List[Tuple[int, int]], snake_positions: set) -> int:
-        """Count how many snake body segments are near the path."""
-        obstacles_near_path = 0
-        for pos in path:
-            # Check adjacent positions for snake body
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
-                adjacent_pos = (pos[0] + dx, pos[1] + dy)
-                if adjacent_pos in snake_positions:
-                    obstacles_near_path += 1
-        return obstacles_near_path
 
-    def _get_neighbors(self, pos: Tuple[int, int], grid_size: int) -> List[Tuple[int, int]]:
-        """Get valid neighboring positions."""
-        neighbors = []
-        for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-            neighbor = (pos[0] + dx, pos[1] + dy)
-            if 0 <= neighbor[0] < grid_size and 0 <= neighbor[1] < grid_size:
-                neighbors.append(neighbor)
-        return neighbors
-
-    # SSOT: BFS pathfinding is implemented in ssot_utils.py
-    # Do not reimplement here - use ssot_bfs_pathfind from ssot_utils
-
-    # ----------------
-    # Helper utilities (v0.04 additions)
-    # ----------------
-    def _count_remaining_free_cells(self, snake_positions: set, grid_size: int) -> int:
-        """Count how many empty cells are not occupied by the snake body."""
-        total_cells = grid_size * grid_size
-        return total_cells - len(snake_positions)
 
     def __str__(self) -> str:
         """String representation of the agent."""
         return f"BFSAgent(algorithm={self.algorithm_name})"
 
-    @staticmethod
-    def _bfs_pathfind(start: List[int], goal: List[int], obstacles: Set[Tuple[int, int]], grid_size: int) -> Optional[List[List[int]]]:
-        """
-        BFS pathfinding from start to goal, avoiding obstacles.
-        
-        Args:
-            start: Starting position [x, y]
-            goal: Goal position [x, y]
-            obstacles: Set of obstacle positions as tuples (x, y)
-            grid_size: Size of the game grid
-            
-        Returns:
-            List of positions forming the path from start to goal, or None if no path exists
-        """
-        if start == goal:
-            return [start]
-        
-        # Convert to tuples for set operations
-        start_tuple = tuple(start)
-        goal_tuple = tuple(goal)
-        
-        if start_tuple in obstacles or goal_tuple in obstacles:
-            return None
-        
-        # BFS queue: (position, path)
-        queue = deque([(start_tuple, [start])])
-        visited = {start_tuple}
-        
-        # Direction vectors for BFS
-        directions = [(0, 1), (0, -1), (-1, 0), (1, 0)]  # UP, DOWN, LEFT, RIGHT
-        
-        while queue:
-            current_pos, path = queue.popleft()
-            
-            for dx, dy in directions:
-                next_x = current_pos[0] + dx
-                next_y = current_pos[1] + dy
-                next_pos = (next_x, next_y)
-                
-                # Check bounds
-                if not (0 <= next_x < grid_size and 0 <= next_y < grid_size):
-                    continue
-                
-                # Check if visited or obstacle
-                if next_pos in visited or next_pos in obstacles:
-                    continue
-                
-                # Check if goal reached
-                if next_pos == goal_tuple:
-                    return path + [[next_x, next_y]]
-                
-                # Add to queue
-                visited.add(next_pos)
-                queue.append((next_pos, path + [[next_x, next_y]]))
-        
-        return None
 
-    @staticmethod
-    def _calculate_valid_moves(game_state: dict) -> list:
-        """
-        Calculate valid moves using the same logic as agents.
-        
-        SSOT: Extract positions using exact same logic as dataset_generator.py
-        to guarantee true single source of truth.
-        
-        Args:
-            game_state: Complete game state dict containing all positions
-        Returns:
-            List of valid moves (UP, DOWN, LEFT, RIGHT)
-        """
-        # SSOT: Extract positions using exact same logic as dataset_generator.py
-        snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
-        grid_size = game_state.get('grid_size', 10)
-        
-        # SSOT: Use centralized body_positions extraction
-        body_positions = BFSAgent.extract_body_positions(game_state)
 
-        # Use body positions as obstacles (excluding head)
-        obstacles = set(tuple(p) for p in body_positions)
-        
-        valid_moves = []
-        for direction, (dx, dy) in DIRECTIONS.items():
-            next_x = head_pos[0] + dx
-            next_y = head_pos[1] + dy
-            # Check bounds
-            if 0 <= next_x < grid_size and 0 <= next_y < grid_size:
-                next_pos = (next_x, next_y)
-                # Check if position is not occupied by snake body (excluding head)
-                if next_pos not in obstacles:
-                    valid_moves.append(direction)
-        
-        return valid_moves
+ 
 
-    @staticmethod
-    def flatten_explanation_for_jsonl(explanation: Any) -> str:
-        """
-        Convert a structured explanation dict to a rich, human-readable string for JSONL output.
-        If already a string, return as-is. If dict, use 'natural_language_summary' and 'explanation_steps'.
-        
-        Args:
-            explanation: The explanation object to flatten
-            
-        Returns:
-            Rich, human-readable explanation string
-        """
-        if isinstance(explanation, str):
-            return explanation
-        if isinstance(explanation, dict):
-            # Prefer natural_language_summary + explanation_steps
-            summary = explanation.get('natural_language_summary', '')
-            steps = explanation.get('explanation_steps', [])
-            if steps and isinstance(steps, list):
-                steps_text = '\n'.join(steps)
-            else:
-                steps_text = ''
-            # Compose
-            if summary and steps_text:
-                return f"{steps_text}\n\n{summary}"
-            elif steps_text:
-                return steps_text
-            elif summary:
-                return summary
-            # Fallback: join all string fields in the dict
-            return '\n'.join(str(v) for v in explanation.values() if isinstance(v, str))
-        # Fallback: just str()
-        return str(explanation)
 
-    @staticmethod
-    def format_metrics_for_jsonl(metrics: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Format metrics for JSONL completion, ensuring all values are JSON serializable.
-        
-        Args:
-            metrics: Raw metrics dictionary
-            
-        Returns:
-            Formatted metrics dictionary with consistent naming
-        """
-        if not metrics:
-            return {}
-        
-        formatted_metrics = {}
-        
-        for key, value in metrics.items():
-            # Convert numpy types to Python types for JSON serialization
-            if hasattr(value, 'item'):  # numpy scalar
-                formatted_metrics[key] = value.item()
-            elif isinstance(value, (list, tuple)):
-                # Handle lists/tuples that might contain numpy types
-                formatted_metrics[key] = [
-                    item.item() if hasattr(item, 'item') else item 
-                    for item in value
-                ]
-            elif isinstance(value, dict):
-                # Handle nested dictionaries
-                formatted_metrics[key] = BFSAgent.format_metrics_for_jsonl(value)
-            else:
-                formatted_metrics[key] = value
-        
-        return formatted_metrics
-
-    @staticmethod
-    def to_serializable(obj):
-        """
-        Convert numpy types to Python types for JSON serialization.
-        
-        Args:
-            obj: Object to serialize
-            
-        Returns:
-            JSON-serializable object
-        """
-        import numpy as np
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        if isinstance(obj, (list, tuple)):
-            return [BFSAgent.to_serializable(x) for x in obj]
-        if isinstance(obj, dict):
-            return {k: BFSAgent.to_serializable(v) for k, v in obj.items()}
-        return obj
-
-    @staticmethod
-    def count_free_space_in_direction(game_state: dict, direction: str) -> int:
-        """
-        Count free space in a given direction from the current head position.
-        
-        SSOT: Extract positions using exact same logic as dataset_generator.py
-        to guarantee true single source of truth.
-        
-        Args:
-            game_state: Complete game state dict containing all positions
-            direction: Direction to check ('UP', 'DOWN', 'LEFT', 'RIGHT')
-            
-        Returns:
-            Number of free cells in the direction
-        """
-        # SSOT: Extract positions using exact same logic as dataset_generator.py
-        snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
-        grid_size = game_state.get('grid_size', 10)
-        
-        # SSOT: Use exact same body_positions logic as dataset_generator.py
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
-        
-        count = 0
-        current_pos = list(head_pos)
-        
-        while True:
-            if direction == 'UP':
-                current_pos[1] += 1
-            elif direction == 'DOWN':
-                current_pos[1] -= 1
-            elif direction == 'LEFT':
-                current_pos[0] -= 1
-            elif direction == 'RIGHT':
-                current_pos[0] += 1
-            
-            # Check bounds
-            if (current_pos[0] < 0 or current_pos[0] >= grid_size or 
-                current_pos[1] < 0 or current_pos[1] >= grid_size):
-                break
-            
-            # Check snake collision (using body positions)
-            if current_pos in body_positions:
-                break
-            
-            count += 1
-            
-            # Prevent infinite loop
-            if count > grid_size * grid_size:
-                break
-        
-        return count 
-
-    # ----------------
-    # SSOT Centralized Utilities (v0.04 SSOT compliance)
-    # ----------------
-    
-    @staticmethod
-    def extract_head_position(game_state: dict) -> List[int]:
-        """
-        SSOT: Extract head position from game state.
-        
-        Single source of truth for head position extraction.
-        All other files must use this method instead of calculating head position.
-        """
-        snake_positions = game_state.get('snake_positions', [])
-        if not snake_positions:
-            return [0, 0]
-        return list(snake_positions[-1])  # Head is always the last element
-    
-    @staticmethod
-    def extract_body_positions(game_state: dict) -> List[List[int]]:
-        """
-        Extracts the snake's body positions from the game state (excluding the head).
-        SSOT: Ensures body positions are consistently derived.
-
-        Args:
-            game_state: The current game state dictionary.
-
-        Returns:
-            A list of lists, where each inner list is an [x, y] position of a body segment.
-        """
-        snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
-
-        # The last element in snake_positions is the head, the second to last is the first body segment, etc.
-        # So we reverse the list and exclude the head (which is now the first element).
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
-
-        return body_positions
-    
-    @staticmethod
-    def calculate_manhattan_distance(game_state: dict) -> int:
-        """
-        SSOT: Calculate Manhattan distance between head and apple.
-        
-        Single source of truth for Manhattan distance calculation.
-        All other files must use this method instead of calculating distance.
-        """
-        head_pos = BFSAgent.extract_head_position(game_state)
-        apple_pos = game_state.get('apple_position', [0, 0])
-        return abs(head_pos[0] - apple_pos[0]) + abs(head_pos[1] - apple_pos[1])
-    
-    @staticmethod
-    def calculate_valid_moves_ssot(game_state: dict) -> List[str]:
-        """
-        SSOT: Calculate valid moves from current head position.
-        
-        Single source of truth for valid moves calculation.
-        All other files must use this method instead of calculating valid moves.
-        """
-        # Use the existing _calculate_valid_moves method for SSOT compliance
-        return BFSAgent._calculate_valid_moves(game_state) 
-
-    @staticmethod
-    def extract_apple_position(game_state: dict) -> List[int]:
-        """
-        Extracts the apple's position from the game state.
-
-        Args:
-            game_state: The current game state dictionary.
-
-        Returns:
-            A list representing the apple's [x, y] position.
-        """
-        return list(game_state.get('apple_position', [0, 0]))
-
-    @staticmethod
-    def extract_grid_size(game_state: dict) -> int:
-        """
-        Extracts the grid size from the game state.
-
-        Args:
-            game_state: The current game state dictionary.
-
-        Returns:
-            The integer grid size.
-        """
-        return game_state.get('grid_size', 10) # Default to 10 for safety if not found
     
     def _choose_survival_direction(self, head: List[int], valid_moves: List[str], snake: List[List[int]], grid_size: int) -> str:
         """
@@ -873,7 +524,7 @@ class BFSAgent(BaseAgent):
             next_pos = (next_x, next_y)
             
             # Count free space in this direction using BFS
-            free_space = self._count_free_space_in_direction_bfs(next_pos, snake_set, grid_size)
+            free_space = count_free_space_in_direction(next_pos, snake_set, grid_size)
             
             if free_space > max_free_space:
                 max_free_space = free_space

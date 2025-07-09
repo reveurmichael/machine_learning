@@ -6,6 +6,8 @@ import argparse
 import json
 from datetime import datetime
 from typing import Dict, List
+import inspect
+from peft import prepare_model_for_kbit_training as original_prepare
 
 # =====================
 # ENVIRONMENT SETUP
@@ -27,7 +29,7 @@ from datasets import load_dataset
 from transformers import (
     AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorForLanguageModeling, BitsAndBytesConfig
 )
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from peft import LoraConfig, get_peft_model
 import bitsandbytes as bnb
 
 # =====================
@@ -144,11 +146,20 @@ def load_model_and_tokenizer(model_key: str, use_4bit: bool = True):
         model = model.to_empty(device=torch.device("cuda"))
     return model, tokenizer
 
+def patched_prepare_model_for_kbit_training(model, *args, **kwargs):
+    sig = inspect.signature(original_prepare)
+    if "use_reentrant" in sig.parameters and "use_reentrant" not in kwargs:
+        kwargs["use_reentrant"] = False
+    return original_prepare(model, *args, **kwargs)
+
+import peft
+peft.prepare_model_for_kbit_training = patched_prepare_model_for_kbit_training
+
 def prepare_model_for_training(model, use_4bit: bool = True):
     print("Preparing model for LoRA training...")
     if use_4bit:
         print("Applying k-bit training preparation for 4-bit quantization...")
-        model = prepare_model_for_kbit_training(model)
+        model = patched_prepare_model_for_kbit_training(model)
     else:
         print("Enabling gradient checkpointing for 16-bit memory efficiency...")
         model.gradient_checkpointing_enable(use_reentrant=False)

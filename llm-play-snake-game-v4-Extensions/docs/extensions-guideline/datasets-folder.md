@@ -1,12 +1,8 @@
 # Datasets Folder Standards for Snake Game AI
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for datasets folder standards and supplements the _Final Decision Series_ (`` → `final-decision.md`).
-
-> **See also:** `data-format-decision-guide.md`, `final-decision.md`, `project-structure-plan.md`.
-
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Organization**
 
-The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons, strictly following SUPREME_RULES from `final-decision.md`.
+The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons.
 
 ### **Educational Value**
 - **Dataset Organization**: Understanding consistent dataset storage
@@ -41,17 +37,13 @@ logs/extensions/datasets/
 ```
 logs/extensions/datasets/grid-size-{N}/{extension}_v{version}_{timestamp}/
 ├── metadata.json                    # Dataset metadata and configuration
-├── {algorithm}/                     # Algorithm-specific datasets (NEW STRUCTURE)
+├── {algorithm}/                     # Algorithm-specific datasets 
 │   ├── game_1.json                 # Original game execution logs
 │   ├── game_2.json                 # Original game execution logs  
 │   ├── ...
 │   ├── summary.json                # Session summary file
 │   ├── {algorithm}_dataset.csv     # CSV format (ACTIVE, NOT legacy)
 │   ├── {algorithm}_dataset.jsonl   # JSONL format (heuristics-v0.04 only)
-│   └── prompts/                    # LLM prompts (Task-0 only)
-│       ├── game_1_round_1_prompt.txt
-│       ├── game_1_round_2_prompt.txt
-│       └── ...
 ├── {algorithm2}/                   # Additional algorithm datasets
 │   ├── game_1.json
 │   ├── game_2.json
@@ -59,10 +51,7 @@ logs/extensions/datasets/grid-size-{N}/{extension}_v{version}_{timestamp}/
 │   ├── summary.json
 │   ├── {algorithm2}_dataset.csv
 │   └── {algorithm2}_dataset.jsonl
-└── evaluation/                     # Cross-algorithm evaluation results
-    ├── performance_metrics.json
-    ├── comparison_results.json
-    └── visualization_data.json
+
 ```
 
 ## 📊 **Naming Convention Standards**
@@ -130,124 +119,6 @@ def get_algorithm_dataset_path(extension_type: str, version: str, grid_size: int
     """Get algorithm-specific dataset path"""
     return get_dataset_path(extension_type, version, grid_size, timestamp, algorithm)
 ```
-
-### **Metadata Management**
-```python
-def create_dataset_metadata(extension_type: str, version: str, grid_size: int, 
-                          algorithm: str, num_games: int, **kwargs) -> dict:
-    """Create standardized dataset metadata"""
-    metadata = {
-        "extension_type": extension_type,
-        "version": version,
-        "grid_size": grid_size,
-        "algorithm": algorithm,
-        "num_games": num_games,
-        "created_at": datetime.now().isoformat(),
-        "data_formats": get_supported_formats(extension_type, version),
-        "configuration": kwargs
-    }
-    
-    return metadata
-
-def save_dataset_metadata(metadata: dict, dataset_path: Path):
-    """Save metadata to dataset directory"""
-    metadata_file = dataset_path / "metadata.json"
-    with open(metadata_file, 'w') as f:
-        json.dump(metadata, f, indent=2)
-    
-            print_info(f"[DatasetUtils] Saved metadata: {metadata_file}")  # SUPREME_RULES compliant logging
-```
-
-## 📋 **Dataset Format Standards**
-
-### **CSV Format (heuristics-v0.03 and heuristics-v0.04)**
-```python
-def save_csv_dataset(data: pd.DataFrame, algorithm_path: Path, algorithm: str):
-    """Save CSV dataset to algorithm-specific directory"""
-    csv_file = algorithm_path / f"{algorithm.lower()}_dataset.csv"
-    data.to_csv(csv_file, index=False)
-    
-            print_info(f"[DatasetUtils] Saved CSV dataset: {csv_file}")  # SUPREME_RULES compliant logging
-
-def save_game_logs(game_logs: List[dict], summary: dict, algorithm_path: Path):
-    """Save game logs and summary to algorithm-specific directory"""
-    # Save individual game logs with proper numbering
-    for i, game_log in enumerate(game_logs, 1):
-        game_file = algorithm_path / f"game_{i}.json"
-        with open(game_file, 'w') as f:
-            json.dump(game_log, f, indent=2)
-    
-    # Save summary
-    summary_file = algorithm_path / "summary.json"
-    with open(summary_file, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-            print_info(f"[DatasetUtils] Saved {len(game_logs)} game logs and summary to {algorithm_path}")  # SUPREME_RULES compliant logging
-```
-
-### **JSONL Format (heuristics-v0.04 only)**
-```python
-def save_jsonl_dataset(data: list, algorithm_path: Path, algorithm: str):
-    """Save JSONL dataset to algorithm-specific directory"""
-    jsonl_file = algorithm_path / f"{algorithm.lower()}_dataset.jsonl"
-    
-    with open(jsonl_file, 'w') as f:
-        for item in data:
-            json.dump(item, f)
-            f.write('\n')
-    
-            print_info(f"[DatasetUtils] Saved JSONL dataset: {jsonl_file}")  # SUPREME_RULES compliant logging
-```
-
-### **NPZ Format (for future extensions)**
-```python
-def save_npz_dataset(data_dict: dict, algorithm_path: Path, algorithm: str, format_type: str):
-    """Save NPZ dataset to algorithm-specific directory"""
-    npz_file = algorithm_path / f"{algorithm.lower()}_{format_type}_data.npz"
-    np.savez(npz_file, **data_dict)
-    
-            print_info(f"[DatasetUtils] Saved NPZ dataset: {npz_file}")  # SUPREME_RULES compliant logging
-```
-
-## 🎓 **Educational Applications with Canonical Patterns**
-
-### **Dataset Organization Benefits**
-- **Consistency**: Same organization across all extensions
-- **Scalability**: Works with any grid size and algorithm
-- **Algorithm Separation**: Clear algorithm-specific organization
-- **Educational Value**: Learn dataset organization through consistent patterns
-
-### **Cross-Extension Benefits**
-- **Compatibility**: Datasets can be shared between extensions
-- **Reusability**: Train on one extension, test on another
-- **Comparison**: Consistent evaluation across extensions and algorithms
-- **Educational Value**: Learn cross-extension compatibility
-
-## 📋 **SUPREME_RULES Implementation Checklist**
-
-### **Mandatory Requirements**
-- [ ] **Grid-Size Agnostic**: Works with any grid size (SUPREME_RULES from final-decision.md compliance)
-- [ ] **Algorithm-Specific**: Clear algorithm separation in directory structure
-- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all operations
-- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision.md in all documentation
-- [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
-
-### **Dataset-Specific Standards**
-- [ ] **Directory Structure**: Standardized directory organization with algorithm subdirectories
-- [ ] **Naming Conventions**: Consistent naming patterns for algorithms and files
-- [ ] **Metadata Management**: Proper metadata creation and storage
-- [ ] **Format Support**: Support for multiple data formats (CSV, JSONL, NPZ)
-- [ ] **Game Log Integration**: Game logs and processed datasets in same algorithm directory
-
----
-
-**Datasets folder standards ensure consistent dataset organization with algorithm-specific separation while maintaining SUPREME_RULES compliance and educational value across all Snake Game AI extensions.**
-
-## 🔗 **See Also**
-
-- **`data-format-decision-guide.md`**: Authoritative reference for data format decisions
-- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
-- **`project-structure-plan.md`**: Project structure standards
 
 ### **Example Directory Structure**
 ```

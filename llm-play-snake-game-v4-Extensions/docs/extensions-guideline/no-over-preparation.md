@@ -1,10 +1,8 @@
 # No Over-Preparation Guidelines for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and establishes principles for avoiding over-engineering in extension development.
-
 ## 🎯 **Core Philosophy: Build What You Need, When You Need It**
 
-The "No Over-Preparation" principle ensures that extensions remain focused, maintainable, and educational by avoiding unnecessary complexity and premature optimization. Extensions should solve actual problems rather than hypothetical future needs, strictly following SUPREME_RULES from `final-decision.md`.
+The "No Over-Preparation" principle ensures that extensions remain focused, maintainable, and educational by avoiding unnecessary complexity and premature optimization. Extensions should solve actual problems rather than hypothetical future needs.
 
 ### **Design Philosophy**
 - **Present-Focused Development**: Build for current requirements, not speculative futures

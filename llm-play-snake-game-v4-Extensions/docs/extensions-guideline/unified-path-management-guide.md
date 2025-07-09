@@ -1,9 +1,5 @@
 # Unified Path Management Guide for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines unified path management patterns.
-
-> **See also:** `final-decision.md`, `core.md`, `project-structure-plan.md`.
-
 ## �� **Core Philosophy: Single Source of Truth**
 
 All extensions **MUST** use the canonical `ensure_project_root()` function from `utils.path_utils` to ensure reliable cross-platform operation and eliminate path-related bugs. This function is the **ONLY** implementation that should be used across ALL extensions and scripts.

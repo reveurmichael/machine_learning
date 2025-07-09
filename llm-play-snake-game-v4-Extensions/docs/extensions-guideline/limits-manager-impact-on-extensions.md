@@ -1,12 +1,8 @@
 # Game Limits Manager Impact on Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines game limits manager impact on extensions.
-
-> **See also:** `core.md`, `final-decision.md`, `project-structure-plan.md`.
-
 ## 🎯 **Core Philosophy: Automatic Limit Management**
 
-The `core/game_limits_manager.py` provides automatic limit tracking and enforcement for all extensions, eliminating the need for manual limit management while maintaining SUPREME_RULES compliance.
+The `core/game_limits_manager.py` provides automatic limit tracking and enforcement for all extensions, eliminating the need for manual limit management.
 
 ### **Educational Value**
 - **Automatic Management**: Extensions inherit sophisticated limit tracking without additional code

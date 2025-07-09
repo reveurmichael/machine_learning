@@ -1,7 +1,5 @@
 # Multi-Format Dataset Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Multi-format datasets follow the same architectural patterns established in the GOOD_RULES.
-
 ## 🎯 **Core Philosophy: Format-Agnostic Data Pipeline**
 
 The multi-format dataset architecture provides flexible data storage and loading capabilities to support diverse machine learning approaches. Different model types require different data representations, and this architecture ensures optimal performance for each approach.

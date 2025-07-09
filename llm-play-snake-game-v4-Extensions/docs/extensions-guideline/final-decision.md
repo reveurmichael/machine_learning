@@ -28,7 +28,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 
 7. **SUPREME_RULE NO.7**: All file operations (CSV, JSONL, JSON) must use UTF-8 encoding for cross-platform compatibility, especially on Windows. This is mandatory for all extensions.
 
-8. **SUPREME_RULE NO.8**: Coordinate representations in JSONL files must be consistently formatted as tuples `(x, y)` instead of lists `[x, y]` for uniformity across all extensions.
+8. **SUPREME_RULE NO.8**: **Minimal Code**: Include only essential code snippets to illustrate concepts clearly. Use placeholders (e.g., `pass` or `...`) liberally to maintain focus and brevity, in all those md files in the ./docs/extensions-guideline/ folder.
 
 ## TEMPORARY_SUPREME_RULES
 
@@ -51,20 +51,8 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 
 The following files in `./docs/extensions-guideline/` are designated as **GOOD_RULES** and serve as the **single source of truth**:
 
-- `agents.md` (Agent implementation standards)
 - `coordinate-system.md` (Universal coordinate system)
-- `core.md` (Base class architecture)
 - `csv-schema.md`
-- `cwd-and-logs.md` (Working directory standards)
-- `data-format-decision-guide.md` (Format selection criteria)
-- `datasets-folder.md` (Directory structure standards)
-- `extensions-v0.01.md` through `extensions-v0.04.md` (Extension evolution guidelines)
-- `models.md` (Model management standards)
-- `naming-conventions.md` (Naming standards)
-- `project-structure-plan.md` (Master architectural blueprint)
-- `round.md` (Round management patterns)
-- `single-source-of-truth.md` (Architectural principles)
-- `unified-path-management-guide.md` (Path management standards)
 
 ## KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES
 
@@ -75,8 +63,17 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * Or, the concepts are relatively obvious and do not require long elaboration.
 
 **Files to keep simple (KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES):**
-
-* `agentic-llms.md`
+* `core.md` 
+* `agents.md` 
+* `cwd-and-logs.md` 
+* `data-format-decision-guide.md` 
+* `datasets-folder.md` 
+* `extensions-v0.01.md` through `extensions-v0.04.md` 
+* `naming-conventions.md` 
+* `project-structure-plan.md` 
+* `round.md` 
+* `single-source-of-truth.md` 
+* `unified-path-management-guide.md` 
 * `ai-friendly.md`
 * `app.md`
 * `config.md` 

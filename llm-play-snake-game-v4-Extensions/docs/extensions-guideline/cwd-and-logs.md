@@ -1,12 +1,8 @@
 # Working Directory and Logging Standards
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for working directory and logging standards and supplements the _Final Decision Series_ (`` → `final-decision.md`).
+##  **Core Philosophy: Single Source of Truth**
 
-> **See also:** `standalone.md`, `final-decision.md`, `project-structure-plan.md`.
-
-## �� **Core Philosophy: Single Source of Truth**
-
-The Snake Game AI project uses a **unified path management system** centered around the canonical `ensure_project_root()` function in `utils.path_utils`. This system provides predictable file locations and simple logging mechanisms, strictly following SUPREME_RULES from `final-decision.md`.
+The Snake Game AI project uses a **unified path management system** centered around the canonical `ensure_project_root()` function in `utils.path_utils`. This system provides predictable file locations and simple logging mechanisms.
 
 **Critical Rule**: All extensions MUST use `from utils.path_utils import ensure_project_root` - NO custom implementations are allowed.
 

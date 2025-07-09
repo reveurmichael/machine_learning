@@ -8,11 +8,8 @@ All v0.03+ extensions must provide a `Streamlit app.py` as a **script launcher**
 
 
 ## ✅ Key Points
-- Always use `ensure_project_root()` before imports.
 - Only launch scripts, do not visualize game state.
 - Use print_utils for all logging.
 - No .log files, no complex logging.
-
----
 
 

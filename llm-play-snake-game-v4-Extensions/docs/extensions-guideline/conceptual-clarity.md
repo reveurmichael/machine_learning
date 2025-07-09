@@ -1,8 +1,5 @@
 # Extension Conceptual Clarity Guidelines
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines conceptual clarity guidelines for extensions.
-
-> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision.md`, `factory-design-pattern.md`.
 
 ## 🎯 **Core Philosophy: Visible Conceptual Learning**
 
@@ -112,12 +109,4 @@ from extensions.common.utils.validation import validate_model_output
 ---
 
 **This approach ensures that the educational value of each extension remains maximized while maintaining clean architecture and eliminating code duplication through appropriate use of shared utilities.**
-
-## 🔗 **See Also**
-
-- **`agents.md`**: Agent implementation standards
-- **`core.md`**: Base class architecture and inheritance patterns
-- **`config.md`**: Configuration management
-- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
-- **`factory-design-pattern.md`**: Factory pattern implementation
 

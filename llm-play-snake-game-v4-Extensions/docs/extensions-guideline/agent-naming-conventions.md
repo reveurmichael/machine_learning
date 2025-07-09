@@ -1,7 +1,4 @@
-# Final Decision 4: Agent Naming Conventions & Standards
-
-> **SUPREME AUTHORITY**: This document establishes the definitive agent naming conventions and implementation standards for the Snake Game AI project.
-
+# Agent Naming Conventions & Standards
 
 
 ## 📁 **DECISION: Standardized Agent Naming Pattern**

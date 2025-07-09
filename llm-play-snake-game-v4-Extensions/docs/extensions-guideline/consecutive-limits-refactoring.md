@@ -1,14 +1,8 @@
-# Consecutive Limits Refactoring for Snake Game AI
-
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines consecutive limits refactoring patterns.
-
-> **See also:** `core.md`, `final-decision.md`, `project-structure-plan.md`.
-
 # Elegant Consecutive Limits Management System
 
 ## Overview
 
-This document describes the elegant refactoring of consecutive move limits and sleep handling in the Snake-GTP project. The system centralizes all limit tracking into a sophisticated management architecture that follows OOP, SOLID, and DRY principles while strictly adhering to `final-decision.md` SUPREME_RULES.
+This document describes the elegant refactoring of consecutive move limits and sleep handling in the Snake-GTP project. The system centralizes all limit tracking into a sophisticated management architecture that follows OOP, SOLID, and DRY principles.
 
 ## Architecture
 

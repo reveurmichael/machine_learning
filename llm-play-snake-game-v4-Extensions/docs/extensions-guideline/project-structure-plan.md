@@ -1,9 +1,5 @@
 # Project Structure Plan for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for project structure and supplements the _Final Decision Series_ (`` → `final-decision.md`).
-
-> **See also:** `core.md`, `standalone.md`, `final-decision.md`, `config.md`.
-
 ## 🏗️ **High-Level Architecture Overview**
 
 ```

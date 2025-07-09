@@ -1,12 +1,8 @@
 # Elegance in Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines elegance standards for extensions.
-
-> **See also:** `kiss.md`, `core.md`, `final-decision.md`, `factory-design-pattern.md`.
-
 ## 🎯 **Core Philosophy: Elegant Simplicity**
 
-Elegance in the Snake Game AI project is achieved through **simple, clear, and maintainable code** that follows established patterns and principles. Elegant code is not just functional—it's beautiful, readable, and educational, strictly following `final-decision.md` SUPREME_RULES.
+Elegance in the Snake Game AI project is achieved through **simple, clear, and maintainable code** that follows established patterns and principles. Elegant code is not just functional—it's beautiful, readable, and educational.
 
 ### **Educational Value**
 - **Code Quality**: Learn to write elegant, maintainable code

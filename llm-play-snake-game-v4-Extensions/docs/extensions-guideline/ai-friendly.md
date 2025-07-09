@@ -1,12 +1,8 @@
 # AI-Friendly Development Guidelines
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines AI-friendly development guidelines.
-
-> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision.md`, `factory-design-pattern.md`.
-
 ## 🎯 **Core Philosophy: Explicit is Better Than Implicit**
 
-The codebase follows principles that make it highly readable and navigable for AI development assistants, strictly adhering to SUPREME_RULES from `final-decision.md`.
+The codebase follows principles that make it highly readable and navigable for AI development assistants.
 
 ## 🔍 **Navigation Aids for AI Assistants**
 

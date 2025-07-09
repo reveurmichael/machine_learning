@@ -1,12 +1,8 @@
 # Configuration Architecture for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for configuration architecture and supplements the _Final Decision Series_ (`` → `final-decision.md`).
-
-> **See also:** `core.md`, `standalone.md`, `final-decision.md`, `project-structure-plan.md`.
-
 ## 🎯 **Core Philosophy: Flexible Configuration Management**
 
-Configuration in the Snake Game AI project follows a hierarchical, extensible architecture that supports both simple parameter management and complex multi-extension configurations. The system is designed to be lightweight, educational, and maintainable while supporting the diverse needs of different algorithm types, strictly following SUPREME_RULES from `final-decision.md`.
+Configuration in the Snake Game AI project follows a hierarchical, extensible architecture that supports both simple parameter management and complex multi-extension configurations. The system is designed to be lightweight, educational, and maintainable while supporting the diverse needs of different algorithm types.
 
 ### **Educational Value**
 - **Configuration Patterns**: Demonstrates best practices for parameter management

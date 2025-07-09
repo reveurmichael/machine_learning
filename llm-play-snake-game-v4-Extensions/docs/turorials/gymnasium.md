@@ -1,12 +1,8 @@
 # Gymnasium Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines Gymnasium integration standards.
-
-> **See also:** `reinforcement-learning.md`, `stable-baseline.md`, SUPREME_RULES from `final-decision.md`, `standalone.md`.
-
 ## 🎯 **Core Philosophy: Standard RL Environment**
 
-Gymnasium integration provides **standard reinforcement learning environment** for Snake Game AI, enabling compatibility with popular RL libraries and algorithms. This integration follows the Gymnasium API standards while maintaining SUPREME_RULES from `final-decision.md` compliance.
+Gymnasium integration provides **standard reinforcement learning environment** for Snake Game AI, enabling compatibility with popular RL libraries and algorithms. This integration follows the Gymnasium API standards.
 
 ### **Educational Value**
 - **RL Standards**: Understanding Gymnasium API and RL environment design

@@ -1,21 +1,6 @@
-# Data Format Decision Guide for Snake Game AI
-
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for data format decisions and supplements the _Final Decision Series_ (`` → `final-decision.md`).
-
 # Data Format Decision Guide
 
-> **Authoritative Reference**: This document serves as a **GOOD_RULES** authoritative reference for data format decisions and is the single source of truth for all data format decisions across the Snake Game AI project.
-
 > **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
-
-## 🎯 **Core Philosophy: Format Follows Function**
-
-Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types, strictly following SUPREME_RULES from `final-decision.md`.
-
-### **Guidelines Alignment**
-- **SUPREME_RULES from `final-decision.md` Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
-- **SUPREME_RULES from `final-decision.md` Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
-- **SUPREME_RULES compliant logging**: Enables lightweight common utilities with OOP extensibility while maintaining data format patterns through inheritance rather than tight coupling
 
 ## 📊 **Format Selection Matrix**
 
@@ -148,15 +133,6 @@ What is your primary use case?
 
 ## 🚫 **Anti-Patterns to Avoid**
 
-### **Format Mixing Within Version**
-```python
-# ❌ WRONG: Multiple formats in same version
-heuristics-v0.03 → CSV AND JSONL
-
-# ✅ CORRECT: Single format per version purpose
-heuristics-v0.03 → CSV only
-heuristics-v0.04 → CSV + JSONL (definitive version)
-```
 
 ### **Wrong Format for Algorithm**
 ```python
@@ -167,92 +143,10 @@ cnn_model.train(csv_data)  # Loses spatial structure
 cnn_model.train(spatial_arrays)  # Preserves spatial relationships
 
 # ❌ WRONG: CSV for Evolutionary Algorithms
-ga_agent.evolve(csv_population)  # Loses genetic structure
+agent_ga.evolve(csv_population)  # Loses genetic structure
 
 # ✅ CORRECT: Raw arrays for Evolutionary Algorithms
-ga_agent.evolve(raw_population)  # Preserves genetic representation
-```
-
-
-## 🔍 **Validation Requirements**
-
-All extensions MUST validate format compliance:
-```python
-from extensions.common.validation import validate_dataset
-from utils.factory_utils import DatasetFactory # TODO: maybe DatasetFactory should be in one of the files (or a new python file) in the extensions/common folder.
-
-def generate_dataset():
-    dataset_factory = DatasetFactory()
-    loader = dataset_factory.create("CSV")  # CANONICAL create() method per SUPREME_RULES
-    result = validate_dataset(output_path)
-    if not result.is_valid:
-        raise ValueError(f"Dataset validation failed: {result.message}")
-
-def generate_evolutionary_dataset():
-    evolutionary_data = create_evolutionary_dataset()
-    result = validate_dataset(output_path)
-    if not result.is_valid:
-        raise ValueError(f"Evolutionary dataset validation failed: {result.message}")
-```
-
-## 📚 **Implementation Guidelines**
-
-### **CSV Generation (heuristics-v0.03 and heuristics-v0.04)**
-```python
-def create_csv_dataset(game_states, grid_size):
-    """Create 16-feature CSV dataset from heuristics-v0.03 or heuristics-v0.04"""
-    features = extract_tabular_features(game_states, grid_size)
-    return pd.DataFrame(features)
-```
-
-### **JSONL Generation (heuristics-v0.04 only)**
-```python
-def create_jsonl_dataset(game_states, explanations):
-    """Create JSONL dataset for LLM fine-tuning from heuristics-v0.04"""
-    with open(output_path, 'w') as f:
-        for state, explanation in zip(game_states, explanations):
-            json.dump({
-                "prompt": format_state(state),
-                "completion": explanation
-            }, f)
-            f.write('\n')
-```
-
-### **NPZ Generation**
-```python
-def create_npz_dataset(data_dict, output_path):
-    """Create NPZ dataset with multiple arrays"""
-    np.savez(output_path, **data_dict)
-```
-
-### **Evolutionary NPZ Generation**
-```python
-def create_evolutionary_dataset(population, fitness_scores, generation_history):
-    """Create specialized evolutionary NPZ dataset"""
-    evolutionary_data = {
-        'population': population,
-        'fitness_scores': fitness_scores,
-        'generation_history': generation_history,
-        'crossover_points': crossover_history,
-        'mutation_mask': mutation_history,
-        'selection_pressure': selection_history,
-        'fitness_landscape': compute_fitness_landscape(),
-        'pareto_front': compute_pareto_front(),
-        'generation_metadata': {
-            'best_fitness': best_fitness_history,
-            'average_fitness': avg_fitness_history,
-            'diversity_metrics': diversity_history,
-            'convergence_rate': convergence_history
-        },
-        'game_performance': {
-            'scores': game_scores,
-            'steps': game_steps,
-            'efficiency': game_efficiency,
-            'survival_rate': survival_rates
-        }
-    }
-    
-    np.savez(output_path, **evolutionary_data)
+agent_ga.evolve(raw_population)  # Preserves genetic representation
 ```
 
 ## 🎯 **Important Guidelines: Version Selection Guidelines**
@@ -266,17 +160,5 @@ def create_evolutionary_dataset(population, fitness_scores, generation_history):
 ## 🔄 **Cross-Extension Integration**
 - **Heuristics v0.03**: Generates standardized CSV datasets for supervised learning
 - **Heuristics v0.04**: Generates standardized CSV datasets for supervised learning + JSONL datasets for LLM fine-tuning
-- **Supervised v0.02+**: Consumes CSV datasets from heuristics-v0.03 or heuristics-v0.04 for training all model types
+- **Supervised v0.01+**: Consumes CSV datasets from heuristics-v0.03 or heuristics-v0.04 for training all model types
 - **Evaluation**: Consistent comparison framework across all algorithm types
-
----
-
-**This guide ensures consistent, optimal data format selection across all Snake Game AI extensions while maintaining interoperability and performance. Both heuristics-v0.03 and heuristics-v0.04 are widely used depending on use cases.**
-
-## 🔗 **See Also**
-
-- **`csv-schema-1.md`**: Core CSV schema documentation
-- **`csv-schema-2.md`**: CSV schema utilities and implementation
-- **`evolutionary.md`**: Evolutionary algorithm data representation
-- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
-- **`heuristics-as-foundation.md`**: Heuristics as data foundation

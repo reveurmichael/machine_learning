@@ -1,4 +1,4 @@
-# Final Decision 5: Extension Directory Structure & Evolution Standards
+# Extension Directory Structure & Evolution Standards
 
 ## 🌱 **v0.01 Template: Proof of Concept**
 

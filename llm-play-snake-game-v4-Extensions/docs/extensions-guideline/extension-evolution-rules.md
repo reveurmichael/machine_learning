@@ -1,12 +1,8 @@
 # Extension Evolution Rules
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines extension evolution rules.
-
-> **See also:** `final-decision.md`, `standalone.md`, `conceptual-clarity.md`.
-
 ## 🎯 **Core Philosophy: Progressive Enhancement**
 
-Extension evolution follows a **progressive enhancement** model where each version builds upon the previous one, adding new capabilities while maintaining backward compatibility within the same extension family, strictly following SUPREME_RULES from `final-decision.md`.
+Extension evolution follows a **progressive enhancement** model where each version builds upon the previous one, adding new capabilities while maintaining backward compatibility within the same extension family.
 
 ### **Educational Value**
 - **Incremental Learning**: Each version introduces new concepts gradually

@@ -1,9 +1,5 @@
 # Heuristics as Foundation for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines heuristics as foundation patterns for extensions.
-
-> **See also:** `agents.md`, `core.md`, `final-decision.md`, `factory-design-pattern.md`, `config.md`, `csv-schema-1.md`.
-
 ## 🎯 **Core Philosophy: Algorithmic Intelligence**
 
 Heuristic algorithms provide the foundational intelligence for Snake game AI, demonstrating how systematic problem-solving approaches can achieve excellent performance. These algorithms serve as both educational tools and practical solutions.

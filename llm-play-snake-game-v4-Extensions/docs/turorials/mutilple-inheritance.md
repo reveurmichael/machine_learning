@@ -1,10 +1,5 @@
 # Multiple Inheritance Guidelines for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines multiple inheritance guidelines for extensions.
-
-> **See also:** `core.md`, `final-decision.md`, `project-structure-plan.md`.
-
-# Multiple Inheritance Guidelines
 
 ## 🎯 **Core Philosophy: Careful Use of Multiple Inheritance**
 

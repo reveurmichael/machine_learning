@@ -1,12 +1,9 @@
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines the v0.03 extension standards.
-
-> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 # Extensions v0.03: Script Launcher Interface & Dataset Generation (SUPREME_RULES NO.5)
 
 ## 🎯 **Core Philosophy: Script Launcher Interface + Data Generation (SUPREME_RULES NO.5)**
 
-v0.03 represents the transition from command-line tools to **Streamlit script launcher interfaces** while adding **dataset generation capabilities** for other extensions. This version demonstrates how to build upon stable algorithmic foundations (v0.02) with modern script launching technologies, following SUPREME_RULES NO.5 from `final-decision.md`. The Streamlit app.py serves the sole purpose of launching scripts with adjustable parameters, and GUI components are optional per SUPREME_RULES NO.5.
+v0.03 represents the transition from command-line tools to **Streamlit script launcher interfaces** while adding **dataset generation capabilities** for other extensions. This version demonstrates how to build upon stable algorithmic foundations (v0.02) with modern script launching technologies. The Streamlit app.py serves the sole purpose of launching scripts with adjustable parameters, and GUI components are optional per SUPREME_RULES NO.5.
 
 ## 🏗️ **Architectural Transformation: UI, Scripts, and Stability**
 

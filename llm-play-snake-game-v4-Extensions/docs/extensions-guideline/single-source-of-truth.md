@@ -1,7 +1,5 @@
 # Single Source of Truth Principle
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and serves as a GOOD_RULES authoritative reference for SSOT standards.
-
 ## 🎯 **Core Philosophy: One Truth, One Place**
 
 ### **Guidelines Alignment**
@@ -137,19 +135,6 @@ save_dataset(data, algorithm, model_type)  # Centralized decision
 - [ ] All format decisions follow authoritative guide
 - [ ] No local redefinitions of standard patterns
 - [ ] Clear documentation of SSOT locations
-
-## 🔗 **SSOT References**
-
-### **Authoritative Sources**
-- **Configuration**: `config.md` + ``
-- **Path Management**: `unified-path-management-guide.md`
-- **Data Formats**: `data-format-decision-guide.md`
-- **Streamlit Architecture**: `unified-streamlit-architecture-guide.md`
-
-### **Supporting Documentation**
-- **Extension Guidelines**: Version-specific implementation guides
-- **Final Decisions**: Architectural decisions and rationale
-- **Code Examples**: Concrete implementation patterns
 
 ---
 

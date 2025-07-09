@@ -1,12 +1,8 @@
 # Extensions Move Guidelines
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines extension move guidelines.
-
-> **See also:** `final-decision.md`, `standalone.md`, `conceptual-clarity.md`.
-
 ## �� **Core Philosophy: Clean Extension Transitions**
 
-Extension moves involve transferring code between different extension versions while maintaining **clean architecture, educational value, and SUPREME_RULES compliance**. This process ensures that extensions evolve systematically without breaking existing functionality or creating inconsistencies, strictly following SUPREME_RULES from `final-decision.md`.
+Extension moves involve transferring code between different extension versions while maintaining **clean architecture, educational value, and SUPREME_RULES compliance**. This process ensures that extensions evolve systematically without breaking existing functionality or creating inconsistencies.
 
 ### **Educational Value**
 - **Clean Transitions**: Learn how to move code between versions systematically

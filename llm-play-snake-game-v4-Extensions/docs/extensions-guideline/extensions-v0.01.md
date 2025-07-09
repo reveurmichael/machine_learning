@@ -1,9 +1,5 @@
 # Extensions v0.01: Foundation Patterns
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines the foundation patterns for all v0.01 extensions.
-
-> **See also:** `core.md`, `standalone.md`, `final-decision.md`, `project-structure-plan.md`.
-
 ## 🎯 **Core Philosophy: Proof of Concept**
 
 Extensions v0.01 represent the **foundation stage** of algorithm implementation. They focus on proving that a specific algorithmic approach can work within the Snake Game AI framework while maintaining educational clarity and technical simplicity.

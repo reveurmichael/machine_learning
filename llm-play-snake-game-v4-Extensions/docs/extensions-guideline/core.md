@@ -1,10 +1,8 @@
 # Core Architecture Documentation
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for core architecture standards and supplements the _Final Decision Series_ (`` → `final-decision.md`).
-
 ## ✅ **Current Core Architecture Assessment**
 
-Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring, strictly following SUPREME_RULES from `final-decision.md`.
+Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring.
 
 ## 🎯 **Game Runner Pattern for Extensions**
 

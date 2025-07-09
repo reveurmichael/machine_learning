@@ -326,6 +326,7 @@ def create_training_arguments(args, output_dir: str) -> TrainingArguments:
         optim="adamw_torch",
         dataloader_drop_last=True,
         remove_unused_columns=False,
+        dataloader_num_workers=0,  # 🚨 Disable multiprocessing for WSL2 memory efficiency
     )
 
 def create_data_collator(tokenizer, training_args, pad_to_multiple_of) -> DataCollatorForLanguageModeling:

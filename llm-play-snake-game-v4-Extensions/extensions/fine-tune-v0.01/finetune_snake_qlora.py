@@ -31,6 +31,7 @@ from transformers import (
 )
 from peft import LoraConfig, get_peft_model
 import bitsandbytes as bnb
+import torch.utils.checkpoint as checkpoint
 
 # =====================
 # MODEL CONFIGURATION
@@ -332,6 +333,13 @@ def main() -> bool:
         print(f"❌ Error training model {args.model}: {str(e)}")
         print(f"Skipping {args.model} and continuing...")
         return False
+
+def patched_checkpoint(fn, *args, **kwargs):
+    kwargs['use_reentrant'] = False
+    return checkpoint._checkpoint(fn, *args, **kwargs)
+
+checkpoint._checkpoint = checkpoint.checkpoint
+checkpoint.checkpoint = patched_checkpoint
 
 if __name__ == "__main__":
     args = parse_args()

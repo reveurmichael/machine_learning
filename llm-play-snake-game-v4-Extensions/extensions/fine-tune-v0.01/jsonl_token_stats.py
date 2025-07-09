@@ -5,6 +5,22 @@
 
 # DON"T REMOVE THE ABOVE COMMENTS
 
+import os
+
+USE_HF_MIRROR_ENDPOINT = 1
+
+# Set HF endpoint
+if USE_HF_MIRROR_ENDPOINT == 1:
+    os.environ["HF_ENDPOINT"] = (
+        "https://hf-mirror.com"  # or, you can put on the terminal: export HF_ENDPOINT=https://hf-mirror.com
+    )
+
+else:
+    os.environ["HF_ENDPOINT"] = "https://huggingface.co"
+
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
+os.environ["DISABLE_TF"] = "1"
+
 import argparse
 import json
 import numpy as np
@@ -65,9 +81,13 @@ def main():
     print(f"Max tokens: {token_counts.max()}")
     print(f"Mean tokens: {token_counts.mean():.2f}")
     print(f"Median tokens: {np.median(token_counts):.2f}")
+    print(f"5th percentile: {np.percentile(token_counts, 5):.2f}")
+    print(f"10th percentile: {np.percentile(token_counts, 10):.2f}")
     print(f"25th percentile: {np.percentile(token_counts, 25):.2f}")
+    print(f"50th percentile: {np.percentile(token_counts, 50):.2f}")
     print(f"75th percentile: {np.percentile(token_counts, 75):.2f}")
-    print(f"Std deviation: {token_counts.std():.2f}")
+    print(f"90th percentile: {np.percentile(token_counts, 90):.2f}")
+    print(f"95th percentile: {np.percentile(token_counts, 95):.2f}")
 
 if __name__ == "__main__":
     main()

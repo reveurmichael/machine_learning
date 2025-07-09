@@ -28,6 +28,7 @@ from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions
 )
+from heuristics_utils import count_obstacles_in_path
 
 
 class BFS2048TokenAgent(BFSAgent):
@@ -71,7 +72,7 @@ class BFS2048TokenAgent(BFSAgent):
         is_optimal = path_length == manhattan_distance
         detour_steps = max(0, path_length - manhattan_distance)
         board_fill_ratio = snake_length / (grid_size * grid_size)
-        obstacles_avoided = self._count_obstacles_in_path(path, set(tuple(p) for p in body_positions))
+        obstacles_avoided = count_obstacles_in_path(path, set(tuple(p) for p in body_positions))
         
         next_pos = (head_pos[0] + (1 if direction == "RIGHT" else -1 if direction == "LEFT" else 0),
                    head_pos[1] + (1 if direction == "UP" else -1 if direction == "DOWN" else 0))

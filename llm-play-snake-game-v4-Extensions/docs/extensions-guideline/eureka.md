@@ -1,12 +1,12 @@
 # Eureka Moments in Snake Game AI Development
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines eureka moment patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines eureka moment patterns.
 
-> **See also:** `final-decision-10.md`, `elegance.md`, `conceptual-clarity.md`.
+> **See also:** `final-decision.md`, `elegance.md`, `conceptual-clarity.md`.
 
 ## 🎯 **Core Philosophy: Insight-Driven Development**
 
-Eureka moments represent **breakthrough insights** that lead to elegant solutions and architectural improvements. These moments often reveal simple, beautiful patterns that make the codebase more educational and maintainable, strictly following SUPREME_RULES from `final-decision-10.md`.
+Eureka moments represent **breakthrough insights** that lead to elegant solutions and architectural improvements. These moments often reveal simple, beautiful patterns that make the codebase more educational and maintainable, strictly following SUPREME_RULES from `final-decision.md`.
 
 ### **Educational Value**
 - **Pattern Recognition**: Identifying elegant solutions to complex problems
@@ -290,6 +290,6 @@ class ConsecutiveLimitsManager:
 
 ## 🔗 **See Also**
 
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`elegance.md`**: Elegance principles and standards
 - **`conceptual-clarity.md`**: Conceptual clarity guidelines for extensions

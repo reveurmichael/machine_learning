@@ -1,6 +1,6 @@
 # ONNX Export Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows the architectural patterns established across all extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and follows the architectural patterns established across all extensions.
 
 ## 🎯 **Core Philosophy: Framework-Agnostic Model Deployment**
 

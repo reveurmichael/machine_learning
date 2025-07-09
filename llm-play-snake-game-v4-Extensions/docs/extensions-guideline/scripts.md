@@ -1,8 +1,8 @@
 # Script Architecture: Task-0 Foundations & v0.03 Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines script architecture patterns for Task-0 and all v0.03 extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines script architecture patterns for Task-0 and all v0.03 extensions.
 
-> **See also:** `final-decision-10.md`, `app.md`, `dashboard.md`, `standalone.md`.
+> **See also:** `final-decision.md`, `app.md`, `dashboard.md`, `standalone.md`.
 
 ## 🎯 **Core Philosophy: Perfect Task-0 Foundations + Extension Framework**
 
@@ -161,9 +161,9 @@ subprocess. That's why for extensions v0.03 we will have a folder "dashboard" in
 
 # Script Architecture for v0.03 Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the mandatory script architecture for all v0.03 extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines the mandatory script architecture for all v0.03 extensions.
 
-> **See also:** `final-decision-10.md`, `app.md`, `dashboard.md`, `standalone.md`.
+> **See also:** `final-decision.md`, `app.md`, `dashboard.md`, `standalone.md`.
 
 ## 🎯 **Core Philosophy: Script-Runner Architecture**
 
@@ -514,5 +514,5 @@ class MainTab:
 ## 🔗 **See Also**
 
 - **`app.md`**: Streamlit application architecture
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision.md`**: final-decision.md governance system
 - **`standalone.md`**: Standalone principle and extension independence

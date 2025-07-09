@@ -1,8 +1,8 @@
 # Heuristics as Foundation for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines heuristics as foundation patterns for extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines heuristics as foundation patterns for extensions.
 
-> **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`, `csv-schema-1.md`.
+> **See also:** `agents.md`, `core.md`, `final-decision.md`, `factory-design-pattern.md`, `config.md`, `csv-schema-1.md`.
 
 ## 🎯 **Core Philosophy: Algorithmic Intelligence**
 

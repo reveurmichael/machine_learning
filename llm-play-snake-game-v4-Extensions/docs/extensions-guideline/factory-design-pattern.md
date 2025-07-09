@@ -1,12 +1,12 @@
 # Factory Design Pattern Implementation
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines factory design pattern implementation with strict SUPREME_RULES compliance.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines factory design pattern implementation with strict SUPREME_RULES compliance.
 
-> **See also:** `agents.md`, `core.md`, `standalone.md`, `final-decision-10.md`.
+> **See also:** `agents.md`, `core.md`, `standalone.md`, `final-decision.md`.
 
 ## 🎯 **Core Philosophy: Canonical Factory Patterns + SUPREME_RULES**
 
-The Factory Design Pattern in the Snake Game AI project follows **SUPREME_RULES** established in SUPREME_RULES from `final-decision-10.md`, ensuring:
+The Factory Design Pattern in the Snake Game AI project follows **SUPREME_RULES** established in SUPREME_RULES from `final-decision.md`, ensuring:
 - **Canonical `create()` method** for all factories (never `create_agent()`, `create_model()`, etc.)
 - **Simple logging** (use only the simple print functions from `ROOT/utils/print_utils.py` such as `print_info`, `print_warning`, `print_error`, `print_success`, `print_important` — never use raw `print()` or any complex logging frameworks)
 - **Lightweight, OOP-based, extensible, non-over-engineered** design
@@ -29,14 +29,14 @@ A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:
 ```python
 class SimpleFactory:
     """
-    Generic factory implementation following final-decision-10.md SUPREME_RULES
+    Generic factory implementation following final-decision.md SUPREME_RULES
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Demonstrates canonical create() method for all factory types
     Educational Value: Shows how SUPREME_RULES enable consistent patterns
     across simple heuristics and complex AI systems.
     
-    Reference: `final-decision-10.md` SUPREME_RULES for canonical method naming
+    Reference: `final-decision.md` SUPREME_RULES for canonical method naming
     """
     
     def __init__(self):
@@ -49,7 +49,7 @@ class SimpleFactory:
         print_info(f"[SimpleFactory] Registered: {name}")  # SUPREME_RULES compliant logging
     
     def create(self, name: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create instance using canonical create() method following `final-decision-10.md`"""
+        """Create instance using canonical create() method following `final-decision.md`"""
         if name not in self._registry:
             available = list(self._registry.keys())
             raise ValueError(f"Unknown type: {name}. Available: {available}")
@@ -57,7 +57,7 @@ class SimpleFactory:
         return self._registry[name](**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision-10.md`.
+# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision.md`.
 def create_agent(self, name: str):  # FORBIDDEN - not canonical
     pass
     
@@ -110,7 +110,7 @@ print_info(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 ### **Mandatory Requirements**
 - [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
 - [ ] **Simple Logging**: Use only the print functions from `ROOT/utils/print_utils.py` (e.g., `print_info`, `print_warning`, etc.) for all operation visibility. Never use raw `print()`.
-- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all factory documentation
+- [ ] **GOOD_RULES Reference**: References `final-decision.md` in all factory documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all factory implementations
 
 ### **Factory-Specific Standards**
@@ -122,13 +122,13 @@ print_info(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 ### **Educational Integration**
 - [ ] **Clear Examples**: Simple examples using canonical `create()` method
 - [ ] **Pattern Documentation**: Clear explanation of factory pattern benefits
-- [ ] **SUPREME_RULES Compliance**: All examples follow `final-decision-10.md` standards
+- [ ] **SUPREME_RULES Compliance**: All examples follow `final-decision.md` standards
 - [ ] **Cross-Reference**: Links to related patterns and principles
 
 ## 🔗 **Cross-References and Integration**
 
 ### **Related Documents**
-- **`final-decision-10.md`**: SUPREME_RULES for canonical factory patterns
+- **`final-decision.md`**: SUPREME_RULES for canonical factory patterns
 - **`agents.md`**: Agent factory implementations and patterns
 - **`core.md`**: Core architecture and factory integration
 - **`standalone.md`**: Standalone extension principles with factory patterns
@@ -146,11 +146,11 @@ print_info(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 
 ---
 
-**Factory Design Pattern implementation ensures consistent, educational, and maintainable object creation across all Snake Game AI extensions while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES.**
+**Factory Design Pattern implementation ensures consistent, educational, and maintainable object creation across all Snake Game AI extensions while maintaining strict compliance with `final-decision.md` SUPREME_RULES.**
 
 ## 🔗 **See Also**
 
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`agents.md`**: Authoritative reference for agent implementation with canonical patterns
 - **`core.md`**: Base class architecture following canonical principles
 - **`standalone.md`**: Standalone principle and extension independence

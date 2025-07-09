@@ -41,6 +41,10 @@ from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions, extract_apple_position
 )
+from heuristics_utils import (
+    calculate_manhattan_distance, calculate_valid_moves_ssot, count_remaining_free_cells,
+    bfs_pathfind
+)
 
 if TYPE_CHECKING:
     pass
@@ -119,7 +123,7 @@ class BFSSafeGreedyAgent(BFSAgent):
 
         # ---------------- 1. Try safe apple path first
         # PRE-EXECUTION: Pathfinding from current head to current apple
-        path_to_apple = self._bfs_pathfind(head_pos, apple_pos, obstacles, grid_size)
+        path_to_apple = bfs_pathfind(head_pos, apple_pos, obstacles, grid_size)
         if path_to_apple and len(path_to_apple) > 1:
             next_pos = path_to_apple[1]
             direction = position_to_direction(tuple(head_pos), tuple(next_pos))
@@ -156,7 +160,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         # ---------------- 2. Apple path unsafe or not found, try tail-chasing
         # PRE-EXECUTION: Tail-chasing from current head to current tail
         tail = snake_positions[-1]
-        path_to_tail = self._bfs_pathfind(head_pos, tail, obstacles, grid_size)
+        path_to_tail = bfs_pathfind(head_pos, tail, obstacles, grid_size)
         if path_to_tail and len(path_to_tail) > 1:
             next_pos = path_to_tail[1]
             direction = position_to_direction(tuple(head_pos), tuple(next_pos))
@@ -281,7 +285,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         new_obstacles = set(tuple(p) for p in new_snake[:-1])  # Exclude tail from obstacles
         
         # Use SSOT BFS to check tail reachability
-        tail_path = self._bfs_pathfind(new_head, new_tail, new_obstacles, grid_size)
+        tail_path = bfs_pathfind(new_head, new_tail, new_obstacles, grid_size)
         return bool(tail_path)
 
     def _generate_safe_apple_explanation(self, game_state: dict, path: List[List[int]], 

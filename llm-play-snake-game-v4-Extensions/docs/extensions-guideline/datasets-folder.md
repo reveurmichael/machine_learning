@@ -1,12 +1,12 @@
 # Datasets Folder Standards for Snake Game AI
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for datasets folder standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for datasets folder standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`).
 
-> **See also:** `data-format-decision-guide.md`, `final-decision-10.md`, `project-structure-plan.md`.
+> **See also:** `data-format-decision-guide.md`, `final-decision.md`, `project-structure-plan.md`.
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Organization**
 
-The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons, strictly following SUPREME_RULES from `final-decision-10.md`.
+The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons, strictly following SUPREME_RULES from `final-decision.md`.
 
 ### **Educational Value**
 - **Dataset Organization**: Understanding consistent dataset storage
@@ -226,10 +226,10 @@ def save_npz_dataset(data_dict: dict, algorithm_path: Path, algorithm: str, form
 ## 📋 **SUPREME_RULES Implementation Checklist**
 
 ### **Mandatory Requirements**
-- [ ] **Grid-Size Agnostic**: Works with any grid size (SUPREME_RULES from final-decision-10.md compliance)
+- [ ] **Grid-Size Agnostic**: Works with any grid size (SUPREME_RULES from final-decision.md compliance)
 - [ ] **Algorithm-Specific**: Clear algorithm separation in directory structure
 - [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all operations
-- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision-10.md in all documentation
+- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision.md in all documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 
 ### **Dataset-Specific Standards**
@@ -246,7 +246,7 @@ def save_npz_dataset(data_dict: dict, algorithm_path: Path, algorithm: str, form
 ## 🔗 **See Also**
 
 - **`data-format-decision-guide.md`**: Authoritative reference for data format decisions
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`project-structure-plan.md`**: Project structure standards
 
 ### **Example Directory Structure**

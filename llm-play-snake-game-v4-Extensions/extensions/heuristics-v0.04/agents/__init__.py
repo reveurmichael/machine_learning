@@ -83,7 +83,7 @@ def create(algorithm_name: str, **kwargs) -> Any:
     """
     Canonical factory method to create an agent instance.
     
-    Following SUPREME_RULES from final-decision-10.md, all factories must use
+    Following SUPREME_RULES from final-decision.md, all factories must use
     the canonical create() method name for consistency across the project.
     
     Args:

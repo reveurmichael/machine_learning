@@ -87,7 +87,9 @@ class DatasetGenerator:
         """Open CSV file for writing."""
         csv_path = self.output_dir / f"{self.algorithm}_dataset.csv"
         fh = csv_path.open("w", newline="", encoding="utf-8")
-        writer = csv.DictWriter(fh, fieldnames=self.csv_extractor.feature_names)
+        # Use complete column list including metadata and target columns
+        from extensions.common.config.csv_formats import CSV_ALL_COLUMNS
+        writer = csv.DictWriter(fh, fieldnames=CSV_ALL_COLUMNS)
         writer.writeheader()
         self._csv_writer = (writer, fh)
         print_info(f"Opened CSV file: {csv_path}", "DatasetGenerator")

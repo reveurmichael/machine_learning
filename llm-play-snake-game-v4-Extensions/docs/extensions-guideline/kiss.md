@@ -1,12 +1,12 @@
 # Keep It Simple, Stupid (KISS) Principle
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines KISS principle standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines KISS principle standards.
 
-> **See also:** `elegance.md`, `no-over-preparation.md`, `factory-design-pattern.md`, `final-decision-10.md`.
+> **See also:** `elegance.md`, `no-over-preparation.md`, `factory-design-pattern.md`, `final-decision.md`.
 
 ## 🎯 **Core Philosophy: Simplicity Over Complexity**
 
-The KISS principle emphasizes **simple, clear, and maintainable solutions** over complex, over-engineered approaches. In the Snake Game AI project, this means choosing straightforward implementations that are easy to understand, debug, and extend, strictly following SUPREME_RULES from `final-decision-10.md`.
+The KISS principle emphasizes **simple, clear, and maintainable solutions** over complex, over-engineered approaches. In the Snake Game AI project, this means choosing straightforward implementations that are easy to understand, debug, and extend, strictly following SUPREME_RULES from `final-decision.md`.
 
 ### **Educational Value**
 - **Readability**: Simple code is easier to read and understand
@@ -46,7 +46,7 @@ class SimpleAgentFactory:
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision-10.md`.
+# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision.md`.
 def create_agent(self, agent_type: str):  # FORBIDDEN - not canonical
     pass
 def build_agent(self, agent_type: str):  # FORBIDDEN - not canonical
@@ -248,7 +248,7 @@ class ComplexPathfinder:
 
 ## 🔗 **See Also**
 
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`elegance.md`**: Elegance in code design
 - **`no-over-preparation.md`**: Avoiding over-preparation
 - **`factory-design-pattern.md`**: Factory pattern implementation

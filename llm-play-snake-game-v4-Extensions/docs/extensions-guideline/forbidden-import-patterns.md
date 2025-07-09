@@ -1,8 +1,8 @@
 # Forbidden Import Patterns for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines forbidden import patterns that violate the standalone principle.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines forbidden import patterns that violate the standalone principle.
 
-> **See also:** `standalone.md`, `extensions-move-guidelines.md`, `final-decision-10.md`.
+> **See also:** `standalone.md`, `extensions-move-guidelines.md`, `final-decision.md`.
 
 ## 🚫 **Absolutely Forbidden Import Patterns**
 

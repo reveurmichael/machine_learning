@@ -1,12 +1,12 @@
 # Documentation as First-Class Citizen
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines documentation standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines documentation standards.
 
-> **See also:** `final-decision-10.md`, `ai-friendly.md`, `conceptual-clarity.md`.
+> **See also:** `final-decision.md`, `ai-friendly.md`, `conceptual-clarity.md`.
 
 ## 🎯 **Core Philosophy: Documentation-Driven Development**
 
-Documentation is treated as a **first-class citizen** in the Snake Game AI project, with comprehensive docstrings, comments, and educational explanations that make the codebase accessible to learners and maintainable for developers, strictly following SUPREME_RULES from `final-decision-10.md`.
+Documentation is treated as a **first-class citizen** in the Snake Game AI project, with comprehensive docstrings, comments, and educational explanations that make the codebase accessible to learners and maintainable for developers, strictly following SUPREME_RULES from `final-decision.md`.
 
 ### **Educational Value**
 - **Learning**: Rich documentation enables self-directed learning
@@ -318,6 +318,6 @@ def a_star_pathfinding(self, start: tuple, goal: tuple, obstacles: list) -> list
 
 ## 🔗 **See Also**
 
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`ai-friendly.md`**: AI-friendly development guidelines
 - **`conceptual-clarity.md`**: Conceptual clarity guidelines for extensions

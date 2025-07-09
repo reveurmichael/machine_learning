@@ -33,6 +33,7 @@ from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions, extract_apple_position
 )
+from heuristics_utils import count_obstacles_in_path
 
 if TYPE_CHECKING:
     pass
@@ -80,7 +81,7 @@ class BFSSafeGreedy2048TokenAgent(BFSSafeGreedyAgent):
         is_optimal = path_length == manhattan_distance
         detour_steps = max(0, path_length - manhattan_distance)
         board_fill_ratio = snake_length / (grid_size * grid_size)
-        obstacles_avoided = self._count_obstacles_in_path(path, set(tuple(p) for p in body_positions))
+        obstacles_avoided = count_obstacles_in_path(path, set(tuple(p) for p in body_positions))
         next_pos = path[1] if len(path) > 1 else path[0]
         
         space_pressure = "low" if board_fill_ratio < 0.3 else "medium" if board_fill_ratio < 0.6 else "high"

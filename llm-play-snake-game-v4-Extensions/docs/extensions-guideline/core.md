@@ -1,10 +1,10 @@
 # Core Architecture Documentation
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for core architecture standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for core architecture standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`).
 
 ## ✅ **Current Core Architecture Assessment**
 
-Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring, strictly following SUPREME_RULES from `final-decision-10.md`.
+Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring, strictly following SUPREME_RULES from `final-decision.md`.
 
 ## 🎯 **Game Runner Pattern for Extensions**
 
@@ -169,7 +169,7 @@ def train_rl(
 
 ## 🏗️ **Factory Pattern: Canonical Method is create()**
 
-All extension factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from `final-decision-10.md`. Factories should be simple, dictionary-based, and avoid over-engineering.
+All extension factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from `final-decision.md`. Factories should be simple, dictionary-based, and avoid over-engineering.
 
 ### Reference Implementation
 
@@ -193,7 +193,7 @@ print_info(f"Agent name: {agent.name}")  # SUPREME_RULES compliant logging
 ```python
 class HeuristicAgentFactory:
     """
-    Factory following SUPREME_RULES from `final-decision-10.md`
+    Factory following SUPREME_RULES from `final-decision.md`
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Create heuristic agents using canonical create() method
@@ -208,7 +208,7 @@ class HeuristicAgentFactory:
     
     @classmethod
     def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create heuristic agent using canonical create() method following SUPREME_RULES from `final-decision-10.md`"""
+        """Create heuristic agent using canonical create() method following SUPREME_RULES from `final-decision.md`"""
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             available = list(cls._registry.keys())
@@ -248,7 +248,7 @@ class HeuristicAgentFactory:
 
 ## 🏗️ **Perfect Inheritance Hierarchy**
 
-The inheritance structure demonstrates ideal software architecture following SUPREME_RULES from `final-decision-10.md`:
+The inheritance structure demonstrates ideal software architecture following SUPREME_RULES from `final-decision.md`:
 
 ```
 BaseGameManager → GameManager (Task-0 adds LLM features)
@@ -268,7 +268,7 @@ class HeuristicGameManager(BaseGameManager):
     
     Design Pattern: Template Method Pattern
     Purpose: Extends base functionality with heuristic-specific features
-    Educational Value: Shows clean inheritance following SUPREME_RULES from `final-decision-10.md`
+    Educational Value: Shows clean inheritance following SUPREME_RULES from `final-decision.md`
     """
     GAME_LOGIC_CLS = HeuristicGameLogic  # Factory pattern
     
@@ -292,7 +292,7 @@ class HeuristicGameData(BaseGameData):
     
     Design Pattern: Decorator Pattern
     Purpose: Extends base data with heuristic-specific tracking
-    Educational Value: Shows how to extend base classes following SUPREME_RULES from `final-decision-10.md`
+    Educational Value: Shows how to extend base classes following SUPREME_RULES from `final-decision.md`
     """
     # Inherits: consecutive_invalid_reversals, consecutive_no_path_found
     # Does NOT inherit: consecutive_empty_steps, consecutive_something_is_wrong
@@ -311,7 +311,7 @@ class HeuristicGameLogic(BaseGameLogic):
     
     Design Pattern: Strategy Pattern  
     Purpose: Implements heuristic decision-making strategies
-    Educational Value: Shows algorithmic strategy implementation following SUPREME_RULES from `final-decision-10.md`
+    Educational Value: Shows algorithmic strategy implementation following SUPREME_RULES from `final-decision.md`
     """
     GAME_DATA_CLS = HeuristicGameData  # Factory pattern
     
@@ -338,7 +338,7 @@ class RLGameManager(BaseGameManager):
     
     Design Pattern: Observer Pattern
     Purpose: Manages RL training with episode tracking
-    Educational Value: Shows RL integration following SUPREME_RULES from `final-decision-10.md`
+    Educational Value: Shows RL integration following SUPREME_RULES from `final-decision.md`
     """
     GAME_LOGIC_CLS = RLGameLogic
     
@@ -393,13 +393,13 @@ class RLGameLogic(BaseGameLogic):
 - `GAME_LOGIC_CLS` and `GAME_DATA_CLS` enable pluggable components
 - Clean dependency injection without tight coupling
 - Easy to extend for new task types
-- All factories use canonical `create()` method per `final-decision-10.md`
+- All factories use canonical `create()` method per `final-decision.md`
 
 ### **2. Clean Separation of Concerns**
 - Base classes contain **zero** LLM-specific code
 - Perfect abstraction boundaries between different responsibilities  
 - No over-preparation or unused functionality
-- Follows `final-decision-10.md` lightweight principles
+- Follows `final-decision.md` lightweight principles
 
 ### **3. SOLID Principles Implementation**
 - **Single Responsibility**: Each class has one clear purpose
@@ -412,7 +412,7 @@ class RLGameLogic(BaseGameLogic):
 - Tasks 1-5 can inherit directly from base classes
 - No modification needed for new extension types
 - Perfect balance of functionality without over-engineering
-- Strict compliance with `final-decision-10.md` principles
+- Strict compliance with `final-decision.md` principles
 
 ## 📊 **Attribute Distribution Analysis**
 
@@ -432,7 +432,7 @@ class RLGameLogic(BaseGameLogic):
 
 ## 🎨 **File Naming Excellence**
 
-All files follow the consistent `game_*.py` pattern aligned with `final-decision-10.md` standards:
+All files follow the consistent `game_*.py` pattern aligned with `final-decision.md` standards:
 - `game_manager.py` - Session management
 - `game_data.py` - State tracking
 - `game_controller.py` - Game mechanics
@@ -442,26 +442,26 @@ All files follow the consistent `game_*.py` pattern aligned with `final-decision
 
 ## 🏆 **Conclusion: Perfect Architecture**
 
-The `core` folder demonstrates **exceptional software architecture** and requires **zero refactoring** while fully complying with `final-decision-10.md` SUPREME_RULES:
+The `core` folder demonstrates **exceptional software architecture** and requires **zero refactoring** while fully complying with `final-decision.md` SUPREME_RULES:
 
 - ✅ **Perfect Base Classes**: Generic, reusable, no pollution
 - ✅ **Factory Patterns**: Pluggable components via class attributes with canonical `create()` methods
 - ✅ **Clean Inheritance**: Each task inherits exactly what it needs
 - ✅ **Future-Ready**: Tasks 1-5 can inherit directly from base classes
 - ✅ **No Over-preparation**: Contains only code actually used by Task-0
-- ✅ **SUPREME_RULES Compliance**: Full adherence to `final-decision-10.md` standards
+- ✅ **SUPREME_RULES Compliance**: Full adherence to `final-decision.md` standards
 
-This architecture serves as a **perfect reference implementation** for how the entire codebase should be structured, demonstrating world-class software engineering principles and `final-decision-10.md` compliance in practice.
+This architecture serves as a **perfect reference implementation** for how the entire codebase should be structured, demonstrating world-class software engineering principles and `final-decision.md` compliance in practice.
 
 ## 🔗 **See Also**
 
 - **`agents.md`**: Authoritative reference for agent implementation standards
 - **`factory-design-pattern.md`**: Factory pattern implementation guide  
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 
 ---
 
-**This core architecture ensures educational value, technical consistency, and scalable development across all Snake Game AI extensions while maintaining strict `final-decision-10.md` SUPREME_RULES compliance.**
+**This core architecture ensures educational value, technical consistency, and scalable development across all Snake Game AI extensions while maintaining strict `final-decision.md` SUPREME_RULES compliance.**
 
 from utils.factory_utils import SimpleFactory
 

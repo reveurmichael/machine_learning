@@ -1,12 +1,12 @@
 # Extensions Move Guidelines
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines extension move guidelines.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines extension move guidelines.
 
-> **See also:** `final-decision-10.md`, `standalone.md`, `conceptual-clarity.md`.
+> **See also:** `final-decision.md`, `standalone.md`, `conceptual-clarity.md`.
 
 ## �� **Core Philosophy: Clean Extension Transitions**
 
-Extension moves involve transferring code between different extension versions while maintaining **clean architecture, educational value, and SUPREME_RULES compliance**. This process ensures that extensions evolve systematically without breaking existing functionality or creating inconsistencies, strictly following SUPREME_RULES from `final-decision-10.md`.
+Extension moves involve transferring code between different extension versions while maintaining **clean architecture, educational value, and SUPREME_RULES compliance**. This process ensures that extensions evolve systematically without breaking existing functionality or creating inconsistencies, strictly following SUPREME_RULES from `final-decision.md`.
 
 ### **Educational Value**
 - **Clean Transitions**: Learn how to move code between versions systematically
@@ -37,7 +37,7 @@ class ExtensionMoveFactory:
     
     @classmethod
     def create(cls, extension_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create move manager using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        """Create move manager using canonical create() method following SUPREME_RULES from final-decision.md"""
         manager_class = cls._registry.get(extension_type.upper())
         if not manager_class:
             available = list(cls._registry.keys())
@@ -317,6 +317,6 @@ def automate_extension_move(source_version: str, target_version: str):
 
 ## 🔗 **See Also**
 
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`standalone.md`**: Standalone principle and extension independence
 - **`conceptual-clarity.md`**: Conceptual clarity guidelines for extensions

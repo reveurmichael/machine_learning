@@ -1,6 +1,6 @@
 # Streamlit App Pattern for Snake Game AI Extensions
 
-> **Reference:** See `final-decision-10.md` (SUPREME_RULES), `scripts.md`, `standalone.md`.
+> **Reference:** See `final-decision.md` (SUPREME_RULES), `scripts.md`, `standalone.md`.
 
 ## 🎯 Purpose
 

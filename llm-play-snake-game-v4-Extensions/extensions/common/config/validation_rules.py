@@ -10,7 +10,7 @@ Design Philosophy:
 - Extensible validation patterns
 - Performance-conscious validation
 
-Reference: docs/extensions-guideline/final-decision-10.md
+Reference: docs/extensions-guideline/final-decision.md
 """
 
 import sys

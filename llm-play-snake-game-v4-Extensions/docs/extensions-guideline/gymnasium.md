@@ -1,12 +1,12 @@
 # Gymnasium Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Gymnasium integration standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines Gymnasium integration standards.
 
-> **See also:** `reinforcement-learning.md`, `stable-baseline.md`, SUPREME_RULES from `final-decision-10.md`, `standalone.md`.
+> **See also:** `reinforcement-learning.md`, `stable-baseline.md`, SUPREME_RULES from `final-decision.md`, `standalone.md`.
 
 ## 🎯 **Core Philosophy: Standard RL Environment**
 
-Gymnasium integration provides **standard reinforcement learning environment** for Snake Game AI, enabling compatibility with popular RL libraries and algorithms. This integration follows the Gymnasium API standards while maintaining SUPREME_RULES from `final-decision-10.md` compliance.
+Gymnasium integration provides **standard reinforcement learning environment** for Snake Game AI, enabling compatibility with popular RL libraries and algorithms. This integration follows the Gymnasium API standards while maintaining SUPREME_RULES from `final-decision.md` compliance.
 
 ### **Educational Value**
 - **RL Standards**: Understanding Gymnasium API and RL environment design
@@ -23,7 +23,7 @@ import gymnasium as gym
 
 class SnakeGymnasiumFactory:
     """
-    Factory Pattern for Gymnasium environments following SUPREME_RULES from final-decision-10.md
+    Factory Pattern for Gymnasium environments following SUPREME_RULES from final-decision.md
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Demonstrates canonical create() method for RL environments
@@ -39,7 +39,7 @@ class SnakeGymnasiumFactory:
     
     @classmethod
     def create(cls, env_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create Gymnasium environment using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        """Create Gymnasium environment using canonical create() method following SUPREME_RULES from final-decision.md"""
         env_class = cls._registry.get(env_type.upper())
         if not env_class:
             available = list(cls._registry.keys())
@@ -93,7 +93,7 @@ class SnakeEnvV0(gym.Env):
 
 ## 📊 **Simple Logging for Gymnasium Operations**
 
-All Gymnasium operations must use simple print statements as mandated by SUPREME_RULES from `final-decision-10.md`:
+All Gymnasium operations must use simple print statements as mandated by SUPREME_RULES from `final-decision.md`:
 
 ```python
 # ✅ CORRECT: Simple logging for Gymnasium (SUPREME_RULES compliance)
@@ -201,13 +201,13 @@ class SnakeContinuousEnv(SnakeEnvV0):
 
 ---
 
-**Gymnasium integration provides standard RL environment for Snake Game AI while maintaining strict SUPREME_RULES from `final-decision-10.md` compliance and educational value.**
+**Gymnasium integration provides standard RL environment for Snake Game AI while maintaining strict SUPREME_RULES from `final-decision.md` compliance and educational value.**
 
 ## 🔗 **See Also**
 
 - **`reinforcement-learning.md`**: RL algorithm standards
 - **`stable-baseline.md`**: Stable Baselines integration
-- **SUPREME_RULES from `final-decision-10.md`**: Governance system and canonical standards
+- **SUPREME_RULES from `final-decision.md`**: Governance system and canonical standards
 - **`standalone.md`**: Standalone principle implementation
 
 

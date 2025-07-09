@@ -13,7 +13,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use ROOT/utils/print_utils.py functions (e.g. print_info, print_warning, print_error, print_success, print_important) only when absolutely necessary, rather than complex *.log file logging mechanisms. The entire project — including Task-0 and all extensions — must **never** produce `.log` files (though they generally produce `.json` files, like game_N.json, summary.json, etc.).
 
 4. **SUPREME_RULE NO.4**: All markdown files must be **coherent and aligned**:
-   * **STEP A:** Begin with `final-decision-10.md` as the foundational reference. Update all other markdown files to fully align with its core ideas and guiding principles.
+   * **STEP A:** Begin with `final-decision.md` as the foundational reference. Update all other markdown files to fully align with its core ideas and guiding principles.
    * **STEP B:** Approach this as a **chain reaction of ideas**, inspired by nuclear fission and fusion: each conceptual "atom" (a markdown file or Python module) emits "particles" (insights, corrections, stylistic adjustments) that collide with other atoms — not necessarily within the same topic domain — propagating change throughout the system. Each collision refines and harmonizes both local and global structures.
    * **STEP C:** Treat this as an **exhaustive, step-by-step, iterative process** — update, revisit, propagate, and repeat — until the entire documentation and codebase achieve deep, unwavering internal consistency, clarity, and architectural integrity.
    * **STEP D:** Actively reduce redundancy. Consolidate overlapping content and relocate shared explanations into their designated files.
@@ -40,6 +40,7 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 
 **TEMPORARY_SUPREME_RULES:**
 
+* there is no more final-decision-N.md files. We now only have final-decision.md, which is the current file.
 * extensions.common.utils.path_utils.py is still used for extensions. It is there and should be used. Although, for task0, it has its own "utils/path_utils.py"
 * `factory_utils.py` is now located in `ROOT/utils` folder instead of `extensions/common/utils`.
 * extensions produced datasets are stored in `./logs/extensions/datasets/grid-size-{N}/{extension}_v{version}_{timestamp}/{algorithm}/`, both game_N.json and summary.json are stored in this same folder, as well as the csv and jsonl files.

@@ -1,10 +1,10 @@
 # Fine-Tuning LLMs for Snake Game AI
 
-> **Reference:** See `final-decision-10.md` (SUPREME_RULES), `heuristics-as-foundation.md`, `llm-distillation.md`, `data-format-decision-guide.md`.
+> **Reference:** See `final-decision.md` (SUPREME_RULES), `heuristics-as-foundation.md`, `llm-distillation.md`, `data-format-decision-guide.md`.
 
 ## 🎯 Purpose
 
-Fine-tuning LLMs for Snake Game AI uses high-quality heuristic datasets to teach reasoning and structured problem-solving, following SUPREME_RULES from `final-decision-10.md`.
+Fine-tuning LLMs for Snake Game AI uses high-quality heuristic datasets to teach reasoning and structured problem-solving, following SUPREME_RULES from `final-decision.md`.
 
 ## 🏗️ Canonical Fine-Tuning Pattern
 

@@ -1,6 +1,6 @@
 """extensions.common – Shared building blocks for *all* extensions.
 
-This package follows final-decision-10.md Guideline 3: lightweight, OOP-based common utilities 
+This package follows final-decision.md Guideline 3: lightweight, OOP-based common utilities 
 with simple logging (print() statements) rather than complex *.log file mechanisms.
 
 The public API is intentionally tiny:
@@ -14,10 +14,10 @@ package.  Do **not** add heavy machinery here.
 Design Philosophy:
 - Simple, object-oriented utilities that can be inherited and extended
 - No tight coupling with ML/DL/RL/LLM-specific concepts
-- Simple logging with print() statements (final-decision-10.md Guideline 3)
+- Simple logging with print() statements (final-decision.md Guideline 3)
 - Enables easy addition of new extensions without friction
 
-Reference: docs/extensions-guideline/final-decision-10.md
+Reference: docs/extensions-guideline/final-decision.md
 """
 
 from importlib import import_module

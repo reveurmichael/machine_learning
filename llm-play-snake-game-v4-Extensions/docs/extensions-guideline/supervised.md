@@ -1,12 +1,12 @@
 # Supervised Learning Standards for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines supervised learning standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines supervised learning standards.
 
-> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
+> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision.md`, `factory-design-pattern.md`.
 
 ## 🎯 **Core Philosophy: Data-Driven Decision Making**
 
-Supervised learning in the Snake Game AI project enables **data-driven decision making** through machine learning models trained on labeled game data. These models learn patterns from successful gameplay and apply them to new situations, strictly following `final-decision-10.md` SUPREME_RULES.
+Supervised learning in the Snake Game AI project enables **data-driven decision making** through machine learning models trained on labeled game data. These models learn patterns from successful gameplay and apply them to new situations, strictly following `final-decision.md` SUPREME_RULES.
 
 ### **Educational Value**
 - **Machine Learning**: Understanding supervised learning principles
@@ -559,5 +559,5 @@ class SupervisedTrainingPipeline:
 - **`agents.md`**: Agent implementation standards
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`config.md`**: Configuration management
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`factory-design-pattern.md`**: Factory pattern implementation

@@ -1,8 +1,6 @@
 # Data Format Decision Guide for Snake Game AI
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for data format decisions and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
-
-> **See also:** `csv-schema-1.md`, `csv-schema-2.md`, `final-decision-10.md`, `heuristics-as-foundation.md`, `evolutionary.md`.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for data format decisions and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`).
 
 # Data Format Decision Guide
 
@@ -12,11 +10,11 @@
 
 ## 🎯 **Core Philosophy: Format Follows Function**
 
-Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types, strictly following SUPREME_RULES from `final-decision-10.md`.
+Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types, strictly following SUPREME_RULES from `final-decision.md`.
 
 ### **Guidelines Alignment**
-- **SUPREME_RULES from `final-decision-10.md` Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
-- **SUPREME_RULES from `final-decision-10.md` Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
+- **SUPREME_RULES from `final-decision.md` Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
+- **SUPREME_RULES from `final-decision.md` Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
 - **SUPREME_RULES compliant logging**: Enables lightweight common utilities with OOP extensibility while maintaining data format patterns through inheritance rather than tight coupling
 
 ## 📊 **Format Selection Matrix**
@@ -135,22 +133,6 @@ evolutionary_data = {
 - **Population Data**: NPZ Raw Arrays (specialized evolutionary format)
 - **Fitness Data**: NPZ Raw Arrays (multi-objective fitness vectors)
 - **Genetic History**: NPZ Raw Arrays (generation history and operator tracking)
-
-## 📁 **Standardized Storage Structure**
-
-All formats follow the path structure from final-decision-1.md:
-```
-logs/extensions/datasets/grid-size-N/{extension}_v{version}_{timestamp}/
-├── {algorithm}/
-│   ├── processed_data/
-│   │   ├── tabular_data.csv        # CSV format (ACTIVE, NOT legacy)
-│   │   ├── reasoning_data.jsonl    # JSONL format (heuristics-v0.04 only)
-│   │   ├── sequential_data.npz     # NPZ Sequential
-│   │   ├── spatial_data.npz        # NPZ 2D Arrays
-│   │   ├── raw_data.npz            # NPZ Raw Arrays (general)
-│   │   └── evolutionary_data.npz   # NPZ Raw Arrays (evolutionary specific)
-│   └── game_logs/                  # Original game data
-```
 
 ## 🔄 **Format Selection Decision Tree**
 
@@ -296,5 +278,5 @@ def create_evolutionary_dataset(population, fitness_scores, generation_history):
 - **`csv-schema-1.md`**: Core CSV schema documentation
 - **`csv-schema-2.md`**: CSV schema utilities and implementation
 - **`evolutionary.md`**: Evolutionary algorithm data representation
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`heuristics-as-foundation.md`**: Heuristics as data foundation

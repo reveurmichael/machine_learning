@@ -1,8 +1,8 @@
 # Project Structure Plan for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for project structure and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for project structure and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`).
 
-> **See also:** `core.md`, `standalone.md`, `final-decision-10.md`, `config.md`.
+> **See also:** `core.md`, `standalone.md`, `final-decision.md`, `config.md`.
 
 ## 🏗️ **High-Level Architecture Overview**
 
@@ -11,7 +11,7 @@ ROOT/                                    # Task-0 (LLM-based Snake AI)
 ├── core/                               # Base classes for all tasks
 ├── config/                             # Universal constants
 ├── extensions/                         # Task 1-5 implementations
-│   ├── common/                         # Shared utilities (SUPREME_RULES compliant per final-decision-10.md)
+│   ├── common/                         # Shared utilities (SUPREME_RULES compliant per final-decision.md)
 │   ├── {algorithm}-v{version}/         # Flexible extension naming
 │   └── [any new extension type]/       # Unlimited extensibility
 ├── gui/                                # GUI components
@@ -21,7 +21,7 @@ ROOT/                                    # Task-0 (LLM-based Snake AI)
 └── docs/                               # Documentation
 ```
 
-**Architectural Note**: Extensions can be any algorithm type - heuristics, ML, RL, evolutionary, custom approaches, experimental ideas, or novel research directions, all following SUPREME_RULES from `final-decision-10.md`.
+**Architectural Note**: Extensions can be any algorithm type - heuristics, ML, RL, evolutionary, custom approaches, experimental ideas, or novel research directions, all following SUPREME_RULES from `final-decision.md`.
 
 ## 📁 **Extension Structure Template (Flexible)**
 
@@ -45,7 +45,7 @@ extensions/{extension_type}-v{version}/
 - `{extension_type}`: Any descriptive name (heuristics, supervised, custom, experimental)
 - `{algorithm}`: Any algorithm following `agent_{name}.py` pattern
 - No restrictions on algorithm types or approaches
-- All factories must use canonical `create()` method per SUPREME_RULES from `final-decision-10.md`
+- All factories must use canonical `create()` method per SUPREME_RULES from `final-decision.md`
 - `game_runner.py`: Extension-specific quick-play utilities (see Game Runner Pattern below)
 
 ## 🎯 **Core Design Principles**
@@ -75,13 +75,13 @@ BaseAgent → YourCustomAgent
 
 ### **3. Shared Utilities (SUPREME_RULES Compliant)**
 ```python
-# extensions/common/ - Following SUPREME_RULES from `final-decision-10.md`
+# extensions/common/ - Following SUPREME_RULES from `final-decision.md`
 
 from utils.factory_utils import SimpleFactory
 from extensions.common.utils.path_utils import get_dataset_path
 from extensions.common.utils.dataset_utils import load_dataset_for_training
 
-# SUPREME_RULES Compliance (`final-decision-10.md`):
+# SUPREME_RULES Compliance (`final-decision.md`):
 # - Lightweight, reusable foundation for all extensions
 # - Simple, preferably OOP but never over-engineered
 # - Supports experimentation and flexibility
@@ -107,7 +107,7 @@ class QuantumDatasetLoader(BaseDatasetLoader):
 
 ### **Extension Creation (SUPREME_RULES Compliant)**
 ```python
-# ✅ ENCOURAGED: Any algorithm approach following final-decision-10.md
+# ✅ ENCOURAGED: Any algorithm approach following final-decision.md
 class NovelAlgorithmAgent(BaseAgent):
     """
     Implement any algorithm you can imagine:
@@ -119,7 +119,7 @@ class NovelAlgorithmAgent(BaseAgent):
     - Hybrid methods
     - Your own novel ideas
     
-    All implementations must follow SUPREME_RULES from `final-decision-10.md`.
+    All implementations must follow SUPREME_RULES from `final-decision.md`.
     """
     
     def __init__(self, name: str, config: dict = None):
@@ -136,7 +136,7 @@ class NovelAlgorithmAgent(BaseAgent):
 ```python
 class CustomAgentFactory:
     """
-    Factory following SUPREME_RULES from `final-decision-10.md`
+    Factory following SUPREME_RULES from `final-decision.md`
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Create agents using the canonical create() method
@@ -151,7 +151,7 @@ class CustomAgentFactory:
     
     @classmethod
     def create(cls, agent_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create agent using canonical create() method following SUPREME_RULES from `final-decision-10.md`"""
+        """Create agent using canonical create() method following SUPREME_RULES from `final-decision.md`"""
         agent_class = cls._registry.get(agent_type.upper())
         if not agent_class:
             available = list(cls._registry.keys())
@@ -195,7 +195,7 @@ v0.04: Advanced Features (Optional)
 ├── Language-rich datasets (if applicable)
 ```
 
-**Version Note**: Version progression is flexible - extensions can skip versions if not needed, add custom versions (v0.05, v0.06, etc.), implement features in any order, or focus on their specific research goals, all while maintaining `final-decision-10.md` compliance.
+**Version Note**: Version progression is flexible - extensions can skip versions if not needed, add custom versions (v0.05, v0.06, etc.), implement features in any order, or focus on their specific research goals, all while maintaining `final-decision.md` compliance.
 
 ## 🎓 **Educational Benefits**
 
@@ -275,4 +275,4 @@ def train_rl(agent: BaseRLAgent, episodes: int = 1000) -> dict:
 
 ---
 
-**This project structure plan ensures maximum flexibility and educational value while maintaining clean architecture and strict compliance with `final-decision-10.md` SUPREME_RULES. It encourages innovation, experimentation, and creative problem-solving in the Snake Game AI domain.**
+**This project structure plan ensures maximum flexibility and educational value while maintaining clean architecture and strict compliance with `final-decision.md` SUPREME_RULES. It encourages innovation, experimentation, and creative problem-solving in the Snake Game AI domain.**

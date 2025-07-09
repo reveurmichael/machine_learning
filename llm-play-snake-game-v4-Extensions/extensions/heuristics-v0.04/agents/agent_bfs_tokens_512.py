@@ -27,6 +27,7 @@ from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions
 )
+from heuristics_utils import count_obstacles_in_path
 
 
 class BFS512TokenAgent(BFSAgent):
@@ -87,7 +88,7 @@ class BFS512TokenAgent(BFSAgent):
             "metrics": {
                 "manhattan_distance": int(manhattan_distance),
                 "path_length": int(path_length),
-                "obstacles_near_path": self._count_obstacles_in_path(path, set(tuple(p) for p in body_positions)),
+                "obstacles_near_path": count_obstacles_in_path(path, set(tuple(p) for p in body_positions)),
                 "remaining_free_cells": int(remaining_free_cells),
                 "valid_moves": valid_moves,
                 "final_chosen_direction": direction,

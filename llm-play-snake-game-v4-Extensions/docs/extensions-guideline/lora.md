@@ -1,12 +1,12 @@
 # LoRA (Low-Rank Adaptation) for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines LoRA standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines LoRA standards.
 
-> **See also:** `fine-tuning.md`, `llm-distillation.md`, SUPREME_RULES from `final-decision-10.md`, `data-format-decision-guide.md`.
+> **See also:** `fine-tuning.md`, `llm-distillation.md`, SUPREME_RULES from `final-decision.md`, `data-format-decision-guide.md`.
 
 ## 🎯 **Core Philosophy: Efficient Fine-tuning**
 
-LoRA (Low-Rank Adaptation) enables **efficient fine-tuning** of large language models for Snake Game AI by updating only a small number of parameters. This approach follows SUPREME_RULES from `final-decision-10.md` and uses canonical `create()` methods throughout.
+LoRA (Low-Rank Adaptation) enables **efficient fine-tuning** of large language models for Snake Game AI by updating only a small number of parameters. This approach follows SUPREME_RULES from `final-decision.md` and uses canonical `create()` methods throughout.
 
 ### **Educational Value**
 - **Parameter Efficiency**: Understanding how to efficiently adapt large models
@@ -22,7 +22,7 @@ from utils.factory_utils import SimpleFactory
 
 class LoRAFactory:
     """
-    Factory Pattern for LoRA adaptation following SUPREME_RULES from final-decision-10.md
+    Factory Pattern for LoRA adaptation following SUPREME_RULES from final-decision.md
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Demonstrates canonical create() method for efficient fine-tuning systems
@@ -38,7 +38,7 @@ class LoRAFactory:
     
     @classmethod
     def create(cls, lora_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create LoRA system using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        """Create LoRA system using canonical create() method following SUPREME_RULES from final-decision.md"""
         lora_class = cls._registry.get(lora_type.upper())
         if not lora_class:
             available = list(cls._registry.keys())
@@ -104,7 +104,7 @@ class StandardLoRA:
 
 ## 📊 **Simple Logging for LoRA Operations**
 
-All LoRA operations must use simple print statements as mandated by SUPREME_RULES from `final-decision-10.md`:
+All LoRA operations must use simple print statements as mandated by SUPREME_RULES from `final-decision.md`:
 
 ```python
 # ✅ CORRECT: Simple logging for LoRA (SUPREME_RULES compliance)
@@ -249,11 +249,11 @@ class HierarchicalLoRA:
 
 ---
 
-**LoRA enables efficient fine-tuning of large language models for Snake Game AI while maintaining strict SUPREME_RULES from `final-decision-10.md` compliance and educational value.**
+**LoRA enables efficient fine-tuning of large language models for Snake Game AI while maintaining strict SUPREME_RULES from `final-decision.md` compliance and educational value.**
 
 ## 🔗 **See Also**
 
 - **`fine-tuning.md`**: Fine-tuning standards
 - **`llm-distillation.md`**: LLM distillation standards
-- **SUPREME_RULES from `final-decision-10.md`**: Governance system and canonical standards
+- **SUPREME_RULES from `final-decision.md`**: Governance system and canonical standards
 - **`data-format-decision-guide.md`**: Data format standards

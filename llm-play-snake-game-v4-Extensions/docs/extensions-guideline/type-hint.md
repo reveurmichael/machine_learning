@@ -1,6 +1,6 @@
 # Type Hinting Standards for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and establishes comprehensive type hinting standards across all extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and establishes comprehensive type hinting standards across all extensions.
 
 ## 🎯 **Core Philosophy: Type Safety for AI Development**
 

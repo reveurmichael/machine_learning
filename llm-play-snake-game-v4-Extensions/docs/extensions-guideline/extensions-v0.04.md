@@ -1,8 +1,8 @@
 # Extensions v0.04: Language Generation Phase for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines extensions v0.04 patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines extensions v0.04 patterns.
 
-> **See also:** `extensions-v0.03.md`, `final-decision-10.md`, `heuristics-as-foundation.md`.
+> **See also:** `extensions-v0.03.md`, `final-decision.md`, `heuristics-as-foundation.md`.
 
 # Extensions v0.04: The Language Generation Phase (Heuristics Only)
 

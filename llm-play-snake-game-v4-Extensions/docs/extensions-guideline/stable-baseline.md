@@ -1,26 +1,26 @@
 # Stable Baselines3 Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Stable Baselines3 integration patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines Stable Baselines3 integration patterns.
 
 # Stable Baselines3 Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Stable Baselines3 integration patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines Stable Baselines3 integration patterns.
 
 > **Guidelines Alignment:**
-> - This document is governed by the guidelines in `final-decision-10.md`.
+> - This document is governed by the guidelines in `final-decision.md`.
 > - All agent factories must use the canonical method name `create()` (never `create_agent`, `create_model`, etc.).
 > - All code must use simple print logging (simple logging).
 > - Reference: `extensions/common/utils/factory_utils.py` for the canonical `SimpleFactory` implementation.
 
-> **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`.
+> **See also:** `agents.md`, `core.md`, `final-decision.md`, `factory-design-pattern.md`, `config.md`.
 
 ## 🎯 **Core Philosophy: Production-Ready RL Framework Integration**
 
 Stable Baselines3 (SB3) provides state-of-the-art reinforcement learning algorithms with a standardized interface. In the Snake Game AI ecosystem, SB3 enables rapid prototyping and deployment of proven RL algorithms while maintaining compatibility with the native architecture.
 
 ### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Follows all established GOOD_RULES patterns
-- **final-decision-10.md Guideline 2**: References `final-decision-N.md` format consistently  
+- **final-decision.md Guideline 1**: Follows all established GOOD_RULES patterns
+- **final-decision.md Guideline 2**: References `final-decision-N.md` format consistently  
 - **simple logging**: Uses lightweight, OOP-based common utilities with simple logging using only the print functions from `ROOT/utils/print_utils.py` (such as `print_info`, `print_warning`, `print_success`, `print_error`, `print_important`). Never use raw print().
 
 ### **Design Philosophy**
@@ -280,7 +280,7 @@ class SnakeGameEnvironment(gym.Env):
 
 - **`agents.md`**: Authoritative reference for agent implementation standards
 - **`core.md`**: Base class architecture for all agents
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision.md`**: final-decision.md governance system
 
 ---
 

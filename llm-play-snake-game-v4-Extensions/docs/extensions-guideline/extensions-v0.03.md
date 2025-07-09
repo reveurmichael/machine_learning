@@ -1,4 +1,4 @@
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the v0.03 extension standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines the v0.03 extension standards.
 
 > **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Script Launcher Interface + Data Generation (SUPREME_RULES NO.5)**
 
-v0.03 represents the transition from command-line tools to **Streamlit script launcher interfaces** while adding **dataset generation capabilities** for other extensions. This version demonstrates how to build upon stable algorithmic foundations (v0.02) with modern script launching technologies, following SUPREME_RULES NO.5 from `final-decision-10.md`. The Streamlit app.py serves the sole purpose of launching scripts with adjustable parameters, and GUI components are optional per SUPREME_RULES NO.5.
+v0.03 represents the transition from command-line tools to **Streamlit script launcher interfaces** while adding **dataset generation capabilities** for other extensions. This version demonstrates how to build upon stable algorithmic foundations (v0.02) with modern script launching technologies, following SUPREME_RULES NO.5 from `final-decision.md`. The Streamlit app.py serves the sole purpose of launching scripts with adjustable parameters, and GUI components are optional per SUPREME_RULES NO.5.
 
 ## 🏗️ **Architectural Transformation: UI, Scripts, and Stability**
 
@@ -67,7 +67,7 @@ New agents can be added in v0.03 **only** if they:
 
 ## 🔧 **The "UI as a Script-Runner" Pattern (SUPREME_RULES NO.5)**
 
-The single most important concept in `v0.03` is that the **Streamlit application's main purpose is to be a user-friendly frontend for the scripts in the `scripts/` folder.** This is mandated by SUPREME_RULES NO.5 from `final-decision-10.md`.
+The single most important concept in `v0.03` is that the **Streamlit application's main purpose is to be a user-friendly frontend for the scripts in the `scripts/` folder.** This is mandated by SUPREME_RULES NO.5 from `final-decision.md`.
 
 The UI should not re-implement any core logic. Instead, it should:
 1.  Use interactive widgets (sliders, buttons) to gather parameters from the user.
@@ -390,4 +390,4 @@ logs/extensions/datasets/
 
 **Remember**: v0.03 is about **user experience** and **data production**. Create polished interfaces that make algorithms/models accessible and generate high-quality datasets for the ML ecosystem. However, for heuristics specifically, prefer v0.04 as it provides everything v0.03 does and more.
 
-> **See also:** `core.md`, `standalone.md`, SUPREME_RULES from `final-decision-10.md`, `dashboard.md`, `factory-design-pattern.md`.
+> **See also:** `core.md`, `standalone.md`, SUPREME_RULES from `final-decision.md`, `dashboard.md`, `factory-design-pattern.md`.

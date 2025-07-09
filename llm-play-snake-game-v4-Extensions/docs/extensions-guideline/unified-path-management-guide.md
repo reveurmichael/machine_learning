@@ -1,8 +1,8 @@
 # Unified Path Management Guide for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines unified path management patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines unified path management patterns.
 
-> **See also:** `final-decision-10.md`, `core.md`, `project-structure-plan.md`.
+> **See also:** `final-decision.md`, `core.md`, `project-structure-plan.md`.
 
 ## �� **Core Philosophy: Single Source of Truth**
 
@@ -139,7 +139,7 @@ def main():
 ## 📊 **Simple Logging Standards for Path Operations**
 
 ### **Required Logging Pattern (SUPREME_RULES)**
-All path operations use simple print statements as established in `final-decision-10.md`:
+All path operations use simple print statements as established in `final-decision.md`:
 
 ```python
 # ✅ CORRECT: Simple logging for path operations (SUPREME_RULES compliance)
@@ -176,8 +176,8 @@ def ensure_project_root() -> Path:
 
 ### **Mandatory Requirements**
 - [ ] **Single Source of Truth**: Uses ONLY `utils.path_utils.ensure_project_root()` (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all path operations (final-decision-10.md compliance)
-- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all path management documentation
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all path operations (final-decision.md compliance)
+- [ ] **GOOD_RULES Reference**: References `final-decision.md` in all path management documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all path implementations
 
 ### **Path-Specific Standards**
@@ -189,13 +189,13 @@ def ensure_project_root() -> Path:
 ### **Educational Integration**
 - [ ] **Clear Examples**: Simple examples using canonical patterns
 - [ ] **Pattern Documentation**: Clear explanation of path management benefits
-- [ ] **SUPREME_RULES Compliance**: All examples follow final-decision-10.md standards
+- [ ] **SUPREME_RULES Compliance**: All examples follow final-decision.md standards
 - [ ] **Cross-Reference**: Links to related patterns and principles
 
 ## 🔗 **Cross-References and Integration**
 
 ### **Related Documents**
-- **`final-decision-10.md`**: SUPREME_RULES for canonical path patterns
+- **`final-decision.md`**: SUPREME_RULES for canonical path patterns
 - **`core.md`**: Core architecture and path integration
 - **`project-structure-plan.md`**: Project structure standards
 

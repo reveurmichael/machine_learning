@@ -1,12 +1,12 @@
 # Elegance in Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines elegance standards for extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines elegance standards for extensions.
 
-> **See also:** `kiss.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`.
+> **See also:** `kiss.md`, `core.md`, `final-decision.md`, `factory-design-pattern.md`.
 
 ## 🎯 **Core Philosophy: Elegant Simplicity**
 
-Elegance in the Snake Game AI project is achieved through **simple, clear, and maintainable code** that follows established patterns and principles. Elegant code is not just functional—it's beautiful, readable, and educational, strictly following `final-decision-10.md` SUPREME_RULES.
+Elegance in the Snake Game AI project is achieved through **simple, clear, and maintainable code** that follows established patterns and principles. Elegant code is not just functional—it's beautiful, readable, and educational, strictly following `final-decision.md` SUPREME_RULES.
 
 ### **Educational Value**
 - **Code Quality**: Learn to write elegant, maintainable code
@@ -46,7 +46,7 @@ class ElegantAgentFactory:
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision-10.md`.
+# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision.md`.
 class InelegantAgentFactory:
     def create_agent(self, agent_type: str, **kwargs):  # FORBIDDEN - not canonical
         pass
@@ -232,5 +232,5 @@ class ElegantErrorHandler:
 
 - **`kiss.md`**: Keep It Simple, Stupid principle
 - **`core.md`**: Base class architecture and inheritance patterns
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`factory-design-pattern.md`**: Factory pattern implementation

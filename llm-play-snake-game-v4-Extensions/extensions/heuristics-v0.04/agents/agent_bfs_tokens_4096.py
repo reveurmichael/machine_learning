@@ -24,7 +24,6 @@ ensure_project_root()
 # Import extension-specific components using relative imports
 from .agent_bfs import BFSAgent
 
-
 class BFS4096TokenAgent(BFSAgent):
     """
     BFS Agent with full 4096-token explanations (identical to original BFS).

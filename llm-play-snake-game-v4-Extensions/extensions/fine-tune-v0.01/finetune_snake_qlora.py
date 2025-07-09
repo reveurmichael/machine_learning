@@ -201,6 +201,18 @@ def load_model_and_tokenizer(model_key: str, use_4bit: bool = True):
         )
         print("Safely transferring model to GPU using .to_empty()...")
         model = model.to_empty(device=torch.device("cuda"))
+    
+    # 🧹 WSL2 GPU memory management: Clear cache and reduce fragmentation
+    print("🧹 Clearing GPU cache and optimizing memory for WSL2...")
+    torch.cuda.empty_cache()
+    torch.cuda.synchronize()  # Ensure all operations complete
+    
+    # Report memory usage
+    if torch.cuda.is_available():
+        allocated = torch.cuda.memory_allocated() / 1024**3
+        reserved = torch.cuda.memory_reserved() / 1024**3
+        print(f"📊 GPU Memory after model load: {allocated:.2f}GB allocated, {reserved:.2f}GB reserved")
+    
     return model, tokenizer
 
 def patched_prepare_model_for_kbit_training(model, *args, **kwargs):

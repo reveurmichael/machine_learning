@@ -1,6 +1,6 @@
 # Gymnasium Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines Gymnasium integration standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines Gymnasium integration standards.
 
 > **See also:** `reinforcement-learning.md`, `stable-baseline.md`, SUPREME_RULES from `final-decision.md`, `standalone.md`.
 

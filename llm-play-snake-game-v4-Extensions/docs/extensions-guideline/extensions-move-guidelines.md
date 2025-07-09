@@ -1,6 +1,6 @@
 # Extensions Move Guidelines
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines extension move guidelines.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines extension move guidelines.
 
 > **See also:** `final-decision.md`, `standalone.md`, `conceptual-clarity.md`.
 

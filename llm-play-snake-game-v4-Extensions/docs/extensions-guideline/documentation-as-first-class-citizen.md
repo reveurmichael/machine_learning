@@ -1,6 +1,6 @@
 # Documentation as First-Class Citizen
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines documentation standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines documentation standards.
 
 > **See also:** `final-decision.md`, `ai-friendly.md`, `conceptual-clarity.md`.
 

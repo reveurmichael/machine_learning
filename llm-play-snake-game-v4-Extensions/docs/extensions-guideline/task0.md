@@ -1,6 +1,6 @@
 # Task-0: LLM-Powered Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines Task-0's foundational role in the Snake Game AI ecosystem.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines Task-0's foundational role in the Snake Game AI ecosystem.
 
 ## 🎯 **Core Philosophy: Foundation for All Extensions**
 

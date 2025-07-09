@@ -1,7 +1,5 @@
 # System Prompt Guidelines
 
-> **Important — Authoritative Reference:** This document establishes core principles for the Snake Game AI project. All other guideline documents must align with these foundational principles.
-
 ##  KISS, use as few fallbacks as possible. Remove existing non-necessary fallbacks. fail fast. keep code clean lean. whenever possible, modify existing functions instead of adding a bunch of code. remove unnecessary code whenevener you see it. Do a lot of fail fast for checking SSOT. However, if the heuristic cannot find a path, it's not a fail. Unless absolutely necessary, don't use fallbacks. Use a lot lot lot of fail fast for checking SSOT.
 
 
@@ -48,9 +46,6 @@ These provide concrete examples of Task-0 output schema and behavior.
 - **Base Classes**: Use `Base` prefix for classes extended by multiple tasks (e.g., `BaseFileManager`, `BaseGameData`, `BaseGameLogic`)
 - **Extension Classes**: Use descriptive prefixes (e.g., `HeuristicGameManager`, `RLGameManager`)
 
-### **Singleton Pattern**
-`BaseFileManager` and `FileManager` should use the Singleton pattern. Consider other classes for singleton implementation as appropriate.
-
 ## 🧠 **Design Patterns**
 
 This project emphasizes design patterns for educational value and maintainability:
@@ -71,15 +66,6 @@ Classes in the `extensions/` folder should primarily inherit from base classes i
 ### **Core and Replay Folder Protection**
 **VITAL**: Do not remove any classes in `./core/` or `./replay/` folders. You can add functions or classes, but never remove existing classes. These are already being used by extensions.
 
-### **Extension Evolution Stability**
-**VITAL**: Maintain exact consistency across extension versions:
-
-- Keep the `agents/` folder identical between `./extensions/heuristics-v0.02` and `./extensions/heuristics-v0.03`
-- Keep the `agents/` folder identical between `./extensions/supervised-v0.02` and `./extensions/supervised-v0.03`
-- Keep the `agents/` folder identical between `./extensions/reinforcement-v0.02` and `./extensions/reinforcement-v0.03`
-- Keep the `agents/` folder identical between `./extensions/evolutionary-v0.02` and `./extensions/evolutionary-v0.03`
-
-Each extension version plus the common folder forms a standalone unit.
 
 ## 📁 **Common Folder Philosophy**
 
@@ -134,22 +120,11 @@ v0.04 is exclusive to heuristics extensions. Other extensions only support v0.01
 
 For heuristics v0.04:
 - Generate JSONL files in addition to CSV files (from v0.03)
-- Preserve all v0.03 functionality
-- Use OOP or adapters for extensions
-- Implement validation pipeline to ensure JSONL generation works for all heuristic agents
 
 ## 🔧 **Implementation Guidelines**
 
 ### **No Backward Compatibility**
 Refactor with a future-proof mindset for fresh, newly shipped, self-consistent, and self-contained systems. No backward compatibility maintenance.
-
-### **Extension Data Generation**
-Extensions `{algorithm}-v0.0N` should generate:
-- JSON files (standard)
-- PTH or NPZ files (for RL/supervised learning)
-- Parquet files (as appropriate)
-
-For transforming JSON files to CSV, use shared tools in the "common" folder. For JSONL generation, place in heuristics-v0.04 folder or common folder based on clarity requirements.
 
 
 ## 🚫 **Breaking Changes in Extensions**
@@ -167,14 +142,6 @@ Grid size should not be fixed to 10. Generated datasets (JSON, CSV, JSONL files/
 ./logs/extensions/datasets/grid-size-N/{algorithm}_v0.0N_{timestamp}/
 ```
 
-### **Extension Coverage**
-Ensure this structure works for:
-- **Heuristics**: v0.01, v0.02, v0.03, v0.04
-- **Supervised Learning**: v0.01, v0.02, v0.03
-- **Reinforcement Learning**: v0.01, v0.02, v0.03
-- **LLM Fine-tuning**: v0.01, v0.02, v0.03
-- **LLM Distillation**: v0.01, v0.02, v0.03
-
 ### **Model Storage**
 Models trained by ML/DL/RL are stored in:
 ```
@@ -188,13 +155,9 @@ Streamlit `app.py` is **NOT** for:
 - Real-time progress display
 - Snake move visualization
 
-Its **sole purpose** is to launch scripts in the "scripts" folder with adjustable parameters using subprocess, as mandated by SUPREME_RULE NO.5 from `final-decision.md`. This is why extensions v0.03 have a "dashboard" folder.
+Its **sole purpose** is to launch scripts in the "scripts" folder with adjustable parameters (potentially using subprocess).
 
 **GUI Philosophy**: By default, there is no requirement for GUI/PyGame/Flask/Web mode for any extension. This is intentional: extension modes can vary widely in design and purpose, and enforcing a unified GUI requirement for all would be impractical and unnecessary. And rarely will it be useful, with very few exceptions. That said, it is not forbidden to include a GUI/PyGame/Flask/Web mode for an extension if the developer deems it useful or essential for their specific use case.
-
-## 🔒 **Final Decision Protection**
-
-**VITAL**: Never edit files in the pattern `ROOT/docs/extensions-guideline/final-decision-N.md` as these are final decisions and single sources of truth.
 
 ## 🧠 **Deep Learning Framework**
 

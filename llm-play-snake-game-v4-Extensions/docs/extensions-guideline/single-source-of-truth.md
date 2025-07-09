@@ -1,6 +1,6 @@
 # Single Source of Truth Principle
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and serves as a GOOD_RULES authoritative reference for SSOT standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and serves as a GOOD_RULES authoritative reference for SSOT standards.
 
 ## 🎯 **Core Philosophy: One Truth, One Place**
 
@@ -14,7 +14,7 @@ The Single Source of Truth (SSOT) principle ensures that every piece of informat
 ## 🏗️ **SSOT Architecture**
 
 ### **Configuration Hierarchy**
-> For an expanded rationale and hierarchy diagram see **`config.md`** and **`final-decision-2.md`**.
+> For an expanded rationale and hierarchy diagram see **`config.md`** and **``**.
 
 | Level | Location | Purpose | Example |
 |-------|----------|---------|---------|
@@ -141,7 +141,7 @@ save_dataset(data, algorithm, model_type)  # Centralized decision
 ## 🔗 **SSOT References**
 
 ### **Authoritative Sources**
-- **Configuration**: `config.md` + `final-decision-2.md`
+- **Configuration**: `config.md` + ``
 - **Path Management**: `unified-path-management-guide.md`
 - **Data Formats**: `data-format-decision-guide.md`
 - **Streamlit Architecture**: `unified-streamlit-architecture-guide.md`

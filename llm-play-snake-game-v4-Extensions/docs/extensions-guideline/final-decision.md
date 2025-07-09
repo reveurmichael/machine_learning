@@ -73,7 +73,7 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `agents.md` (Agent implementation standards)
 - `coordinate-system.md` (Universal coordinate system)
 - `core.md` (Base class architecture)
-- `csv-schema-1.md` and `csv-schema-2.md` (Data format specifications)
+- `csv-schema.md`
 - `cwd-and-logs.md` (Working directory standards)
 - `data-format-decision-guide.md` (Format selection criteria)
 - `datasets-folder.md` (Directory structure standards)
@@ -95,7 +95,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 
 **Files to keep simple (KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES):**
 
-* `final-decision-0.md` through `final-decision-9.md` 
 * `agentic-llms.md`
 * `ai-friendly.md`
 * `app.md`
@@ -109,7 +108,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `extension-evolution-rules.md`
 * `extensions-move-guidelines.md`
 * `factory-design-pattern.md`
-* `fine-tuning.md`
 * `forbidden-import-patterns.md`
 * `forward-looking-architecture.md`
 * `gui-pygame.md`
@@ -118,7 +116,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `kiss.md`
 * `limits-manager-impact-on-extensions.md`
 * `llm-distillation.md`
-* `lora.md`
 * `mutilple-inheritance.md`
 * `network.md`
 * `no-gui.md`

@@ -1,6 +1,6 @@
 # Supervised Learning Standards for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines supervised learning standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines supervised learning standards.
 
 > **See also:** `agents.md`, `core.md`, `config.md`, `final-decision.md`, `factory-design-pattern.md`.
 

@@ -1,6 +1,6 @@
 # Extensions v0.01: Foundation Patterns
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines the foundation patterns for all v0.01 extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines the foundation patterns for all v0.01 extensions.
 
 > **See also:** `core.md`, `standalone.md`, `final-decision.md`, `project-structure-plan.md`.
 

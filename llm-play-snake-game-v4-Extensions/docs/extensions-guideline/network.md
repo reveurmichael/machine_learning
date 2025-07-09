@@ -1,6 +1,6 @@
 # Network Architecture: Random Port Strategy
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines network architecture patterns for Task-0 and all extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines network architecture patterns for Task-0 and all extensions.
 
 ## 🎯 **Core Philosophy: Dynamic Port Allocation**
 

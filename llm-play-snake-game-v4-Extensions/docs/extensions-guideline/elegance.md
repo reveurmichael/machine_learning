@@ -1,6 +1,6 @@
 # Elegance in Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines elegance standards for extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines elegance standards for extensions.
 
 > **See also:** `kiss.md`, `core.md`, `final-decision.md`, `factory-design-pattern.md`.
 

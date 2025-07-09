@@ -1,6 +1,6 @@
 # Extensions v0.02: Multi-Algorithm Patterns
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines the multi-algorithm patterns for all v0.02 extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines the multi-algorithm patterns for all v0.02 extensions.
 
 > **See also:** `core.md`, `standalone.md`, `final-decision.md`, `factory-design-pattern.md`.
 

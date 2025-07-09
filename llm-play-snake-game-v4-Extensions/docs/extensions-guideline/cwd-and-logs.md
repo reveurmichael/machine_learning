@@ -1,6 +1,6 @@
 # Working Directory and Logging Standards
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for working directory and logging standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`).
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for working directory and logging standards and supplements the _Final Decision Series_ (`` → `final-decision.md`).
 
 > **See also:** `standalone.md`, `final-decision.md`, `project-structure-plan.md`.
 

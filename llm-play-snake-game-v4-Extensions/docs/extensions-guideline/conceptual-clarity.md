@@ -1,6 +1,6 @@
 # Extension Conceptual Clarity Guidelines
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines conceptual clarity guidelines for extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines conceptual clarity guidelines for extensions.
 
 > **See also:** `agents.md`, `core.md`, `config.md`, `final-decision.md`, `factory-design-pattern.md`.
 

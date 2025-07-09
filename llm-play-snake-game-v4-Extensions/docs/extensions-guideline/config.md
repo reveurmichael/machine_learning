@@ -1,6 +1,6 @@
 # Configuration Architecture for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for configuration architecture and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`).
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for configuration architecture and supplements the _Final Decision Series_ (`` → `final-decision.md`).
 
 > **See also:** `core.md`, `standalone.md`, `final-decision.md`, `project-structure-plan.md`.
 

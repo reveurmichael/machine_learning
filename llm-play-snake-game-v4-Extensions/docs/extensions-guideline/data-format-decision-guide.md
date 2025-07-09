@@ -1,6 +1,6 @@
 # Data Format Decision Guide for Snake Game AI
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for data format decisions and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`).
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for data format decisions and supplements the _Final Decision Series_ (`` → `final-decision.md`).
 
 # Data Format Decision Guide
 

@@ -1,6 +1,6 @@
 # Keep It Simple, Stupid (KISS) Principle
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines KISS principle standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines KISS principle standards.
 
 > **See also:** `elegance.md`, `no-over-preparation.md`, `factory-design-pattern.md`, `final-decision.md`.
 

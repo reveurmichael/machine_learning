@@ -1,6 +1,6 @@
 # Extension Evolution Rules
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines extension evolution rules.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines extension evolution rules.
 
 > **See also:** `final-decision.md`, `standalone.md`, `conceptual-clarity.md`.
 

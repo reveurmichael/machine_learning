@@ -1,10 +1,10 @@
 # Stable Baselines3 Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines Stable Baselines3 integration patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines Stable Baselines3 integration patterns.
 
 # Stable Baselines3 Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines Stable Baselines3 integration patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines Stable Baselines3 integration patterns.
 
 > **Guidelines Alignment:**
 > - This document is governed by the guidelines in `final-decision.md`.

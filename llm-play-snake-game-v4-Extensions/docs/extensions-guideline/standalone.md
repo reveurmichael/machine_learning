@@ -1,6 +1,6 @@
 # Standalone Principle for Extensions
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for standalone principles and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`).
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for standalone principles and supplements the _Final Decision Series_ (`` → `final-decision.md`).
 
 > **See also:** `core.md`, `project-structure-plan.md`, `final-decision.md`, `config.md`.
 

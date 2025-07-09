@@ -1,6 +1,6 @@
 # Factory Design Pattern Implementation
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines factory design pattern implementation with strict SUPREME_RULES compliance.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines factory design pattern implementation with strict SUPREME_RULES compliance.
 
 > **See also:** `agents.md`, `core.md`, `standalone.md`, `final-decision.md`.
 

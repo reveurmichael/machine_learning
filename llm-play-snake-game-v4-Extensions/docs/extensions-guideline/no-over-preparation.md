@@ -1,6 +1,6 @@
 # No Over-Preparation Guidelines for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and establishes principles for avoiding over-engineering in extension development.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and establishes principles for avoiding over-engineering in extension development.
 
 ## 🎯 **Core Philosophy: Build What You Need, When You Need It**
 

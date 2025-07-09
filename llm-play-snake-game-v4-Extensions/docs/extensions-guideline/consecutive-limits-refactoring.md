@@ -1,6 +1,6 @@
 # Consecutive Limits Refactoring for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines consecutive limits refactoring patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and defines consecutive limits refactoring patterns.
 
 > **See also:** `core.md`, `final-decision.md`, `project-structure-plan.md`.
 

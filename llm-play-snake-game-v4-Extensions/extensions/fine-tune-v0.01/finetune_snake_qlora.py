@@ -1,12 +1,30 @@
 ## Example: DON'T REMOVE THIS COMMENT
 # python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
 
+## Important information that should NEVER BE REMOVED:
+# 1. The script is for torch 2.3
+# 2. By default, the script is for 4-bit quantization. Though 16-bit quantization is also supported with argparse.
+
 import os
 import argparse
 import json
 from datetime import datetime
 from typing import Dict, List
 import inspect
+
+# 🚨 CRITICAL: Patch torch checkpoint BEFORE any ML libraries import it
+import torch
+import torch.utils.checkpoint
+
+# Aggressive patch to eliminate all checkpoint warnings
+original_checkpoint = torch.utils.checkpoint.checkpoint
+
+def patched_checkpoint(fn, *args, **kwargs):
+    kwargs['use_reentrant'] = False
+    return original_checkpoint(fn, *args, **kwargs)
+
+torch.utils.checkpoint.checkpoint = patched_checkpoint
+
 from peft import prepare_model_for_kbit_training as original_prepare
 
 # =====================
@@ -23,17 +41,6 @@ os.environ["HF_HUB_OFFLINE"] = "0"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["DISABLE_TF"] = "1"
 os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
-
-# 🚨 Early monkey patch for torch checkpoint to eliminate warnings
-import torch
-import torch.utils.checkpoint as checkpoint
-
-def patched_checkpoint(fn, *args, **kwargs):
-    kwargs['use_reentrant'] = False
-    return checkpoint._checkpoint(fn, *args, **kwargs)
-
-checkpoint._checkpoint = checkpoint.checkpoint
-checkpoint.checkpoint = patched_checkpoint
 
 from datasets import load_dataset
 from transformers import (
@@ -267,6 +274,7 @@ def create_training_arguments(args, output_dir: str) -> TrainingArguments:
         optim="adamw_torch",
         dataloader_drop_last=True,
         remove_unused_columns=False,
+        use_cache=False,
     )
 
 def create_data_collator(tokenizer, training_args, pad_to_multiple_of) -> DataCollatorForLanguageModeling:

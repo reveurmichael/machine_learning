@@ -11,6 +11,8 @@ if USE_HF_MIRROR_ENDPOINT == 1:
 else:
     os.environ["HF_ENDPOINT"] = "https://huggingface.co"
 
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
+os.environ["DISABLE_TF"] = "1"
 
 import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM

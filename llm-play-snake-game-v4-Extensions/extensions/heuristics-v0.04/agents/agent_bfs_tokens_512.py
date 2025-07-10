@@ -72,14 +72,10 @@ class BFS512TokenAgent(BFSAgent):
         
         # Concise explanation
         explanation_parts = [
-            "BFS Analysis:",
-            f"Head: {tuple(head_pos)} → Apple: {tuple(apple_pos)}",
-            f"Path found: {path_length} steps (optimal: {path_length == manhattan_distance})",
-            f"Valid moves: {valid_moves}",
+            f"Path found: {path_length} steps",
             f"Moving {direction} to {next_pos}",
             "",
-            f"Rationale: BFS shortest path to apple. Move {direction} advances optimally toward target.",
-            f"Safety: Validated move on computed path. {remaining_free_cells} free cells remain."
+            f"Rationale: Move {direction} advances optimally toward apple.",
         ]
 
         # Metrics matching parent format

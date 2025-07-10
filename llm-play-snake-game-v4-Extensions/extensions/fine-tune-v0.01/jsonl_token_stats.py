@@ -1,9 +1,9 @@
 # DON"T REMOVE THESE COMMENTS
 
-# python jsonl_token_stats.py /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250709_160834/bfs/BFS_dataset.jsonl --model deepscaler-1.5b
-# python jsonl_token_stats.py /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250709_160834/bfs/BFS_dataset.jsonl --model gemma-3-4b-it
-# python jsonl_token_stats.py /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250709_160834/bfs/BFS_dataset.jsonl --model gemma2-9b
-# python jsonl_token_stats.py /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250709_160834/bfs/BFS_dataset.jsonl --model deepseek-r1-qwen-7b
+# python jsonl_token_stats.py /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250710_200307/bfs-512/BFS-512_dataset.jsonl --model deepscaler-1.5b
+# python jsonl_token_stats.py /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250710_200307/bfs-512/BFS-512_dataset.jsonl --model gemma-3-4b-it
+# python jsonl_token_stats.py /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250710_200307/bfs-512/BFS-512_dataset.jsonl --model gemma2-9b
+# python jsonl_token_stats.py /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250710_200307/bfs-512/BFS-512_dataset.jsonl --model deepseek-r1-qwen-7b
 
 # DON"T REMOVE THE ABOVE COMMENTS
 

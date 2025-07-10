@@ -396,9 +396,6 @@ class DatasetGenerator:
         prompt = f"""You are playing Snake on a {grid_size}x{grid_size} grid. The coordinate system is (0,0) at bottom-left to ({grid_size-1},{grid_size-1}) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.
 
 Current game state:
-- Score: {score}
-- Steps: {steps}
-- Algorithm: {algorithm}
 - Snake head position: {head_pos_tuple}
 - Apple position: {apple_position_tuple}
 - Snake body positions: {body_positions_tuple}
@@ -413,8 +410,7 @@ What is the best move to make? Consider:
 3. Maximizing score and survival
 
 Choose from: UP, DOWN, LEFT, RIGHT
-
-Move:"""
+"""
 
         return prompt 
 
@@ -429,7 +425,7 @@ Move:"""
             Formatted completion string
         """
         # Format the completion
-        completion = f""" {explanation}
+        completion = f"""{explanation}
 
 Metrics:
 - Valid moves: {metrics.get('valid_moves', [])}
@@ -438,6 +434,6 @@ Metrics:
 - Danger assessment: {metrics.get('danger_assessment', {})}
 - Free space: {metrics.get('free_space', {})}
 
-Conclusion: The move {move.lower()}"""
+Conclusion: The move is: {move.upper()}"""
 
         return completion 

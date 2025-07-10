@@ -4,7 +4,7 @@ from peft import PeftModel
 
 # ─── UPDATE THIS ────────────────────────────────────────────────────────────
 # Point to your fine‑tuned adapter folder:
-checkpoint_dir = "/home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/extensions/fine-tune-v0.01/finetuned_snake/deepscaler-1.5b_20250709_173903"
+checkpoint_dir = "/home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/extensions/fine-tune-v0.01/finetuned_snake/deepscaler-1.5b_20250709_173903/checkpoint-29156/"
 # Base model ID (must match what you fine‑tuned against):
 base_model_id  = "agentica-org/DeepScaleR-1.5B-Preview"
 # ─────────────────────────────────────────────────────────────────────────────

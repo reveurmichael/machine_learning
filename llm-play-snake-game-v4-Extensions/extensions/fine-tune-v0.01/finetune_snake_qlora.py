@@ -4,13 +4,22 @@
 # python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
 
 
+
+
+# 512 tokens, 1000 games
+# python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250710_192650/bfs-512/BFS-512_dataset.jsonl --max_length 512
+
+
+# 512 tokens, 100 games
+# python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250710_192650/bfs-512/BFS-512_dataset.jsonl --max_length 512
+
+
+
+
+
 # Target 1 day (100 games)
 # python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250709_160834/bfs/BFS_dataset.jsonl
 # python finetune_snake_qlora.py --model gemma-3-4b-it --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250709_160834/bfs/BFS_dataset.jsonl
-
-
-# Target 8 hours (100 games)
-# python finetune_snake_qlora.py --model deepscaler-1.5b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250709_160834/bfs/BFS_dataset.jsonl
 
 
 ## Important information that should NEVER BE REMOVED:

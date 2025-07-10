@@ -174,6 +174,10 @@ class BaseGameData:
             buffer = getattr(self.round_manager, "round_buffer", None)
             if buffer is not None:
                 buffer.add_move(move)
+        
+        # Call subclass hook for valid moves
+        if move not in ["INVALID_REVERSAL", "NO_PATH_FOUND"]:
+            self._record_valid_step()
     
     def record_apple_position(self, position) -> None:
         """Record an apple position.

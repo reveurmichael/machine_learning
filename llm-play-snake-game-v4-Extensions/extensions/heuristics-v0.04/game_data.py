@@ -65,59 +65,59 @@ class HeuristicGameData(BaseGameData):
     - Template Method: Inherits base data management structure
     - Strategy Pattern: Different heuristic algorithms share same data structure
     """
-    
+
     def __init__(self) -> None:
         """Initialize heuristic game data tracking."""
         super().__init__()
-        
+
         # Override round_manager to use heuristic-specific version
         self.round_manager = HeuristicRoundManager()
-        
+
         # Override time_stats to use heuristic-specific version without LLM pollution
         self.stats.time_stats = HeuristicTimeStats(start_time=time.time())
-        
+
         # Heuristic-specific tracking
         self.algorithm_name: str = "BFS"  # Default algorithm
         self.path_calculations: int = 0   # Number of pathfinding calls
         self.successful_paths: int = 0
         self.failed_paths: int = 0
-        
+
         # Track search performance
         self.total_search_time: float = 0.0
         self.nodes_explored: int = 0
-        
+
         # Grid size (will be set by game logic)
         self.grid_size: int = 10  # Default, will be overridden
-        
+
         # v0.04 Enhancement: Store move explanations for JSONL dataset generation
         self.last_move_explanation: str = ""
         self.move_explanations: list[str] = []  # Store all explanations for this game
         # v0.04 Enhancement: Store structured metrics per move
         self.move_metrics: list[dict] = []
-        
+
     def reset(self) -> None:
         """Reset game data for new game."""
         super().reset()
-        
+
         # Ensure we use heuristic-specific round manager
         self.round_manager = HeuristicRoundManager()
-        
+
         # Ensure we use heuristic-specific time stats without LLM pollution
         self.stats.time_stats = HeuristicTimeStats(start_time=time.time())
-        
+
         # Reset heuristic-specific counters
         self.path_calculations = 0
         self.successful_paths = 0
         self.failed_paths = 0
         self.total_search_time = 0.0
         self.nodes_explored = 0
-        
+
         # Reset v0.04 explanation tracking
         self.last_move_explanation = ""
         self.move_explanations = []
         self.move_metrics = []
         # (No SSOT validation or round 0 recording here; handled in game logic)
-    
+
     def record_pathfinding_attempt(self, success: bool, search_time: float = 0.0, nodes_explored: int = 0) -> None:
         """
         Record a pathfinding attempt for statistics.
@@ -130,12 +130,12 @@ class HeuristicGameData(BaseGameData):
         self.path_calculations += 1
         self.total_search_time += search_time
         self.nodes_explored += nodes_explored
-        
+
         if success:
             self.successful_paths += 1
         else:
             self.failed_paths += 1
-    
+
     def record_move_explanation(self, explanation: str) -> None:
         """
         Record move explanation for JSONL dataset generation.
@@ -148,11 +148,11 @@ class HeuristicGameData(BaseGameData):
         """
         self.move_explanations.append(explanation)
         self.last_move_explanation = explanation
-    
+
     def record_move_metrics(self, metrics: dict) -> None:
         """Record structured metrics for the current move."""
         self.move_metrics.append(metrics)
-    
+
     def get_heuristic_stats(self) -> Dict[str, Any]:
         """
         Get heuristic-specific statistics.
@@ -163,7 +163,7 @@ class HeuristicGameData(BaseGameData):
         success_rate = (self.successful_paths / max(self.path_calculations, 1)) * 100
         avg_search_time = self.total_search_time / max(self.path_calculations, 1)
         avg_nodes_per_search = self.nodes_explored / max(self.path_calculations, 1)
-        
+
         return {
             "algorithm_name": self.algorithm_name,
             "path_calculations": self.path_calculations,
@@ -175,7 +175,7 @@ class HeuristicGameData(BaseGameData):
             "total_nodes_explored": self.nodes_explored,
             "average_nodes_per_search": round(avg_nodes_per_search, 1)
         }
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert game data to dictionary for JSON serialization.
@@ -187,7 +187,7 @@ class HeuristicGameData(BaseGameData):
         """
         # Get base dictionary
         data = super().to_dict()
-        
+
         # Add heuristic-specific data
         data["heuristic_info"] = {
             "algorithm": self.algorithm_name,
@@ -195,14 +195,14 @@ class HeuristicGameData(BaseGameData):
             "successful_paths": self.successful_paths,
             "failed_paths": self.failed_paths
         }
-        
+
         # Add heuristic stats
         data["heuristic_stats"] = self.get_heuristic_stats()
-        
+
         # # v0.04 Enhancement: Add move explanations and metrics for dataset generation
-        # data["move_explanations"] = self.move_explanations
-        # data["move_metrics"] = self.move_metrics
-        
+        data["move_explanations"] = self.move_explanations
+        data["move_metrics"] = self.move_metrics
+
         return data
 
     def generate_game_summary(
@@ -238,7 +238,7 @@ class HeuristicGameData(BaseGameData):
         # Clean rounds data: remove game_state and ensure planned_moves matches moves
         cleaned_rounds_data = {}
         dataset_game_states = {}  # Store game states for dataset generation
-        
+
         # Clean rounds data: remove game_state and ensure planned_moves matches moves
         ordered_rounds = self.round_manager.get_ordered_rounds_data()
         for round_key, round_data in ordered_rounds.items():
@@ -246,36 +246,36 @@ class HeuristicGameData(BaseGameData):
                 "round": round_data.get("round", int(round_key)),
                 "apple_position": round_data.get("apple_position", [0, 0])
             }
-            
+
             # Add moves if present
             if "moves" in round_data:
                 cleaned_round["moves"] = round_data["moves"]
-            
+
             # Always include planned_moves for consistency with Task-0 pipeline logic
             # This represents the planning phase, while moves represents the execution phase
             if "planned_moves" in round_data:
                 cleaned_round["planned_moves"] = round_data["planned_moves"]
-            
+
             cleaned_rounds_data[round_key] = cleaned_round
-            
+
             # Store game state for dataset generation (separate from Task-0 compatible data)
             if "game_state" in round_data:
                 dataset_game_states[round_key] = round_data["game_state"]
-        
+
         # Validate that we have dataset game states for actual moves
         if not dataset_game_states:
             print_warning("[GameData] No dataset_game_states found - might indicate no moves were made")
-        
+
         # Game state (single termination point ensures consistency)
         game_over = self.game_over
         game_end_reason = self.game_end_reason
-        
+
         # Time stats (heuristics never have llm_communication_time)
         time_stats_clean = self.stats.time_stats.asdict()
-        
+
         # For heuristics: use round-by-round moves from rounds data
         moves_from_rounds = []
-        
+
         # Build moves from rounds, using the already-built dataset_game_states
         # DO NOT overwrite dataset_game_states - it contains the correct pre-move states!
         ordered_rounds = self.round_manager.get_ordered_rounds_data()
@@ -287,12 +287,12 @@ class HeuristicGameData(BaseGameData):
                 # For heuristics, there should be exactly one move per round
                 move = round_data['moves'][0]
                 moves_from_rounds.append(move)
-        
+
         # Ensure all game states have the game_number for consistency
         for state in dataset_game_states.values():
             if isinstance(state, dict):
                 state['game_number'] = self.game_number
-        
+
         summary = {
             # Core outcome data
             "score": self.score,
@@ -322,7 +322,7 @@ class HeuristicGameData(BaseGameData):
         }
         if dataset_game_states:
             summary["dataset_game_states"] = dataset_game_states
-        
+
         return summary
 
     # ----------------
@@ -348,30 +348,15 @@ class HeuristicGameData(BaseGameData):
         return summary_dict 
 
     def record_move(self, move: str, apple_eaten: bool = False) -> None:
-        """Record a move and update relevant statistics for heuristics.
+        """Record a move and update step_stats for heuristics.
         
-        POST-EXECUTION: This method is called AFTER the move has been executed.
-        The move parameter is the direction that was just executed, and apple_eaten
-        indicates whether the snake ate an apple during this move.
-        
-        This method ensures step_stats are correctly updated for heuristic algorithms.
-        The base class doesn't update step_stats, so we need to do it here.
-        
-        Args:
-            move: The move direction that was just executed (POST-MOVE)
-            apple_eaten: Whether an apple was eaten during this move (POST-MOVE)
+        The base class doesn't update step_stats for valid moves, so we need to do it here.
         """
         # Call base class method which handles basic move recording
         super().record_move(move, apple_eaten)
-        
-        # Update step statistics based on move type
-        # POST-EXECUTION: These stats reflect the move that was just executed
-        if move == "INVALID_REVERSAL":
-            self.stats.step_stats.invalid_reversals += 1
-        elif move == "NO_PATH_FOUND":
-            self.stats.step_stats.no_path_found += 1
-        else:
-            # Valid move (UP, DOWN, LEFT, RIGHT)
+
+        # TODO: do we really need this? If yes, then we need to move this to the base class. In a good design, most likely in the derived class we don't need to override the record_move method.
+        if move in ["UP", "DOWN", "LEFT", "RIGHT"]:
             self.stats.step_stats.valid += 1
 
     def record_game_end(self, reason: str) -> None:
@@ -383,6 +368,7 @@ class HeuristicGameData(BaseGameData):
         Args:
             reason: The reason the game ended (from END_REASON_MAP) (POST-GAME)
         """
+        # TODO: do we really need this? If yes, then we need to move this to the base class. In a good design, most likely in the derived class we don't need to override the record_game_end method.
         if not self.game_over:
             self.stats.time_stats.record_end_time()
         super().record_game_end(reason) 

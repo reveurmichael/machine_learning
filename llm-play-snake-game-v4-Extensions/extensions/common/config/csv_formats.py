@@ -13,7 +13,7 @@ Design Philosophy:
 Reference: docs/extensions-guideline/forward-looking-architecture.md
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict
 
 # =============================================================================
 # CSV Schema Definition (16-Feature Tabular)

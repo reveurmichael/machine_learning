@@ -17,7 +17,7 @@ Design Patterns:
 - SSOT: Uses all parent methods, only overrides explanation generation
 """
 
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root

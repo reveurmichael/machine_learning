@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Tuple
+from typing import List
 import sys
 from pathlib import Path
 
@@ -18,18 +18,16 @@ Design Patterns:
 - SSOT: Uses all parent methods, only overrides explanation generation
 """
 
-from typing import TYPE_CHECKING, Dict, Any
+from typing import TYPE_CHECKING
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
 ensure_project_root()
 
 # Import from project root using absolute imports
-from utils.moves_utils import position_to_direction
 
 # Import extension-specific components using relative imports
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
-from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions, extract_apple_position
 )
@@ -84,10 +82,10 @@ class BFSSafeGreedy512TokenAgent(BFSSafeGreedyAgent):
             f"Head: {tuple(head_pos)} → Apple: {tuple(apple_pos)}",
             f"Path found: {path_length} steps (optimal: {path_length == manhattan_distance})",
             f"Valid moves: {valid_moves}",
-            f"Safety check: SAFE (tail reachable)",
+            "Safety check: SAFE (tail reachable)",
             f"Moving {direction} to {tuple(next_pos)}",
             "",
-            f"Rationale: BFS shortest path to apple with safety validation. " +
+            "Rationale: BFS shortest path to apple with safety validation. " +
             f"Move {direction} advances optimally while ensuring tail remains reachable.",
             f"Strategy: Safe-greedy approach. {remaining_free_cells} free cells remain."
         ]
@@ -118,12 +116,12 @@ class BFSSafeGreedy512TokenAgent(BFSSafeGreedyAgent):
         explanation_parts = [
             "BFS-SAFE-GREEDY Tail Chase:",
             f"Head: {tuple(head_pos)} → Tail: {tuple(tail)}",
-            f"Apple path unsafe, using tail chase strategy",
+            "Apple path unsafe, using tail chase strategy",
             f"Path to tail: {path_length} steps",
             f"Moving {direction} (always safe)",
             "",
-            f"Rationale: Apple path blocked/unsafe. Tail chasing ensures survival " +
-            f"while maintaining board position for future opportunities."
+            "Rationale: Apple path blocked/unsafe. Tail chasing ensures survival " +
+            "while maintaining board position for future opportunities."
         ]
 
         # Use metrics passed from parent

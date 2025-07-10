@@ -29,10 +29,8 @@ os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from utils.print_utils import print_info, print_warning, print_success, print_error
-from agents.agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
-    extract_head_position, extract_body_positions, extract_apple_position, 
-    extract_grid_size, to_serializable
+    extract_head_position, extract_body_positions, extract_grid_size
 )
 from heuristics_utils import (
     calculate_manhattan_distance, calculate_valid_moves_ssot, 

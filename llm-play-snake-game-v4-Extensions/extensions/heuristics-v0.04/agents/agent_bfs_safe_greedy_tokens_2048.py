@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Tuple
+from typing import List
 import sys
 from pathlib import Path
 
@@ -18,18 +18,16 @@ Design Patterns:
 - SSOT: Uses all parent methods, only overrides explanation generation
 """
 
-from typing import TYPE_CHECKING, Dict, Any
+from typing import TYPE_CHECKING
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
 ensure_project_root()
 
 # Import from project root using absolute imports
-from utils.moves_utils import position_to_direction
 
 # Import extension-specific components using relative imports
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
-from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions, extract_apple_position
 )
@@ -119,14 +117,14 @@ class BFSSafeGreedy2048TokenAgent(BFSSafeGreedyAgent):
             f"• Path coordinates: {' → '.join([str(tuple(p)) for p in path[:min(4, len(path))]])}{'...' if len(path) > 4 else ''}",
             "",
             "PHASE 5: SAFETY VALIDATION",
-            f"• Safety check: PASSED (tail reachable after move)",
+            "• Safety check: PASSED (tail reachable after move)",
             f"• Next position: {tuple(next_pos)}",
-            f"• Risk assessment: LOW (move validated as safe)",
-            f"• Safety guarantee: Tail remains accessible for escape route",
+            "• Risk assessment: LOW (move validated as safe)",
+            "• Safety guarantee: Tail remains accessible for escape route",
             "",
             "PHASE 6: MOVE SELECTION LOGIC",
             f"• Chosen direction: {direction}",
-            f"• Strategy: Safe-greedy (safety-validated apple pursuit)",
+            "• Strategy: Safe-greedy (safety-validated apple pursuit)",
             f"• Rationale: {'Optimal safe path' if is_optimal else 'Best available safe path'} to apple",
             "• Expected outcome: Advance 1 step closer to apple along safe route",
             "",

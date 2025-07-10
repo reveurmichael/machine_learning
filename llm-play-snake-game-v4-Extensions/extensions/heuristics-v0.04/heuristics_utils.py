@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from utils.path_utils import ensure_project_root
 ensure_project_root()
 
-from typing import List, Tuple, Set, Dict, Any
+from typing import List, Tuple, Set
 from collections import deque
 from config.game_constants import DIRECTIONS
 

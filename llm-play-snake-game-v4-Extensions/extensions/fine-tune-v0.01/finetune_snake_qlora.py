@@ -68,7 +68,6 @@ from transformers import (
     AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorForLanguageModeling, BitsAndBytesConfig
 )
 from peft import LoraConfig, get_peft_model
-import bitsandbytes as bnb
 
 # =====================
 # MODEL CONFIGURATION
@@ -447,4 +446,4 @@ if __name__ == "__main__":
             print(f"\nFailed models: {failed_models}")
             exit(1)
         else:
-            print(f"\nAll models trained successfully!")
+            print("\nAll models trained successfully!")

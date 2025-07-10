@@ -23,7 +23,7 @@ Design Patterns:
 """
 
 from collections import deque
-from typing import List, Tuple, TYPE_CHECKING, Any, Dict, Set, Optional
+from typing import List, Tuple, TYPE_CHECKING
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
@@ -41,15 +41,11 @@ from extensions.common.utils.game_state_utils import (
     extract_body_positions,
     extract_apple_position,
     extract_grid_size,
-    to_serializable,
-    format_metrics_for_jsonl,
-    flatten_explanation_for_jsonl,
 )
 from heuristics_utils import (
     count_obstacles_in_path,
     get_neighbors,
     count_remaining_free_cells,
-    calculate_valid_moves,
     count_free_space_in_direction,
     calculate_manhattan_distance,
     calculate_valid_moves_ssot,

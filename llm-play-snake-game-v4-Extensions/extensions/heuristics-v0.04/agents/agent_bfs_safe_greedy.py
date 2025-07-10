@@ -39,7 +39,7 @@ from utils.moves_utils import position_to_direction
 # Import extension-specific components using relative imports
 from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
-    extract_head_position, extract_body_positions, extract_apple_position
+    extract_head_position, extract_body_positions
 )
 from heuristics_utils import (
     calculate_manhattan_distance, calculate_valid_moves_ssot, count_remaining_free_cells,

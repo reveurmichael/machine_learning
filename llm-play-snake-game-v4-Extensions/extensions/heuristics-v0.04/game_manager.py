@@ -65,7 +65,6 @@ from agents import create, get_available_algorithms, DEFAULT_ALGORITHM
 from dataset_generator import DatasetGenerator
 
 # Import BFSAgent for SSOT utilities
-from agents.agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import to_serializable
 from heuristics_utils import calculate_manhattan_distance, calculate_valid_moves_ssot, bfs_pathfind
 
@@ -75,7 +74,7 @@ from state_management import StateManager, validate_explanation_head_consistency
 # Type alias for any heuristic agent (from agents package)
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from agents import BFSAgent
+    pass
 
 # JSON serialization moved to BFSAgent for SSOT compliance
 

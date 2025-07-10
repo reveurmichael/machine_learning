@@ -34,9 +34,7 @@ from utils.print_utils import print_warning
 
 # Import centralized CSV formats
 from ..config.csv_formats import (
-    CSV_ALL_COLUMNS, CSV_FEATURE_COLUMNS, CSV_METADATA_COLUMNS,
-    CSV_TARGET_COLUMN, CSV_BINARY_FEATURES, CSV_COUNT_FEATURES,
-    CSV_POSITION_FEATURES, VALID_MOVE_SET
+    CSV_FEATURE_COLUMNS, CSV_TARGET_COLUMN
 )
 
 

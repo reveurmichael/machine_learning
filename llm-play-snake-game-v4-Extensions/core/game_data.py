@@ -162,6 +162,8 @@ class BaseGameData:
         if move not in ["INVALID_REVERSAL", "NO_PATH_FOUND"]:
             self.consecutive_invalid_reversals = 0
             self.consecutive_no_path_found = 0
+            # Generic statistics – count valid steps once here so subclasses do not need to override
+            self.stats.step_stats.valid += 1
         
         # ---------------------
         # Round-level bookkeeping (generic – safe for ALL tasks)
@@ -198,6 +200,10 @@ class BaseGameData:
     
     def record_game_end(self, reason: str) -> None:
         """Record the end of a game."""
+        # Ensure wall-clock timer is captured exactly once.
+        if not self.game_over and hasattr(self.stats, "time_stats"):
+            self.stats.time_stats.record_end_time()
+
         self.game_over = True
         self.game_end_reason = reason
 
@@ -209,8 +215,14 @@ class BaseGameData:
         self.moves.append("INVALID_REVERSAL")
         self.current_game_moves.append("INVALID_REVERSAL")
         self.consecutive_invalid_reversals += 1
+        # Generic statistics – track invalid reversal
+        self.stats.step_stats.invalid_reversals += 1
         
-        # Call subclass hook
+        # Mirror the sentinel into the current round buffer for universal replays
+        if hasattr(self, "round_manager") and self.round_manager:
+            self.round_manager.round_buffer.add_move("INVALID_REVERSAL")
+        
+        # Call subclass hook (now optional)
         self._record_invalid_reversal_step()
     
     def record_no_path_found_move(self) -> None:
@@ -222,8 +234,13 @@ class BaseGameData:
         self.moves.append("NO_PATH_FOUND")
         self.current_game_moves.append("NO_PATH_FOUND")
         self.consecutive_no_path_found += 1
+        # Generic statistics – track NO_PATH_FOUND step
+        self.stats.step_stats.no_path_found += 1
         
-        # Call subclass hook
+        if hasattr(self, "round_manager") and self.round_manager:
+            self.round_manager.round_buffer.add_move("NO_PATH_FOUND")
+        
+        # Call subclass hook (now optional)
         self._record_no_path_found_step()
 
     @property
@@ -318,19 +335,6 @@ class GameData(BaseGameData):
         # Reset LLM-specific components (RoundManager reset lives in base)
         self.stats = GameStatistics()
     
-    def record_move(self, move: str, apple_eaten: bool = False) -> None:
-        """Record a move and update relevant statistics."""
-        # Call base class method
-        super().record_move(move, apple_eaten)
-        
-        # LLM-specific tracking
-        self.stats.step_stats.valid += 1
-        
-        # Reset LLM-specific consecutive counters on valid move
-        if move not in ["EMPTY", "SOMETHING_IS_WRONG"]:
-            self.consecutive_empty_steps = 0
-            self.consecutive_something_is_wrong = 0
-    
     def record_apple_position(self, position) -> None:
         """Record an apple position."""
         # Call base class method
@@ -361,9 +365,8 @@ class GameData(BaseGameData):
         self.consecutive_empty_steps += 1
     
     def _record_invalid_reversal_step(self) -> None:
-        """Hook implementation for recording invalid reversal statistics."""
-        self.stats.step_stats.invalid_reversals += 1
-        self.round_manager.round_buffer.add_move("INVALID_REVERSAL")
+        """Task-0 specific hook – no extra statistics needed after base update."""
+        pass
     
     def record_something_is_wrong_move(self) -> None:
         """Record a *SOMETHING_IS_WRONG* sentinel.
@@ -382,15 +385,8 @@ class GameData(BaseGameData):
         self.consecutive_something_is_wrong += 1
 
     def _record_no_path_found_step(self) -> None:
-        """Hook implementation for recording no path found statistics."""
-        self.stats.step_stats.no_path_found += 1
-        self.round_manager.round_buffer.add_move("NO_PATH_FOUND")
-
-    def record_game_end(self, reason: str) -> None:
-        """Record the end of a game."""
-        if not self.game_over:
-            self.stats.time_stats.record_end_time()
-        super().record_game_end(reason)
+        """Task-0 specific hook – no extra statistics needed after base update."""
+        pass
 
     def record_parsed_llm_response(self, response: Any, is_primary: bool) -> None:
         """Records the parsed response from an LLM."""
@@ -604,4 +600,11 @@ class GameData(BaseGameData):
         ``core.game_manager_helper``.
         """
         return self._calculate_actual_round_count()
+
+    # Let BaseGameData handle record_move; we only need to reset Task-0 counters
+
+    def _record_valid_step(self) -> None:
+        """Reset Task-0-specific consecutive counters on any valid move."""
+        self.consecutive_empty_steps = 0
+        self.consecutive_something_is_wrong = 0
   

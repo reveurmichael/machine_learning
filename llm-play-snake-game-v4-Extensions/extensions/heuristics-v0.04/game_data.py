@@ -346,29 +346,3 @@ class HeuristicGameData(BaseGameData):
             json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=2)
 
         return summary_dict 
-
-    def record_move(self, move: str, apple_eaten: bool = False) -> None:
-        """Record a move and update step_stats for heuristics.
-        
-        The base class doesn't update step_stats for valid moves, so we need to do it here.
-        """
-        # Call base class method which handles basic move recording
-        super().record_move(move, apple_eaten)
-
-        # TODO: do we really need this? If yes, then we need to move this to the base class. In a good design, most likely in the derived class we don't need to override the record_move method.
-        if move in ["UP", "DOWN", "LEFT", "RIGHT"]:
-            self.stats.step_stats.valid += 1
-
-    def record_game_end(self, reason: str) -> None:
-        """Record the end of a game with proper heuristic timing.
-        
-        POST-EXECUTION: This method is called when the game ends, after all moves
-        have been executed. The reason parameter indicates why the game ended.
-        
-        Args:
-            reason: The reason the game ended (from END_REASON_MAP) (POST-GAME)
-        """
-        # TODO: do we really need this? If yes, then we need to move this to the base class. In a good design, most likely in the derived class we don't need to override the record_game_end method.
-        if not self.game_over:
-            self.stats.time_stats.record_end_time()
-        super().record_game_end(reason) 

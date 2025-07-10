@@ -257,7 +257,7 @@ class HeuristicGameManager(BaseGameManager):
         # Initialize state manager for robust pre/post state separation
         state_manager = StateManager()
 
-        # Create initial pre-move state for round 1
+        # Validate initial game state (no round creation yet - rounds start with actual moves)
         initial_raw_state = self.game.get_state_snapshot()
         initial_pre_state = state_manager.create_pre_move_state(initial_raw_state)
 
@@ -266,19 +266,10 @@ class HeuristicGameManager(BaseGameManager):
             print_error(f"[FAIL-FAST] Initial game state has no snake positions: {initial_raw_state}")
             raise RuntimeError("[SSOT] Initial game state has no snake positions - game reset failed")
 
-        # Store initial pre-move state in round data
-        if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
-            self.game.game_state.round_manager.round_buffer.number = 1
-            round_data = self.game.game_state.round_manager._get_or_create_round_data(1)
-            round_data['game_state'] = dict(initial_pre_state.game_state)  # Convert back to dict for storage
-            self.game.game_state.round_manager.sync_round_data()
-
-            # Fail-fast: Verify round 1 was recorded
-            rounds_keys = list(self.game.game_state.round_manager.rounds_data.keys())
-            if 1 not in rounds_keys and '1' not in rounds_keys:
-                raise RuntimeError(f"[SSOT] Round 1 not recorded after setup. Available rounds: {rounds_keys}")
-        else:
-            raise RuntimeError("[SSOT] Round manager missing after game reset. Cannot record round 1 pre-move state.")
+        # Ensure round manager is available but don't create any rounds yet
+        # Rounds will be created starting from Round 1 when the first move is made
+        if not (hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager):
+            raise RuntimeError("[SSOT] Round manager missing after game reset.")
 
         # Game loop with robust state management
         steps = 0
@@ -419,16 +410,15 @@ class HeuristicGameManager(BaseGameManager):
         explanations = getattr(self.game.game_state, 'move_explanations', [])
         metrics = getattr(self.game.game_state, 'move_metrics', [])
         dataset_game_states = self.game.game_state.generate_game_summary().get('dataset_game_states', {})
-        # Only count pre-move states for rounds 2..N+1
-        # TODO: this is so so ugly and violates KISS, violates core.md, violates round.md
-        n_states = len([k for k in dataset_game_states.keys() if str(k).isdigit() and int(k) > 1])
+        # Count pre-move states for rounds 1..N (clean Task-0 pattern)
+        n_states = len([k for k in dataset_game_states.keys() if str(k).isdigit() and int(k) >= 1])
         n_expl = len(explanations)
         n_metrics = len(metrics)
         if not (n_expl == n_metrics == n_states):
             print_error("[SSOT] FAIL-FAST: Misalignment detected after game!")
-            print_error(f"[SSOT] Explanations: {n_expl}, Metrics: {n_metrics}, Pre-move states (rounds 2+): {n_states}")
+            print_error(f"[SSOT] Explanations: {n_expl}, Metrics: {n_metrics}, Pre-move states (rounds 1+): {n_states}")
             print_error(f"[SSOT] dataset_game_states keys: {list(dataset_game_states.keys())}")
-            raise RuntimeError(f"[SSOT] Misalignment: explanations={n_expl}, metrics={n_metrics}, pre-move states (rounds 2+): {n_states}")
+            raise RuntimeError(f"[SSOT] Misalignment: explanations={n_expl}, metrics={n_metrics}, pre-move states (rounds 1+): {n_states}")
 
         return game_duration
 

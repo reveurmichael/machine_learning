@@ -94,11 +94,10 @@ class HeuristicGameLogic(BaseGameLogic):
             # self.game_state._initial_snake_positions = self.snake_positions.tolist()
             # self.game_state._initial_apple_position = self.apple_position.tolist()
             self.game_state.reset()
-            # SSOT: Record the initial game state as round 0 in the round manager
+            # Validate initial game state without creating rounds (rounds start with moves)
             initial_state = self.get_state_snapshot()
             if not initial_state['snake_positions'] or not initial_state['apple_position']:
-                raise RuntimeError("[SSOT] Initial game state for round 0 is missing or invalid after initialization.")
-            self.game_state.round_manager.rounds_data[0] = {'game_state': initial_state}
+                raise RuntimeError("[SSOT] Initial game state is missing or invalid after initialization.")
 
     def set_agent(self, agent: BFSAgent) -> None:
         """

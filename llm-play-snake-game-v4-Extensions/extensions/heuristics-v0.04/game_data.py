@@ -263,9 +263,9 @@ class HeuristicGameData(BaseGameData):
             if "game_state" in round_data:
                 dataset_game_states[round_key] = round_data["game_state"]
         
-        # SSOT: Fail fast if round 1 is missing from dataset_game_states
-        if 1 not in dataset_game_states and '1' not in dataset_game_states:
-            raise RuntimeError(f"[SSOT] Round 1 missing from dataset_game_states. Available: {list(dataset_game_states.keys())}")
+        # Validate that we have dataset game states for actual moves
+        if not dataset_game_states:
+            print_warning("[GameData] No dataset_game_states found - might indicate no moves were made")
         
         # Game state (single termination point ensures consistency)
         game_over = self.game_over

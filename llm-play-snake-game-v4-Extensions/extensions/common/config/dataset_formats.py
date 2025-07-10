@@ -49,6 +49,17 @@ NPZ_RAW_ARRAYS: List[str] = [
 ]
 
 # =============================================================================
+# Common Dataset File Extensions
+# =============================================================================
+
+COMMON_DATASET_EXTENSIONS: Dict[str, List[str]] = {
+    "csv": [".csv"],
+    "jsonl": [".jsonl"],
+    "npz": [".npz"],
+    "json": [".json"]
+}
+
+# =============================================================================
 # Format Selection Guidelines
 # =============================================================================
 
@@ -85,6 +96,9 @@ __all__ = [
     "NPZ_SEQUENTIAL_ARRAYS",
     "NPZ_SPATIAL_ARRAYS", 
     "NPZ_RAW_ARRAYS",
+    
+    # Common extensions
+    "COMMON_DATASET_EXTENSIONS",
     
     # Format specifications
     "FORMAT_USE_CASES",

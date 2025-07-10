@@ -43,6 +43,9 @@ from heuristics_utils import (
 from extensions.common.utils.csv_utils import CSVFeatureExtractor, create_csv_record_with_explanation
 from extensions.common.utils.game_analysis_utils import calculate_danger_assessment, calculate_apple_direction
 
+# Import round utilities for clean round management
+from round_utils import extract_dataset_records
+
 __all__ = ["DatasetGenerator"]
 
 
@@ -152,7 +155,7 @@ class DatasetGenerator:
 
     # ---------------- INTERNAL
     def _process_single_game(self, game_data: Dict[str, Any]) -> None:
-        """Process a single game and generate dataset entries."""
+        """Process a single game and generate dataset entries using clean round management."""
         try:
             # Extract moves and explanations
             moves_history = game_data.get("detailed_history", {}).get("moves", [])
@@ -163,52 +166,27 @@ class DatasetGenerator:
                 print_warning("[DatasetGenerator] No moves found in game data")
                 return
 
-            # Extract dataset game states
-            dataset_game_states = game_data.get("dataset_game_states", {})
-            # SSOT: Round 0 is only the initial state, not used for moves
-            # All moves and planned_moves start from round 1
-            rounds_data = game_data.get("detailed_history", {}).get("rounds_data", {})
-            available_rounds = set(int(k) for k in rounds_data.keys())
-            required_rounds = set(range(1, len(moves_history) + 1))
-            missing_rounds = required_rounds - available_rounds
-            if missing_rounds:
-                raise RuntimeError(f"[SSOT] Missing required rounds {sorted(missing_rounds)} for {len(moves_history)} moves. Available: {sorted(available_rounds)}")
+            print_info(f"[DatasetGenerator] Processing {len(moves_history)} moves with {len(explanations)} explanations")
 
-            # Only process up to the minimum length of all three lists
-            # TODO: this is so so ugly. we should rely on game_N.json -> detailed_history -> rounds_data -> X (number of round) -> moves, which is already there. But don't read the game_N.json file, everything is already in the game_data dict, in the memory.
-            n_records = min(len(moves_history), len(explanations), len(metrics_list))
-            print_info(f"[DEBUG] moves_history: {len(moves_history)}, explanations: {len(explanations)}, metrics_list: {len(metrics_list)}, n_records: {n_records}")
+            # Use clean round utilities to extract dataset records (eliminates +2 offset!)
+            try:
+                dataset_records = extract_dataset_records(game_data, moves_history, explanations, metrics_list)
+            except RuntimeError as e:
+                print_error(f"[DatasetGenerator] Round extraction failed: {e}")
+                raise
 
-            # For each move, use round N+1 (starting from 2)
-            for i in range(n_records):
-                move = moves_history[i]
+            # Process each record with proper round alignment
+            for round_num, move, explanation, metrics, game_state in dataset_records:
                 try:
-                    # TODO: +2 is so so ugly and violates KISS, violates core.md, violates round.md
-                    round_num = i + 2  # rounds start from 2 for moves (skip initial state)
-
-                    # SSOT: Check that all required data exists for this round
-                    round_data = rounds_data.get(str(round_num)) or rounds_data.get(round_num)
-                    if not round_data:
-                        print_warning(f"[SSOT] Round {round_num} missing in rounds_data. Stopping at move {i}.")
-                        break
-
-                    game_state = dataset_game_states.get(str(round_num)) or dataset_game_states.get(round_num)
-                    if not game_state:
-                        print_warning(f"[SSOT] Game state for round {round_num} missing in dataset_game_states. Stopping at move {i}.")
-                        break
-
                     # SSOT: Use centralized utilities for all position extractions
                     head_pos_for_check = extract_head_position(game_state)
                     body_positions_for_check = extract_body_positions(game_state)
 
-                    current_explanation = explanations[i]
-                    current_metrics = metrics_list[i]
-
                     record = self._extract_jsonl_record({
                         "game_state": game_state,
                         "move": move,
-                        "explanation": current_explanation,
-                        "metrics": current_metrics,
+                        "explanation": explanation,
+                        "metrics": metrics,
                         "game_id": game_data.get('game_number', game_data.get('metadata', {}).get('game_number', 1)),
                         "round_num": round_num
                     })
@@ -217,19 +195,19 @@ class DatasetGenerator:
                     if self._jsonl_fh:
                         self._jsonl_fh.write(json.dumps(record) + '\n')
                         self._jsonl_fh.flush()  # Ensure immediate write on Windows
+                    
                     # Write to CSV using common utilities
                     if self._csv_writer:
-                        csv_record = self._extract_csv_features(record, step_number=round_num)  # CSV step numbers are 1-indexed
+                        csv_record = self._extract_csv_features(record, step_number=round_num)
                         self._csv_writer[0].writerow(csv_record)
                         self._csv_writer[1].flush()  # Ensure immediate write on Windows
 
                 except Exception as e:
-                    print_error(f"[DatasetGenerator] Error processing move {i} (round {round_num}): {e}")
-                    print_error(f"[DatasetGenerator] Move: {move if 'move' in locals() else 'N/A'}")
-                    print_error(f"[DatasetGenerator] Round data exists: {'round_data' in locals() and round_data is not None}")
-                    print_error(f"[DatasetGenerator] Game state exists: {'game_state' in locals() and game_state is not None}")
+                    print_error(f"[DatasetGenerator] Error processing round {round_num}, move {move}: {e}")
+                    print_error(f"[DatasetGenerator] Game state exists: {game_state is not None}")
                     traceback.print_exc()
                     raise
+
         except Exception as e:
             print_error(f"[DatasetGenerator] Error processing game {game_data.get('game_number', 'unknown')}: {str(e)}")
             raise

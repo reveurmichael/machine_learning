@@ -1,12 +1,12 @@
 """
-Core dataset generator – convert raw logs into CSV / JSONL.
+Core dataset generator – generate CSV / JSONL from in-memory game data.
 
-This module provides the core DatasetGenerator class that converts
-heuristic game logs into structured datasets for machine learning.
+This module provides the core DatasetGenerator class that processes
+live heuristic game data during execution and generates structured datasets for machine learning.
 
 Design Philosophy:
 - Algorithm-agnostic: Can be reused by supervised/RL extensions
-- Single responsibility: Only handles dataset conversion
+- Single responsibility: Only handles dataset generation from live data
 - Standardized logging: Uses print_utils functions for all operations
 - Generic: Uses common utilities for CSV feature extraction
 """

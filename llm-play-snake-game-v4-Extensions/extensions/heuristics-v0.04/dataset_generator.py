@@ -239,9 +239,6 @@ class DatasetGenerator:
         manhattan_distance = calculate_manhattan_distance(game_state)
         valid_moves = calculate_valid_moves_ssot(game_state)
 
-        # Ensure imports are within the method for clarity and to avoid circular dependencies if moved later
-        # Removed redundant import: from extensions.common.utils.game_analysis_utils import calculate_danger_assessment, calculate_apple_direction
-
         # KISS: Use agent's explanation directly - no fallbacks needed
         # SSOT: The explanation comes from the agent and is already properly formatted
         if isinstance(explanation, dict) and 'explanation_steps' in explanation:

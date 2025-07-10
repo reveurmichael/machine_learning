@@ -28,7 +28,6 @@ from utils.print_utils import print_info, print_warning, print_error
 # The base class is already perfectly prepared for all tasks per round.md guidelines
 HeuristicRoundManager = BaseRoundManager 
 
-# ---- Round mapping utilities (moved from former round_utils.py) ----
 
 def create_round_move_mapping(moves_history: List[str], rounds_data: Dict[str, Any]) -> Dict[int, Dict[str, Any]]:
     """Generate mapping of Task-0 round numbers to their move data without any offset."""

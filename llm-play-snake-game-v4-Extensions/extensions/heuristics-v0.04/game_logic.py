@@ -90,9 +90,6 @@ class HeuristicGameLogic(BaseGameLogic):
             self.game_state.grid_size = grid_size
             self.game_state.snake_positions = self.snake_positions.tolist()
             self.game_state.apple_position = self.apple_position.tolist()
-            # Store initial values for restoration after reset() clears them (no longer needed)
-            # self.game_state._initial_snake_positions = self.snake_positions.tolist()
-            # self.game_state._initial_apple_position = self.apple_position.tolist()
             self.game_state.reset()
             # Validate initial game state without creating rounds (rounds start with moves)
             initial_state = self.get_state_snapshot()

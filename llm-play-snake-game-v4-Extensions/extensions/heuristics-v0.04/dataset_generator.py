@@ -52,17 +52,12 @@ __all__ = ["DatasetGenerator"]
 
 class DatasetGenerator:
     """
-    # TODO: class docstring wrong. we are not converting, we are just generating.
-    Convert raw heuristic game logs to datasets (CSV / JSONL).
+    Generate datasets (CSV / JSONL) from in-memory heuristic game data.
     Designed to be algorithm-agnostic so supervised / RL can reuse it.
     
-    This generator reads heuristic algorithm game logs and converts them
-    into structured datasets suitable for machine learning tasks.
-    
-    Design Philosophy:
-    - Uses common CSV utilities for feature extraction (SSOT compliance)
-    - Maintains JSONL functionality for language-rich datasets
-    - Generic and extensible for all tasks 1-5
+    This class processes live game data during execution and generates structured datasets
+    suitable for machine learning training. It supports both CSV and JSONL formats
+    and can handle multiple algorithms and grid sizes.
     """
 
     def __init__(self, algorithm: str, output_dir: Path):
@@ -255,16 +250,16 @@ class DatasetGenerator:
             raise RuntimeError(f"SSOT violation: Agent explanation missing 'explanation_steps' for record {game_id}")
 
         # Extract the move direction from the explanation metrics (SSOT)
-        # TODO: There should not be "UNKNOWN" in the first place.
-        move_direction = 'UNKNOWN'
-        if isinstance(explanation, dict) and 'metrics' in explanation:
-            agent_metrics = explanation['metrics']
-            if 'final_chosen_direction' in agent_metrics:
-                move_direction = agent_metrics['final_chosen_direction']
-            elif 'move' in agent_metrics: # Fallback for older formats if needed, but prefer final_chosen_direction
-                move_direction = agent_metrics['move']
-
-        if move_direction == 'UNKNOWN':
+        # SSOT: Agent must provide valid move direction in metrics
+        if not isinstance(explanation, dict) or 'metrics' not in explanation:
+            raise RuntimeError(f"SSOT violation: Agent explanation missing 'metrics' for record {game_id}")
+        
+        agent_metrics = explanation['metrics']
+        if 'final_chosen_direction' in agent_metrics:
+            move_direction = agent_metrics['final_chosen_direction']
+        elif 'move' in agent_metrics:  # Fallback for older formats if needed, but prefer final_chosen_direction
+            move_direction = agent_metrics['move']
+        else:
             raise RuntimeError(f"SSOT violation: No valid move direction found in agent metrics for record {game_id}")
 
         if move_chosen != move_direction:

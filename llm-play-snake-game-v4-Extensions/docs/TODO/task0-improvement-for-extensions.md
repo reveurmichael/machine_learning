@@ -80,20 +80,7 @@ The successful implementation of heuristics-v0.04 demonstrates that Task-0 provi
 - One method to save all game/session files
 - Automatic aggregation and updating of session summaries
 - Cleaner, more maintainable codebase
-
-### 4. **Extensibility Hooks and Callbacks**
-
-**Problem:** Extensions must override or duplicate methods to add custom logic at various points in the game/session lifecycle.
-
-**Solution:**
-- Add a callback/hook system to `BaseGameManager` (e.g., `register_extension_callback(event, callback)` and `_trigger_extension_callbacks(event, **kwargs)`)
-- Extensions register their logic for events like `pre_game`, `post_game`, `pre_move`, `post_move`, and `dataset_update`
-- The base manager triggers these hooks at the appropriate times
-
-**Benefits:**
-- Extensions add features without overriding core methods
-- Cleaner separation of concerns and easier extension development
-- Future-proof for new extension types and features
+ manager triggers these hooks at the appropriate times
 
 
 ---

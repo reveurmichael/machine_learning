@@ -38,6 +38,9 @@ Problem 5:
 While summary.json should always be there, which is already good, I want the generation of game_N.json to be optional (maybe by argspaser? maybe just a params there for this moment.)
 
 
+Problem 6:
+Ideally, HOW THINGS ARE DONE is already there in the Base Classes. In the derived classes, we should be worried about WHAT THINGS should be there. This should be very true for game_data and game_stats and maybe game_rounds. Maybe for other core classes as well.
+
 The attached md files are important. Please read them. 
 
 Check attached md files: todo-core.md, task0-improvement-for-extensions.md, limits-manager-impact-on-extensions.md. Their opinion might be useful for you. 

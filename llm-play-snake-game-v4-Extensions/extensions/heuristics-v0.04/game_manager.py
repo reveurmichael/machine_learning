@@ -111,13 +111,19 @@ class HeuristicGameManager(BaseGameManager):
     # Use heuristic-specific game logic
     GAME_LOGIC_CLS = HeuristicGameLogic
 
-    def __init__(self, args: argparse.Namespace) -> None:
-        """Initialize heuristic game manager with automatic dataset update capabilities."""
+    def __init__(self, args: argparse.Namespace, agent: Any) -> None:
+        """Initialize heuristic game manager with automatic dataset update capabilities.
+        
+        Args:
+            args: Command line arguments namespace
+            agent: Required agent instance (SSOT enforcement)
+        """
         super().__init__(args)
 
         # Heuristic-specific attributes
         self.algorithm_name: str = getattr(args, "algorithm", DEFAULT_ALGORITHM)
-        self.agent: Optional[Any] = None
+        # Shared agent instance (SSOT). Must be provided.
+        self.agent: Any = agent
         self.verbose: bool = getattr(args, "verbose", False)
 
         # Session statistics for summary
@@ -191,10 +197,19 @@ class HeuristicGameManager(BaseGameManager):
         """
         Factory method to create appropriate agent based on algorithm selection.
         """
-
         try:
-            # Use agents package canonical factory method
-            self.agent = create(self.algorithm_name)
+            # Require agent to be provided (SSOT enforcement)
+            if self.agent is None:
+                raise RuntimeError(
+                    f"Agent is required for HeuristicGameManager. Algorithm '{self.algorithm_name}' needs an agent instance."
+                )
+
+            # Validate that the provided agent matches requested algorithm
+            provided_name = getattr(self.agent, "algorithm_name", None)
+            if provided_name and provided_name.upper() != self.algorithm_name.upper():
+                raise RuntimeError(
+                    f"Provided agent algorithm '{provided_name}' does not match requested '{self.algorithm_name}'."
+                )
 
             if not self.agent:
                 available_algorithms = get_available_algorithms()
@@ -204,15 +219,16 @@ class HeuristicGameManager(BaseGameManager):
 
             if self.verbose:
                 print_info(
-                    f"🏭 Created {self.agent.__class__.__name__} for {self.algorithm_name}"
+                    f"🏭 Using {self.agent.__class__.__name__} for {self.algorithm_name}"
                 )
         except Exception:
             raise
 
     def _setup_dataset_generator(self) -> None:
         """Setup dataset generator for automatic updates."""
+        # Pass current agent instance to allow agent-level control over prompt/completion formatting
         self.dataset_generator = DatasetGenerator(
-            self.algorithm_name, Path(self.log_dir)
+            self.algorithm_name, Path(self.log_dir), agent=self.agent
         )
 
         # Open CSV and JSONL files for writing

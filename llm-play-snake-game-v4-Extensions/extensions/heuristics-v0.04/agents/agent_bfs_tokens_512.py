@@ -48,6 +48,11 @@ class BFS512TokenAgent(BFSAgent):
         self.algorithm_name = "BFS-512"
         # Control whether to include ASCII board representation in prompts (saves tokens)
         self.include_board_representation = False
+        
+        # ----- Dataset-generation customisation switches -----
+        self.include_danger_assessment = False
+        self.include_apple_direction = False
+        self.include_free_space = False
 
     def _generate_move_explanation(self, game_state: dict, path: List[Tuple[int, int]], 
                                  direction: str, valid_moves: List[str],
@@ -131,5 +136,61 @@ class BFS512TokenAgent(BFSAgent):
                 formatted_metrics.append(f"- Free space: {additional_metrics['free_space']}")
         
         return "\n".join(formatted_metrics) if formatted_metrics else ""
+
+    # ------------------------------------------------------------------
+    # DatasetGenerator will call the following two hooks (if present) to
+    # let the agent fully control JSONL prompt / completion generation.
+    # ------------------------------------------------------------------
+
+    def format_prompt(self, game_state: dict) -> str:  # noqa: D401 – simple description is OK
+        """Return a concise prompt string built from *game_state*.
+
+        This implementation intentionally keeps the prompt extremely short
+        to stay well within a 512-token budget.  Additional details (board
+        ASCII art, danger assessment, etc.) can be enabled by toggling the
+        corresponding *include_* attributes.
+        """
+        grid_size = game_state.get("grid_size", 10)
+        head_pos = extract_head_position(game_state)
+        apple_pos = game_state.get("apple_position", [0, 0])
+        snake_len = len(game_state.get("snake_positions", []))
+
+        prompt_parts = [
+            f"Snake on {grid_size}x{grid_size} grid.",
+            f"Head: {head_pos}, Apple: {apple_pos}, Length: {snake_len}.",
+        ]
+
+        # Optional board representation (rarely used for 512-token agent)
+        if self.include_board_representation:
+            from utils.board_utils import create_text_board  # local import – avoids heavy global import cost
+
+            board_text = create_text_board(
+                grid_size,
+                head_pos,
+                game_state.get("snake_positions", []),
+                apple_pos,
+            )
+            prompt_parts.append("Board:\n" + board_text)
+
+        prompt_parts.append("Choose next move (UP, DOWN, LEFT, RIGHT):")
+
+        return "\n".join(prompt_parts)
+
+    def format_completion(self, move: str, explanation_text: str, metrics: dict) -> str:  # noqa: D401
+        """Return a concise completion string for the JSONL entry."""
+        parts = [explanation_text.strip()]
+
+        # Optionally append a tiny metrics section
+        if (
+            self.include_danger_assessment
+            or self.include_apple_direction
+            or self.include_free_space
+        ):
+            metrics_summary = self.format_metrics_for_completion(metrics, metrics)
+            if metrics_summary:
+                parts.append("\nMetrics:\n" + metrics_summary)
+
+        parts.append(f"\nConclusion: {move.upper()}")
+        return "\n".join(parts)
 
 

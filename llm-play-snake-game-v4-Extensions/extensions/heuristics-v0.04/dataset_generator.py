@@ -69,13 +69,14 @@ class DatasetGenerator:
     and can handle multiple algorithms and grid sizes.
     """
 
-    def __init__(self, algorithm: str, output_dir: Path):
+    def __init__(self, algorithm: str, output_dir: Path, agent: Any):
         """
         Initialize the dataset generator.
 
         Args:
             algorithm: The algorithm name (e.g., 'bfs', 'dfs')
             output_dir: Output directory for datasets
+            agent: Optional agent instance for custom prompt/completion formatting
         """
         self.algorithm = algorithm
         self.output_dir = output_dir
@@ -87,6 +88,12 @@ class DatasetGenerator:
         # File handles
         self._csv_writer = None
         self._jsonl_fh = None
+
+        if agent is None:
+            raise RuntimeError("DatasetGenerator requires a non-null agent instance (SSOT enforcement).")
+
+        # Single Source of Truth: keep a single shared agent reference
+        self.agent = agent
 
         print_info(
             f"Initialized for {algorithm} (output: {output_dir})", "DatasetGenerator"
@@ -143,8 +150,8 @@ class DatasetGenerator:
             no_gui=True,
         )
 
-        # Run games in memory using the proper game manager workflow
-        game_manager = HeuristicGameManager(args)
+        # Run games in memory using the proper game manager workflow with shared agent (SSOT)
+        game_manager = HeuristicGameManager(args, agent=self.agent)
         game_manager.initialize()
 
         # Open output files for dataset generation
@@ -341,61 +348,50 @@ class DatasetGenerator:
                 f"[SSOT] FAIL-FAST: JSONL explanation head {explanation_head} != prompt head {pre_move_head} for game {game_id} round {round_num}"
             )
 
-        # Calculate danger features using centralized utility
-        danger_assessment = calculate_danger_assessment(
-            head_pos, body_positions, grid_size, move_direction
-        )
-        danger_straight = danger_assessment["straight"]
-        danger_left = danger_assessment["left"]
-        danger_right = danger_assessment["right"]
-
-        # Calculate apple direction features using centralized utility
-        apple_direction_info = calculate_apple_direction(head_pos, apple_position)
-        apple_dir_up = apple_direction_info.get("up", False)
-        apple_dir_down = apple_direction_info.get("down", False)
-        apple_dir_left = apple_direction_info.get("left", False)
-        apple_dir_right = apple_direction_info.get("right", False)
-
-        # Calculate free space features
-        free_space_up = count_free_space_in_direction(game_state, "UP")
-        free_space_down = count_free_space_in_direction(game_state, "DOWN")
-        free_space_left = count_free_space_in_direction(game_state, "LEFT")
-        free_space_right = count_free_space_in_direction(game_state, "RIGHT")
-
         # Check if the move is valid (SSOT validation - agent should only choose valid moves)
         if move_direction not in valid_moves:
             raise RuntimeError(
                 f"SSOT violation: JSONL target_move '{move_direction}' is not in valid moves {valid_moves} for head {head_pos} in game {game_id} round {round_num}."
             )
 
-        # Format prompt using the game state
-        prompt = self._format_prompt(game_state)
+        # ----------------------- OPTIONAL METRICS -----------------------
+        metrics_dict = {
+            "valid_moves": valid_moves,
+            "manhattan_distance": manhattan_distance,
+        }
 
-        # Format completion with the move and explanation
-        completion = self._format_completion(
+        # Calculate apple direction features only if agent needs them
+        if getattr(self.agent, "include_apple_direction", False):
+            apple_direction_info = calculate_apple_direction(head_pos, apple_position)
+            metrics_dict["apple_direction"] = apple_direction_info
+
+        # Calculate danger assessment only if agent needs it
+        if getattr(self.agent, "include_danger_assessment", False):
+            danger_assessment = calculate_danger_assessment(
+                head_pos, body_positions, grid_size, move_direction
+            )
+            metrics_dict["danger_assessment"] = danger_assessment
+
+        # Calculate free space features only if agent needs it
+        if getattr(self.agent, "include_free_space", False):
+            metrics_dict["free_space"] = {
+                "up": count_free_space_in_direction(game_state, "UP"),
+                "down": count_free_space_in_direction(game_state, "DOWN"),
+                "left": count_free_space_in_direction(game_state, "LEFT"),
+                "right": count_free_space_in_direction(game_state, "RIGHT"),
+            }
+
+        # ----------------------------------------------------------------
+
+        # Format prompt and completion using agent hooks
+        if not self.agent:
+            raise RuntimeError("Agent is required for JSONL generation")
+        
+        prompt = self.agent.format_prompt(game_state)
+        completion = self.agent.format_completion(
             move_direction,
             explanation_text,
-            {
-                "valid_moves": valid_moves,
-                "manhattan_distance": manhattan_distance,
-                "apple_direction": {
-                    "up": apple_dir_up,
-                    "down": apple_dir_down,
-                    "left": apple_dir_left,
-                    "right": apple_dir_right,
-                },
-                "danger_assessment": {
-                    "straight": danger_straight,
-                    "left": danger_left,
-                    "right": danger_right,
-                },
-                "free_space": {
-                    "up": free_space_up,
-                    "down": free_space_down,
-                    "left": free_space_left,
-                    "right": free_space_right,
-                },
-            },
+            metrics_dict,
         )
 
         # Return the complete JSONL record
@@ -404,113 +400,3 @@ class DatasetGenerator:
             "prompt": prompt,
             "completion": completion,
         }
-
-    def _format_prompt(self, game_state: dict) -> str:
-        """
-        Format the game state into a language-rich and structured prompt for fine-tuning.
-        Args:
-            game_state: Game state dictionary
-        Returns:
-            Formatted prompt string
-        """
-        if not game_state:
-            return "Current game state is not available."
-
-        grid_size = game_state.get("grid_size", 10)
-        snake_positions = game_state.get("snake_positions", [])
-        apple_position = game_state.get("apple_position", [])
-        score = game_state.get("score", 0)
-        steps = game_state.get("steps", 0)
-        algorithm = game_state.get("algorithm", self.algorithm)
-
-        # SSOT: Use centralized utilities from BFSAgent for position extractions
-        head_pos = extract_head_position(game_state)
-        if not snake_positions:
-            return "Invalid game state: Snake has no positions."
-
-        # SSOT: Use centralized body positions calculation from BFSAgent
-        body_positions = extract_body_positions(game_state)
-        # SSOT: body_positions can be empty for initial moves when snake is only 1 segment long
-        # This is valid behavior and should be included in the dataset
-        manhattan_distance = calculate_manhattan_distance(game_state)
-        valid_moves = calculate_valid_moves_ssot(game_state)
-        # Remove any direct calculations of these values below
-
-        # Validate positions
-        if not isinstance(head_pos, (list, tuple)) or len(head_pos) != 2:
-            head_pos = [0, 0]
-
-        head_x, head_y = head_pos[0], head_pos[1]  # PRE-MOVE: current head coordinates
-
-        # Calculate apple direction features using centralized utility
-        # PRE-EXECUTION: Apple direction relative to current head position
-        apple_direction = calculate_apple_direction(head_pos, apple_position)
-        apple_dir_up = apple_direction["up"]
-        apple_dir_down = apple_direction["down"]
-        apple_dir_left = apple_direction["left"]
-        apple_dir_right = apple_direction["right"]
-
-        # Calculate free space features
-        # PRE-EXECUTION: Free space in each direction from current head position
-        free_space_up = count_free_space_in_direction(game_state, "UP")
-        free_space_down = count_free_space_in_direction(game_state, "DOWN")
-        free_space_left = count_free_space_in_direction(game_state, "LEFT")
-        free_space_right = count_free_space_in_direction(game_state, "RIGHT")
-
-        # Convert coordinates to tuple format for consistent representation
-        head_pos_tuple = convert_coordinates_to_tuples(head_pos)
-        apple_position_tuple = convert_coordinates_to_tuples(apple_position)
-        body_positions_tuple = convert_coordinates_to_tuples(body_positions)
-
-        # Create text-based board representation
-        from utils.board_utils import create_text_board
-
-        board_text = create_text_board(
-            grid_size, head_pos, body_positions, apple_position
-        )
-
-        # Format prompt using the game state with tuple coordinates
-        prompt = f"""You are playing Snake on a {grid_size}x{grid_size} grid. The coordinate system is (0,0) at bottom-left to ({grid_size-1},{grid_size-1}) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.
-
-Current game state:
-- Snake head position: {head_pos_tuple}
-- Apple position: {apple_position_tuple}
-- Snake body positions: {body_positions_tuple}
-- Snake length: {len(snake_positions)}
-
-Board representation:
-{board_text}
-
-What is the best move to make? Consider:
-1. Path to the apple
-2. Avoiding collisions with walls and snake body
-3. Maximizing score and survival
-
-Choose from: UP, DOWN, LEFT, RIGHT
-"""
-
-        return prompt
-
-    def _format_completion(self, move: str, explanation: str, metrics: dict) -> str:
-        """
-        Format the completion with move and explanation.
-        Args:
-            move: Agent chosen move
-            explanation: Agent explanation
-            metrics: Calculated metrics
-        Returns:
-            Formatted completion string
-        """
-        # Format the completion
-        completion = f"""{explanation}
-
-Metrics:
-- Valid moves: {metrics.get('valid_moves', [])}
-- Manhattan distance to apple: {metrics.get('manhattan_distance', 0)}
-- Apple direction: {metrics.get('apple_direction', {})}
-- Danger assessment: {metrics.get('danger_assessment', {})}
-- Free space: {metrics.get('free_space', {})}
-
-Conclusion: The move is: {move.upper()}"""
-
-        return completion

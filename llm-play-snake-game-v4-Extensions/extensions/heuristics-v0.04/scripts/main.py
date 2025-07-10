@@ -32,8 +32,8 @@ sys.path.insert(0, str(heuristics_dir))
 project_root = heuristics_dir.parent.parent
 sys.path.insert(0, str(project_root))
 
-from dataset_generator import DatasetGenerator
-from agents import get_available_algorithms
+from agents import get_available_algorithms, create
+from game_manager import HeuristicGameManager
 import argparse
 from typing import List
 
@@ -174,17 +174,27 @@ def main() -> None:
 
             
 
-            # Step 2: Run games in memory and generate datasets
-            generator = DatasetGenerator(algorithm, output_dir)
-            generator.generate_games_and_write_datasets(
+            # Step 2: Create a single agent instance (SSOT) and run the manager directly
+            agent_instance = create(algorithm)
+
+            # Build args namespace for the game manager
+            import argparse as _ap
+            gm_args = _ap.Namespace(
+                algorithm=algorithm,
                 max_games=args.max_games,
                 max_steps=args.max_steps,
                 grid_size=args.grid_size,
-                formats=[args.format] if args.format != "both" else ["csv", "jsonl"],
-                verbose=args.verbose
+                verbose=args.verbose,
+                no_gui=True,
             )
+
+            game_manager = HeuristicGameManager(gm_args, agent=agent_instance)
+            game_manager.initialize()
+            game_manager.run()
+
             print_success(f"Completed dataset generation for {algorithm}")
-            print_info(f"📁 Dataset files created in: {output_dir}")
+            if hasattr(game_manager, "log_dir"):
+                print_info(f"📁 Dataset files created in: {game_manager.log_dir}")
             
         except Exception as e:
             print_error(f"Failed to generate dataset for {algorithm}: {e}")

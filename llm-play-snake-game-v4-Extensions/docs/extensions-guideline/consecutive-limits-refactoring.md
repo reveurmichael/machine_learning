@@ -1,5 +1,52 @@
 # Elegant Consecutive Limits Management System
 
+## Limit Classification and Purpose
+
+### Universal Limits (Apply to ALL Tasks)
+These limits are fundamental game mechanics that apply to every extension and algorithm:
+
+**MAX_GAMES_ALLOWED = 2**
+- **Scope**: Universal - applies to Task-0, heuristics, RL, supervised learning, distillation
+- **Rationale**: Safety mechanism to prevent runaway processes
+
+**MAX_STEPS_ALLOWED = 400**
+- **Purpose**: Prevents infinite games within a single game session
+- **Scope**: Universal - every algorithm must respect step limits
+- **Rationale**: Computational resource protection and game termination guarantee
+
+**MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED = 10**
+- **Purpose**: Prevents snake from moving backwards (reversing direction)
+- **Scope**: Universal - all algorithms must respect snake movement physics
+- **Rationale**: Snake cannot reverse direction in any valid game scenario
+
+**MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED = 1**
+- **Purpose**: Handles pathfinding failures gracefully
+- **Scope**: Universal - applies to all pathfinding algorithms (BFS, A*, heuristics, RL)
+- **Rationale**: When no valid path exists, game should terminate rather than loop infinitely
+
+### Task-0 Specific Limits (LLM and Distillation Only)
+These limits are specific to LLM-based approaches and fine-tuning scenarios:
+
+**MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 3**
+- **Purpose**: Handles when LLM returns no valid move response
+- **Scope**: Task-0 and distillation/fine-tuning tracks only
+- **Rationale**: LLMs may occasionally fail to generate valid moves, requiring graceful handling
+
+**MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED = 3**
+- **Purpose**: Handles LLM parsing errors, communication failures, and malformed responses
+- **Scope**: Task-0 and distillation/fine-tuning tracks only
+- **Rationale**: LLM APIs can return unexpected responses that need systematic error handling
+
+### Architectural Implications
+
+**Base Class Design**: Universal limits are handled in base classes (`core/game_limits_manager.py`) because they apply to all extensions.
+
+**Extension-Specific Logic**: Task-0 specific limits are handled in Task-0 derived classes because they only apply to LLM-based approaches.
+
+**Single Source of Truth**: Each limit type has exactly one place where it's defined and managed, following SSOT principles.
+
+**Fail-Fast Philosophy**: Limits are checked immediately when conditions are met, with no fallbacks or complex recovery logic.
+
 ## Overview
 
 This document describes the elegant refactoring of consecutive move limits and sleep handling in the Snake-GTP project. The system centralizes all limit tracking into a sophisticated management architecture that follows OOP, SOLID, and DRY principles.

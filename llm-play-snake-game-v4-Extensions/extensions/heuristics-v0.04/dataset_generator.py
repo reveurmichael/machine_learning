@@ -60,13 +60,14 @@ class DatasetGenerator:
     and can handle multiple algorithms and grid sizes.
     """
 
-    def __init__(self, algorithm: str, output_dir: Path):
+    def __init__(self, algorithm: str, output_dir: Path, agent: Any):
         """
         Initialize the dataset generator.
         
         Args:
             algorithm: The algorithm name (e.g., 'bfs', 'dfs')
             output_dir: Output directory for datasets
+            agent: Agent instance to use
         """
         self.algorithm = algorithm
         self.output_dir = output_dir
@@ -78,6 +79,12 @@ class DatasetGenerator:
         # File handles
         self._csv_writer = None
         self._jsonl_fh = None
+
+        # Use supplied agent (SSOT). 
+        if agent is not None:
+            self.agent = agent
+        else:
+            raise RuntimeError(f"[DatasetGenerator] No agent provided for {algorithm}")
 
         print_info(f"Initialized for {algorithm} (output: {output_dir})", "DatasetGenerator")
 
@@ -302,6 +309,13 @@ class DatasetGenerator:
         prompt = self._format_prompt(game_state)
 
         # Format completion with the move and explanation
+        agent = getattr(self, "agent", None)
+        if agent and hasattr(agent, "format_metrics_for_completion"):
+            try:
+                formatted_metrics = agent.format_metrics_for_completion(metrics, metrics)
+            except Exception as e:
+                raise RuntimeError(f"[DatasetGenerator] Agent metrics formatting failed: {e}")
+
         completion = self._format_completion(move_direction, explanation_text, {
             'valid_moves': valid_moves,
             'manhattan_distance': manhattan_distance,
@@ -388,9 +402,18 @@ class DatasetGenerator:
         apple_position_tuple = convert_coordinates_to_tuples(apple_position)
         body_positions_tuple = convert_coordinates_to_tuples(body_positions)
 
-        # Create text-based board representation
-        from utils.board_utils import create_text_board
-        board_text = create_text_board(grid_size, head_pos, body_positions, apple_position)
+        # Determine whether to include ASCII board representation based on agent preference
+        include_board = getattr(getattr(self, "agent", None), "include_board_representation", True)
+        if self.agent is None:
+            # If we failed to instantiate an agent, default to including nothing (safer for token budget)
+            include_board = False
+
+        # Create text-based board representation only if agent wants it
+        board_text = ""
+        if include_board:
+            from utils.board_utils import create_text_board
+            board_text = create_text_board(grid_size, head_pos, body_positions, apple_position)
+            board_text = f"\nBoard representation:\n{board_text}"
 
         # Format prompt using the game state with tuple coordinates
         prompt = f"""You are playing Snake on a {grid_size}x{grid_size} grid. The coordinate system is (0,0) at bottom-left to ({grid_size-1},{grid_size-1}) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.
@@ -399,10 +422,7 @@ Current game state:
 - Snake head position: {head_pos_tuple}
 - Apple position: {apple_position_tuple}
 - Snake body positions: {body_positions_tuple}
-- Snake length: {len(snake_positions)}
-
-Board representation:
-{board_text}
+- Snake length: {len(snake_positions)}{board_text}
 
 What is the best move to make? Consider:
 1. Path to the apple
@@ -412,7 +432,7 @@ What is the best move to make? Consider:
 Choose from: UP, DOWN, LEFT, RIGHT
 """
 
-        return prompt 
+        return prompt
 
     def _format_completion(self, move: str, explanation: str, metrics: dict) -> str:
         """
@@ -424,16 +444,20 @@ Choose from: UP, DOWN, LEFT, RIGHT
         Returns:
             Formatted completion string
         """
+        # Use cached agent instance for metrics formatting (simpler, no if/else)
+        formatted_metrics = ""
+        agent = getattr(self, "agent", None)
+        if agent and hasattr(agent, "format_metrics_for_completion"):
+            try:
+                formatted_metrics = agent.format_metrics_for_completion(metrics, metrics)
+            except Exception as e:
+                print_warning(f"[DatasetGenerator] Agent metrics formatting failed: {e}")
+        
         # Format the completion
         completion = f"""{explanation}
 
-Metrics:
-- Valid moves: {metrics.get('valid_moves', [])}
-- Manhattan distance to apple: {metrics.get('manhattan_distance', 0)}
-- Apple direction: {metrics.get('apple_direction', {})}
-- Danger assessment: {metrics.get('danger_assessment', {})}
-- Free space: {metrics.get('free_space', {})}
+{formatted_metrics}
 
 Conclusion: The move is: {move.upper()}"""
 
-        return completion 
+        return completion

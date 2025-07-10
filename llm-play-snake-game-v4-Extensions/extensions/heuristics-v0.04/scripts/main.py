@@ -33,6 +33,7 @@ project_root = heuristics_dir.parent.parent
 sys.path.insert(0, str(project_root))
 
 from dataset_generator import DatasetGenerator
+from agents import create, get_available_algorithms
 import argparse
 from typing import List
 
@@ -126,13 +127,8 @@ Examples:
 
 def find_available_algorithms() -> List[str]:
     """Find available heuristic algorithms."""
-    # This is a simplified implementation
-    # In a real scenario, this would scan existing algorithms or import them dynamically
-    return [
-        "BFS", "BFS-SAFE-GREEDY", 
-        "BFS-512", "BFS-1024", "BFS-2048", "BFS-4096",
-        "BFS-SAFE-GREEDY-512", "BFS-SAFE-GREEDY-1024", "BFS-SAFE-GREEDY-2048", "BFS-SAFE-GREEDY-4096"
-    ]
+    # Use the actual available algorithms from the agents module
+    return get_available_algorithms()
 
 
 def main() -> None:
@@ -176,8 +172,16 @@ def main() -> None:
                 output_dir.mkdir(parents=True, exist_ok=True)
                 print_info(f"📁 Using auto-generated output directory: {output_dir}")
 
-            # Step 2: Run games in memory and generate datasets
-            generator = DatasetGenerator(algorithm, output_dir)
+            # Step 2: Create agent instance (SSOT compliance)
+            try:
+                agent = create(algorithm)
+                print_info(f"Created agent: {agent.__class__.__name__}")
+            except Exception as e:
+                print_error(f"Failed to create agent for {algorithm}: {e}")
+                continue
+
+            # Step 3: Run games in memory and generate datasets
+            generator = DatasetGenerator(algorithm, output_dir, agent)
             generator.generate_games_and_write_datasets(
                 max_games=args.max_games,
                 max_steps=args.max_steps,

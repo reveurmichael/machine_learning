@@ -47,6 +47,8 @@ class BFS2048TokenAgent(BFSAgent):
         """Initialize BFS 2048-token agent, extending base BFS."""
         super().__init__()  # Initialize parent BFS agent
         self.algorithm_name = "BFS-2048"
+        # Control whether to include ASCII board representation in prompts (saves tokens)
+        self.include_board_representation = True
 
     def _generate_move_explanation(self, game_state: dict, path: List[Tuple[int, int]], 
                                  direction: str, valid_moves: List[str],
@@ -149,3 +151,38 @@ class BFS2048TokenAgent(BFSAgent):
         }
 
         return explanation_dict
+
+    def format_metrics_for_completion(self, metrics: dict, additional_metrics: dict = None) -> str:
+        """
+        Format metrics for completion text. Users can override this method to customize
+        which metrics to include and how to format them.
+        
+        Args:
+            metrics: Agent's own metrics dictionary
+            additional_metrics: Additional metrics from dataset generator (optional)
+        
+        Returns:
+            Formatted metrics string for completion
+        """
+        # Default implementation - users can override for custom formatting
+        formatted_metrics = []
+        
+        # Include basic metrics
+        if 'valid_moves' in metrics:
+            formatted_metrics.append(f"- Valid moves: {metrics['valid_moves']}")
+        
+        if 'manhattan_distance' in metrics:
+            formatted_metrics.append(f"- Manhattan distance to apple: {metrics['manhattan_distance']}")
+        
+        # Include additional metrics if provided
+        if additional_metrics:
+            if 'apple_direction' in additional_metrics:
+                formatted_metrics.append(f"- Apple direction: {additional_metrics['apple_direction']}")
+            
+            if 'danger_assessment' in additional_metrics:
+                formatted_metrics.append(f"- Danger assessment: {additional_metrics['danger_assessment']}")
+            
+            if 'free_space' in additional_metrics:
+                formatted_metrics.append(f"- Free space: {additional_metrics['free_space']}")
+        
+        return "Metrics:\n" + "\n".join(formatted_metrics) if formatted_metrics else ""

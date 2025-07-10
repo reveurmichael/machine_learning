@@ -196,7 +196,7 @@ class HeuristicGameManager(BaseGameManager):
 
     def _setup_dataset_generator(self) -> None:
         """Setup dataset generator for automatic updates."""
-        self.dataset_generator = DatasetGenerator(self.algorithm_name, Path(self.log_dir))
+        self.dataset_generator = DatasetGenerator(self.algorithm_name, Path(self.log_dir), self.agent)
 
         # Open CSV and JSONL files for writing
         self.dataset_generator._open_csv()

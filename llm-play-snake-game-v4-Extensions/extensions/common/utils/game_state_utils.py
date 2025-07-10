@@ -169,4 +169,28 @@ def flatten_explanation_for_jsonl(explanation: Any) -> str:
         # Fallback: join all string fields in the dict
         return '\n'.join(str(v) for v in explanation.values() if isinstance(v, str))
     # Fallback: just str()
-    return str(explanation) 
+    return str(explanation)
+
+
+def convert_coordinates_to_tuples(coordinates):
+    """
+    Convert coordinate lists to tuple format for consistent representation.
+    
+    Args:
+        coordinates: Can be a single coordinate [x, y] or list of coordinates [[x1, y1], [x2, y2], ...]
+    Returns:
+        Tuple format: (x, y) for single coordinate or [(x1, y1), (x2, y2), ...] for list
+    """
+    if not coordinates:
+        return coordinates
+
+    # Handle single coordinate [x, y]
+    if isinstance(coordinates, list) and len(coordinates) == 2 and all(isinstance(x, (int, float)) for x in coordinates):
+        return tuple(coordinates)
+
+    # Handle list of coordinates [[x1, y1], [x2, y2], ...]
+    if isinstance(coordinates, list) and all(isinstance(pos, list) and len(pos) == 2 for pos in coordinates):
+        return [tuple(pos) for pos in coordinates]
+
+    # Return as-is if not a coordinate format
+    return coordinates 

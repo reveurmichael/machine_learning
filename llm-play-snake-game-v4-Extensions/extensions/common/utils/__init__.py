@@ -19,6 +19,7 @@ Design Philosophy:
 from .path_utils import get_datasets_root, get_dataset_path, get_model_path
 from .csv_utils import CSVFeatureExtractor, create_csv_record
 from .dataset_utils import save_csv_dataset, save_jsonl_dataset
+from .game_state_utils import convert_coordinates_to_tuples
 from utils.print_utils import print_info
 
 __all__ = [
@@ -31,6 +32,7 @@ __all__ = [
     "create_csv_record", 
     "save_csv_dataset",
     "save_jsonl_dataset",
+    "convert_coordinates_to_tuples",
 ]
 
 # Dataset utilities

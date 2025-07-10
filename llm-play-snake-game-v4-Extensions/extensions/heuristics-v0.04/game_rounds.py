@@ -87,7 +87,7 @@ def validate_round_consistency(moves_history: List[str], round_mapping: Dict[int
     return True
 
 
-def extract_dataset_records(
+def create_dataset_records(
     game_data: Dict[str, Any],
     moves_history: List[str],
     explanations: List[Any],
@@ -123,11 +123,11 @@ def extract_dataset_records(
 
     return records
 
-# Re-export for convenience so callers can `from game_rounds import extract_dataset_records`
+# Re-export for convenience so callers can `from game_rounds import create_dataset_records`
 __all__ = [
     *globals().get("__all__", []),
     "create_round_move_mapping",
     "get_round_for_move_index",
     "validate_round_consistency",
-    "extract_dataset_records",
+    "create_dataset_records",
 ] 

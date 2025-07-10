@@ -22,7 +22,7 @@ import traceback
 
 # Fix UTF-8 encoding issues on Windows
 # This ensures that all subprocesses and file operations use UTF-8
-# All file operations (CSV, JSONL, JSON) in v0.04 use UTF-8 encoding for cross-platform compatibility
+# All file operations (CSV, JSONL, JSON) use UTF-8 encoding for cross-platform compatibility
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 # Add project root to path to allow absolute imports
@@ -44,7 +44,10 @@ from extensions.common.utils.csv_utils import CSVFeatureExtractor, create_csv_re
 from extensions.common.utils.game_analysis_utils import calculate_danger_assessment, calculate_apple_direction
 
 # Import round utilities for clean round management
-from game_rounds import extract_dataset_records
+from game_rounds import create_dataset_records
+
+# Import common utilities for coordinate conversion
+from extensions.common.utils.game_state_utils import convert_coordinates_to_tuples
 
 __all__ = ["DatasetGenerator"]
 
@@ -170,7 +173,7 @@ class DatasetGenerator:
 
             # Use clean round utilities to extract dataset records (eliminates +2 offset!)
             try:
-                dataset_records = extract_dataset_records(game_data, moves_history, explanations, metrics_list)
+                dataset_records = create_dataset_records(game_data, moves_history, explanations, metrics_list)
             except RuntimeError as e:
                 print_error(f"[DatasetGenerator] Round extraction failed: {e}")
                 raise
@@ -182,7 +185,7 @@ class DatasetGenerator:
                     head_pos_for_check = extract_head_position(game_state)
                     body_positions_for_check = extract_body_positions(game_state)
 
-                    record = self._extract_jsonl_record({
+                    record = self._create_jsonl_record({
                         "game_state": game_state,
                         "move": move,
                         "explanation": explanation,
@@ -198,7 +201,7 @@ class DatasetGenerator:
                     
                     # Write to CSV using common utilities
                     if self._csv_writer:
-                        csv_record = self._extract_csv_features(record, step_number=round_num)
+                        csv_record = self._create_csv_record(record, step_number=round_num)
                         self._csv_writer[0].writerow(csv_record)
                         self._csv_writer[1].flush()  # Ensure immediate write on Windows
 
@@ -212,15 +215,8 @@ class DatasetGenerator:
             print_error(f"[DatasetGenerator] Error processing game {game_data.get('game_number', 'unknown')}: {str(e)}")
             raise
 
-    # TODO: the name is misleading. it's not extracting a record, it's creating/having/getting a CSV record.
-    def _extract_csv_features(self, record: dict, step_number: int = None) -> dict:
-        """
-        Extract CSV features from a single game record using common utilities.
-        SSOT Compliance: Use the common CSVFeatureExtractor for consistency.
-        
-        PRE-EXECUTION: All game_state values are from BEFORE the move is executed.
-        This ensures consistency with the JSONL format and the prompt state.
-        """
+    def _create_csv_record(self, record: dict, step_number: int = None) -> dict:
+        """Create a CSV record from the dataset record."""
         game_state = record.get('game_state', {})
         explanation = record.get('explanation', {})
         game_id = record.get('game_id', 1)
@@ -231,28 +227,14 @@ class DatasetGenerator:
 
         return csv_record
 
-    # TODO: the name is misleading. it's not extracting a record, it's creating/having/getting a record.
-    def _extract_jsonl_record(self, record: dict) -> Dict[str, Any]:
-        """
-        Extracts and formats a single JSONL record from game data.
-        SSOT Compliance: Uses the agent's actual move and explanation as the source of truth.
-        
-        PRE-EXECUTION: All game_state values are from BEFORE the move is executed.
-        This ensures consistency between the prompt (which shows pre-move state) and
-        the completion metrics (which should match the prompt's state).
-        
-        Args:
-            record: Game record containing state and move information
-        Returns:
-            Dictionary with prompt and completion for JSONL format
-        """
+    def _create_jsonl_record(self, record: dict) -> Dict[str, Any]:
+        """Create a JSONL record from the dataset record."""
         game_state = record.get('game_state', {})
         explanation = record.get('explanation', {})
         move_chosen = record.get('move') # The chosen move from moves_history
         game_id = record.get('game_id', 1)
         round_num = record.get('round_num')
 
-        # SSOT: Use centralized utilities from BFSAgent for all position and calculation extractions
         head_pos = extract_head_position(game_state)
         body_positions = extract_body_positions(game_state)
         apple_position = game_state.get('apple_position') # Directly extract apple_position from game_state
@@ -287,12 +269,10 @@ class DatasetGenerator:
         if move_direction == 'UNKNOWN':
             raise RuntimeError(f"SSOT violation: No valid move direction found in agent metrics for record {game_id}")
 
-        # SSOT FAIL-FAST: Ensure the move_chosen passed from moves_history matches the agent's chosen direction
         if move_chosen != move_direction:
             raise RuntimeError(f"[SSOT] FAIL-FAST: Mismatch between recorded move {move_chosen} and agent's chosen direction {move_direction} for record {game_id}")
 
         # Validate head position before processing (redundant with initial check in _process_single_game, but for robustness)
-        # SSOT: Use centralized utilities for all position extractions
         pre_move_head = extract_head_position(game_state)
         if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
             raise RuntimeError(f"[SSOT] Invalid head position in game state for round {round_num}: {pre_move_head}")
@@ -361,29 +341,6 @@ class DatasetGenerator:
             "completion": completion,
         }
 
-    def _convert_coordinates_to_tuples(self, coordinates):
-        """
-        Convert coordinate lists to tuple format for consistent representation.
-        
-        Args:
-            coordinates: Can be a single coordinate [x, y] or list of coordinates [[x1, y1], [x2, y2], ...]
-        Returns:
-            Tuple format: (x, y) for single coordinate or [(x1, y1), (x2, y2), ...] for list
-        """
-        if not coordinates:
-            return coordinates
-
-        # Handle single coordinate [x, y]
-        if isinstance(coordinates, list) and len(coordinates) == 2 and all(isinstance(x, (int, float)) for x in coordinates):
-            return tuple(coordinates)
-
-        # Handle list of coordinates [[x1, y1], [x2, y2], ...]
-        if isinstance(coordinates, list) and all(isinstance(pos, list) and len(pos) == 2 for pos in coordinates):
-            return [tuple(pos) for pos in coordinates]
-
-        # Return as-is if not a coordinate format
-        return coordinates
-
     def _format_prompt(self, game_state: dict) -> str:
         """
         Format the game state into a language-rich and structured prompt for fine-tuning.
@@ -437,9 +394,9 @@ class DatasetGenerator:
         free_space_right = count_free_space_in_direction(game_state, "RIGHT")
 
         # Convert coordinates to tuple format for consistent representation
-        head_pos_tuple = self._convert_coordinates_to_tuples(head_pos)
-        apple_position_tuple = self._convert_coordinates_to_tuples(apple_position)
-        body_positions_tuple = self._convert_coordinates_to_tuples(body_positions)
+        head_pos_tuple = convert_coordinates_to_tuples(head_pos)
+        apple_position_tuple = convert_coordinates_to_tuples(apple_position)
+        body_positions_tuple = convert_coordinates_to_tuples(body_positions)
 
         # Create text-based board representation
         from utils.board_utils import create_text_board

@@ -1,11 +1,3 @@
-## TODO.
-
-get_move function, instead of plan_move function.
-
-Check Task0_ROOT/core/game_agents.py and you know what I am taling about.
-
-Also, we have already done extension heuristics-v0.04. Which is mostly good. The insight should be reflected in those related md files.
-
 # Agent Implementation Standards for Snake Game AI Extensions
 
 ## 🎯 **Core Philosophy: Algorithmic Decision Making**
@@ -23,6 +15,51 @@ Agents in the Snake Game AI project represent the core decision-making component
 
 All agent factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from `final-decision.md`.
 
+### **Reference Implementation**
+
+A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:
+
+```python
+from utils.factory_utils import SimpleFactory
+
+class MyAgent:
+    def __init__(self, name):
+        self.name = name
+
+factory = SimpleFactory()
+factory.register("myagent", MyAgent)
+agent = factory.create("myagent", name="TestAgent")  # CANONICAL create() method per SUPREME_RULES
+print_info(f"Agent name: {agent.name}")  # SUPREME_RULES compliant logging
+```
+
+### **Example Agent Factory**
+
+```python
+class AgentFactory:
+    """
+    Factory following SUPREME_RULES from `final-decision.md`
+    
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Create agents using canonical create() method
+    Educational Value: Shows how SUPREME_RULES apply consistently across extensions
+    """
+    
+    _registry = {
+        "BFS": BFSAgent,
+        "ASTAR": AStarAgent,
+        "DFS": DFSAgent,
+    }
+    
+    @classmethod
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create agent using canonical create() method following SUPREME_RULES from `final-decision.md`"""
+        agent_class = cls._registry.get(algorithm.upper())
+        if not agent_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown algorithm: {algorithm}. Available: {available}")
+        print_info(f"[AgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
+        return agent_class(**kwargs)
+```
 
 ## 🚀 **Agent Implementation Examples**
 
@@ -47,15 +84,13 @@ class BFSAgent(BaseAgent):
         self.path = []
         print_info(f"[BFSAgent] Initialized BFS agent")  # SUPREME_RULES compliant logging
     
-    # TODO: should be get_move function, instead of plan_move function. Check Task0_ROOT/core/game_agents.py and you know what I am taling about. Also, we have already done extension heuristics-v0.04. Which is mostly good. The insight should be reflected in those related md files.
-
-    def plan_move(self, game_state: Dict[str, Any]) -> str:
-        """Plan next move using BFS pathfinding"""
+    def get_move(self, game_state: Dict[str, Any]) -> str:
+        """Get next move using BFS pathfinding"""
         snake_positions = game_state['snake_positions']
         apple_position = game_state['apple_position']
         grid_size = game_state['grid_size']
         
-        print_info(f"[BFSAgent] Planning move from {snake_positions[0]} to {apple_position}")  # SUPREME_RULES compliant logging
+        print_info(f"[BFSAgent] Getting move from {snake_positions[0]} to {apple_position}")  # SUPREME_RULES compliant logging
         
         # Find path to apple using BFS
         path = self._bfs_pathfinding(snake_positions[0], apple_position, snake_positions, grid_size)
@@ -71,4 +106,5 @@ class BFSAgent(BaseAgent):
             fallback_move = self._fallback_move(snake_positions, grid_size)
             print_warning(f"[BFSAgent] No path found, using fallback: {fallback_move}")  # SUPREME_RULES compliant logging
             return fallback_move
+```
 ```

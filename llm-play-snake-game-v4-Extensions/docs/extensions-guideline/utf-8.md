@@ -1,9 +1,5 @@
 # UTF-8 Everywhere – Practical Guide for Snake-Game Extensions
 
-> **Scope:** Heuristic / RL / Supervised extensions (v0.01 → v0.04) and any
-> future tooling that spawns subprocesses or writes log / dataset files.
->
-> **Audience:** Extension developers & contributors.
 
 ---
 

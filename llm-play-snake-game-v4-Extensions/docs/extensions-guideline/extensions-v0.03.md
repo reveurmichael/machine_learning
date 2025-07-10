@@ -1,13 +1,13 @@
 
-# Extensions v0.03: Script Launcher Interface & Dataset Generation (SUPREME_RULES NO.5)
+# Extensions v0.03: Script Launcher Interface & Dataset Generation (SUPREME_RULE NO.5)
 
-## 🎯 **Core Philosophy: Script Launcher Interface + Data Generation (SUPREME_RULES NO.5)**
+## 🎯 **Core Philosophy: Script Launcher Interface + Data Generation (SUPREME_RULE NO.5)**
 
 v0.03 represents the transition from command-line tools to **Streamlit script launcher interfaces** while adding **dataset generation capabilities** for other extensions. This version demonstrates how to build upon stable algorithmic foundations (v0.02) with modern script launching technologies. The Streamlit app.py serves the sole purpose of launching scripts with adjustable parameters, and GUI components are optional per SUPREME_RULES NO.5.
 
 ## 🏗️ **Architectural Transformation: UI, Scripts, and Stability**
 
-A `v0.03` extension introduces a significant architectural refactoring to cleanly separate concerns, as defined in ``.
+A `v0.03` extension introduces a significant architectural refactoring to cleanly separate concerns.
 
 ### **The New Directory Structure**
 ```
@@ -26,7 +26,7 @@ extensions/{algorithm_type}-v0.03/
 
 ### **Key Architectural Changes**
 
-1.  **`app.py` is the Script Launcher:** The primary way to interact with a `v0.03` extension is through the Streamlit script launcher application. It **must** follow the OOP architecture defined in `` and serve the sole purpose of launching scripts with adjustable parameters (SUPREME_RULES NO.5). GUI components are optional per SUPREME_RULES NO.5.
+1.  **`app.py` is the Script Launcher:** The primary way to interact with a `v0.03` extension is through the Streamlit script launcher application. It **must** follow the OOP architecture and serve the sole purpose of launching scripts with adjustable parameters (SUPREME_RULE NO.5). GUI components are optional per SUPREME_RULE NO.5.
 2.  **`scripts/` Consolidates CLI Tools:** All command-line functionality is moved into the `scripts/` folder. These scripts are self-contained and can be run independently of the UI.
 3.  **`dashboard/` Organizes the UI:** All UI components used by `app.py` are organized into the `dashboard/` folder for modularity and clarity.
 4.  **The `agents/` Folder is Stable:** The `agents/` directory contains the same core algorithms from `v0.02`. This is a critical principle, demonstrating that the core agent logic is stable and can be reused without modification.
@@ -62,9 +62,9 @@ New agents can be added in v0.03 **only** if they:
 3. **Maintain interface compatibility** with existing factory patterns
 4. **Follow naming conventions** (`agent_{algorithm}_{enhancement}.py`)
 
-## 🔧 **The "UI as a Script-Runner" Pattern (SUPREME_RULES NO.5)**
+## 🔧 **The "UI as a Script-Runner" Pattern (SUPREME_RULE NO.5)**
 
-The single most important concept in `v0.03` is that the **Streamlit application's main purpose is to be a user-friendly frontend for the scripts in the `scripts/` folder.** This is mandated by SUPREME_RULES NO.5 from `final-decision.md`.
+The single most important concept in `v0.03` is that the **Streamlit application's main purpose is to be a user-friendly frontend for the scripts in the `scripts/` folder.** This is mandated by SUPREME_RULE NO.5 from `final-decision.md`.
 
 The UI should not re-implement any core logic. Instead, it should:
 1.  Use interactive widgets (sliders, buttons) to gather parameters from the user.
@@ -82,7 +82,6 @@ A key responsibility of a `v0.03` extension is to generate high-quality, structu
 
 A `v0.03` extension is considered complete and successful if it meets these criteria:
 
-- [ ] Does it have a primary `app.py` that follows the mandatory OOP `BaseExtensionApp` architecture?
 - [ ] Have all command-line entry points been moved into a `scripts/` directory?
 - [ ] Are all modular UI components organized within a `dashboard/` directory?
 - [ ] Is the `agents/` folder an identical copy of the one from `v0.02`?
@@ -381,7 +380,8 @@ logs/extensions/datasets/
 - **For LLM fine-tuning**: Use JSONL from heuristics-v0.04
 - **For research**: Use both formats from heuristics-v0.04
 - **CSV is ACTIVE**: Not legacy - actively used for supervised learning
-- **JSONL is ADDITIONAL**: New capability for LLM fine-tuning
+- **JSONL is ADDITIONAL**: New capability for LLM fine-tuning (heuristics-v0.04 only)
+- **UTF-8 Encoding**: All file operations must use UTF-8 encoding (SUPREME_RULE NO.7)
 
 ---
 

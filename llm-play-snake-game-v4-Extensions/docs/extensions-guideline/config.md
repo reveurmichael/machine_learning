@@ -4,77 +4,44 @@
 
 Configuration in the Snake Game AI project follows a hierarchical, extensible architecture that supports both simple parameter management and complex multi-extension configurations. The system is designed to be lightweight, educational, and maintainable while supporting the diverse needs of different algorithm types.
 
-### **Educational Value**
-- **Configuration Patterns**: Demonstrates best practices for parameter management
-- **Hierarchical Design**: Shows how to structure complex configurations
-- **Extensibility**: Framework for adding new configuration types
-- **Validation**: Proper parameter validation and error handling
-
-## 🏗️ **Factory Pattern: Canonical Method is create()**
-
-All configuration factories must use the canonical method name `create()` for instantiation, not `create_config()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from `final-decision.md`.
-
-### Reference Implementation
-
-A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:
-
-```python
-from utils.factory_utils import SimpleFactory
-
-class MyConfig:
-    def __init__(self, name):
-        self.name = name
-
-factory = SimpleFactory()
-factory.register("myconfig", MyConfig)
-config = factory.create("myconfig", name="TestConfig")  # CANONICAL create() method per SUPREME_RULES
-print_info(f"Config name: {config.name}")  # SUPREME_RULES compliant logging
-```
-
-### Example Configuration Factory
-
-```python
-class ConfigFactory:
-    _registry = {
-        "HEURISTIC": HeuristicConfig,
-        "SUPERVISED": SupervisedConfig,
-        "REINFORCEMENT": ReinforcementConfig,
-    }
-    @classmethod
-    def create(cls, config_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        config_class = cls._registry.get(config_type.upper())
-        if not config_class:
-            raise ValueError(f"Unknown config type: {config_type}")
-        print_info(f"[ConfigFactory] Creating config: {config_type}")  # SUPREME_RULES compliant logging
-        return config_class(**kwargs)
-```
-
 ## 🏗️ **Configuration Hierarchy**
 
 ### **1. Global Configuration (ROOT/config/)**
 
-TODO: list 
-TODO: list 
-TODO: list 
-TODO: list 
-TODO: list 
-TODO: list 
+The project uses a centralized configuration system with clear separation of concerns:
 
+```python
+# config/game_constants.py - Core game rules
+VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]
+GRID_SIZES = [8, 10, 12, 16, 20]
+DEFAULT_GRID_SIZE = 10
+
+# config/llm_constants.py - LLM-specific settings (whitelisted extensions only)
+DEFAULT_MODEL = "hunyuan"
+DEFAULT_PROVIDER = "deepseek"
+
+# config/network_constants.py - Network and communication settings
+DEFAULT_TIMEOUT = 30.0
+MAX_RETRIES = 3
+
+# config/prompt_templates.py - Prompt templates for LLM interactions
+SYSTEM_PROMPT = "You are a snake game AI assistant..."
+```
 
 ### **2. Extension-Specific Configuration**
 ```python
-# extensions/heuristics-v0.03/config.py
+# extensions/heuristics-v0.03/heuristic_config.py
 HEURISTIC_ALGORITHMS = ["BFS", "ASTAR", "DFS", "HAMILTONIAN"]
 PATHFINDING_TIMEOUT = 5.0
 VISUALIZATION_SPEED = 1.0
 
-# extensions/supervised-v0.03/config.py
+# extensions/supervised-v0.03/supervised_config.py
 SUPERVISED_MODELS = ["MLP", "CNN", "XGBOOST", "LIGHTGBM"]
 DEFAULT_LEARNING_RATE = 0.001
 DEFAULT_BATCH_SIZE = 32
 DEFAULT_EPOCHS = 100
 
-# extensions/reinforcement-v0.03/config.py
+# extensions/reinforcement-v0.03/reinforcement_config.py
 RL_ALGORITHMS = ["DQN", "PPO", "A3C"]
 DEFAULT_EPSILON_START = 0.9
 DEFAULT_EPSILON_DECAY = 0.995
@@ -82,9 +49,6 @@ DEFAULT_REWARD_APPLE = 10
 DEFAULT_REWARD_DEATH = -10
 ```
 
----
-
-**Configuration architecture ensures flexible, maintainable, and extensible parameter management across all Snake Game AI extensions. By following these standards, developers can create robust configuration systems that support diverse algorithm requirements while maintaining educational value and technical excellence.**
 
 ## 🔗 **See Also**
 

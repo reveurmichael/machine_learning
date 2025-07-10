@@ -1,6 +1,6 @@
 # Data Format Decision Guide
 
-> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning. All file operations must use UTF-8 encoding for cross-platform compatibility (SUPREME_RULE NO.7).
 
 ## 📊 **Format Selection Matrix**
 
@@ -156,6 +156,7 @@ agent_ga.evolve(raw_population)  # Preserves genetic representation
 - **For research**: Use both formats from heuristics-v0.04
 - **CSV is ACTIVE**: Not legacy - actively used for supervised learning
 - **JSONL is ADDITIONAL**: New capability for LLM fine-tuning (heuristics-v0.04 only)
+- **UTF-8 Encoding**: All file operations must use UTF-8 encoding (SUPREME_RULE NO.7)
 
 ## 🔄 **Cross-Extension Integration**
 - **Heuristics v0.03**: Generates standardized CSV datasets for supervised learning

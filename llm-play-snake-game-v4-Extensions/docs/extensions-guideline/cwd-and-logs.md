@@ -113,22 +113,26 @@ for _ in range(10):
 
 ## 📊 **Logging Standards**
 
-### **Simple Print Logging (SUPREME_RULES)**
-All logging must use simple print statements. No complex logging frameworks are allowed:
+### **Simple Print Logging (SUPREME_RULE NO.3)**
+All logging must use simple print statements from `utils/print_utils.py`. No complex logging frameworks or `.log` files are allowed:
 
 ```python
-# ✅ CORRECT: Simple print logging (SUPREME_RULES compliance)
+# ✅ CORRECT: Simple print logging (SUPREME_RULE NO.3 compliance)
 from utils.print_utils import print_info, print_warning, print_error, print_success
 
 print_info(f"[GameManager] Starting game {game_id}")
 print_info(f"[Agent] Selected move: {move}")
 print_info(f"[Game] Score: {score}")
 
-# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
+# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULE NO.3)
 # import logging
 # logger = logging.getLogger(__name__)
 # logger.info("Starting game")
 # logger.error("Game failed")
+
+# ❌ FORBIDDEN: .log files (violates SUPREME_RULE NO.3)
+# with open("game.log", "w") as f:
+#     f.write("Game started")
 ```
 
 

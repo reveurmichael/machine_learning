@@ -33,7 +33,7 @@ project_root = heuristics_dir.parent.parent
 sys.path.insert(0, str(project_root))
 
 from dataset_generator import DatasetGenerator
-from agents import create, get_available_algorithms
+from agents import get_available_algorithms
 import argparse
 from typing import List
 
@@ -172,16 +172,10 @@ def main() -> None:
                 output_dir.mkdir(parents=True, exist_ok=True)
                 print_info(f"📁 Using auto-generated output directory: {output_dir}")
 
-            # Step 2: Create agent instance (SSOT compliance)
-            try:
-                agent = create(algorithm)
-                print_info(f"Created agent: {agent.__class__.__name__}")
-            except Exception as e:
-                print_error(f"Failed to create agent for {algorithm}: {e}")
-                continue
+            
 
-            # Step 3: Run games in memory and generate datasets
-            generator = DatasetGenerator(algorithm, output_dir, agent)
+            # Step 2: Run games in memory and generate datasets
+            generator = DatasetGenerator(algorithm, output_dir)
             generator.generate_games_and_write_datasets(
                 max_games=args.max_games,
                 max_steps=args.max_steps,

@@ -44,7 +44,7 @@ from extensions.common.utils.csv_utils import CSVFeatureExtractor, create_csv_re
 from extensions.common.utils.game_analysis_utils import calculate_danger_assessment, calculate_apple_direction
 
 # Import round utilities for clean round management
-from round_utils import extract_dataset_records
+from game_rounds import extract_dataset_records
 
 __all__ = ["DatasetGenerator"]
 

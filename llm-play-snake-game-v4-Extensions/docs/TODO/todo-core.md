@@ -25,7 +25,6 @@ While the current architecture is strong and heuristics-v0.04 demonstrates succe
 - **Forward-looking design** with no backward compatibility baggage
 - **Rich JSONL datasets** with detailed step-by-step explanations
 - **Clean CSV datasets** with all required features
-- **No redundant fields** (removed `natural_language_summary`)
 - **Clear conclusions** in all explanations
 - **Automatic incremental updates** after each game
 - **Task-0 compatible** game logs
@@ -45,7 +44,6 @@ While the current architecture is strong and heuristics-v0.04 demonstrates succe
 2. **Statistics collection is manual and error-prone**: Step stats, time stats, and other metrics are managed by hand in each extension
 3. **File/session management is scattered**: Logic for saving game/session files is spread across multiple classes and not standardized
 4. **Extension logic requires method overrides**: Extensions must override or duplicate methods to add custom logic at various lifecycle points
-5. **Extension-specific data/config validation is inconsistent**: Each extension manages its own data/config validation, leading to inconsistencies
 
 ---
 
@@ -61,19 +59,6 @@ While the current architecture is strong and heuristics-v0.04 demonstrates succe
 - Automatically aggregates and manages all relevant statistics, with extension-specific collectors pluggable as needed
 - Integrate with `BaseGameData` so all moves/game ends are recorded through the collector
 
-### 3. **Unified File and Session Management**
-- Create `UniversalFileManager` (e.g., `core/game_file_manager.py`) to provide a single API for saving game files and session summaries
-- File manager uses the summary generator and stats collector to ensure all outputs are consistent and up-to-date
-
-### 4. **Extensibility Hooks and Callbacks**
-- Add a callback/hook system to `BaseGameManager` (e.g., `register_extension_callback(event, callback)` and `_trigger_extension_callbacks(event, **kwargs)`)
-- Extensions register logic for events like `pre_game`, `post_game`, `pre_move`, `post_move`, and `dataset_update`
-- The base manager triggers these hooks at the appropriate times
-
-### 5. **Extension-Specific Data Storage and Validation**
-- Add `extension_data` and related methods to `BaseGameData` for standardized extension-specific storage
-- Implement `ExtensionConfig` and `ExtensionConfigManager` for standardized configuration validation
-
 ---
 
 ## 📋 **Implementation Roadmap**
@@ -81,15 +66,7 @@ While the current architecture is strong and heuristics-v0.04 demonstrates succe
 ### **Phase 1 (High Priority)**
 1. Implement `BaseGameSummaryGenerator` and refactor all summary generation to use it
 2. Integrate `GameStatisticsCollector` into `BaseGameData` and all extensions
-3. Refactor file/session management to use `UniversalFileManager`
 4. Add extensibility hooks/callbacks to `BaseGameManager`
-
-### **Phase 2 (Medium Priority)**
-5. Add extension-specific data storage and validation to `BaseGameData` and `core/extension_config.py`
-6. Standardize data export interfaces for all extensions
-
-### **Phase 3 (Long-Term)**
-7. Add advanced monitoring, dependency management, and performance tracking as needed
 
 ---
 
@@ -120,7 +97,6 @@ While the current architecture is strong and heuristics-v0.04 demonstrates succe
 ### **Dataset Generation Success**
 - ✅ **Rich JSONL datasets** with detailed step-by-step explanations
 - ✅ **Clean CSV datasets** with all required features
-- ✅ **No redundant fields** (removed `natural_language_summary`)
 - ✅ **Clear conclusions** in all explanations
 - ✅ **Automatic incremental updates** after each game
 

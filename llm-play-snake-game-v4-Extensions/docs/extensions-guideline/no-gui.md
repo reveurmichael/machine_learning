@@ -1,8 +1,8 @@
-# No GUI Architecture for Snake Game AI
+# No GUI Architecture for Snake Game AI (SUPREME_RULE NO.5)
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines no GUI architecture patterns for extensions.
+## 🎯 **Core Philosophy: GUI Optional by Design**
 
-> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+By default, for extensions, there is no requirement for a GUI, PyGame, Flask, or Web mode in any extension. This is intentional: extensions vary widely in design and purpose, and enforcing a unified GUI requirement for all would be impractical and often unnecessary.
 
 
 ### **1. ✅ Universal Headless Controller (Perfect for Tasks 0-5)**

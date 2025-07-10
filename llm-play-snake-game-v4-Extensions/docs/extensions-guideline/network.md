@@ -1,7 +1,5 @@
 # Network Architecture: Random Port Strategy
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines network architecture patterns for Task-0 and all extensions.
-
 ## 🎯 **Core Philosophy: Dynamic Port Allocation**
 
 The Snake Game AI project uses **dynamic random port allocation** for all Flask applications to ensure **conflict-free deployment**, **multi-instance support**, and **development flexibility**. This approach follows KISS principles while providing robust networking capabilities for Task-0 and all extensions (Task 1-5).

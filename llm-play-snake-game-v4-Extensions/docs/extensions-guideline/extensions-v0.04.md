@@ -1,9 +1,3 @@
-# Extensions v0.04: Language Generation Phase for Snake Game AI
-
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines extensions v0.04 patterns.
-
-> **See also:** `extensions-v0.03.md`, `final-decision-10.md`, `heuristics-as-foundation.md`.
-
 # Extensions v0.04: The Language Generation Phase (Heuristics Only)
 
 ## 🎯 **Core Philosophy: Teaching an LLM to "Think" Like a Heuristic**
@@ -22,18 +16,8 @@ The `v0.04` extension is not a major architectural leap. It is an enhancement of
 
 *   **Foundation:** It inherits the full structure of `heuristics-v0.03`, including the `app.py`, and `scripts/` directories.
 *   **Agent Modification:** The core change happens within the agent classes (e.g., `BFSAgent`, `AStarAgent`). These agents are modified to generate a human-readable "reasoning" string at each decision point.
-*   **New Script:** A new script, `generate_?????. py`, #TODO is added to the `scripts/` directory. This script is dedicated to running the agents and saving their linguistic output in the required format.
 
-```
-extensions/heuristics-v0.04/
-├── ... (inherits all of v0.03's structure)
-├── agents/
-│   ├── agent_bfs.py       # 👈 MODIFIED: Now generates reasoning strings
-│   └── agent_astar.py     # 👈 MODIFIED: Now generates reasoning strings
-└── scripts/
-    ├── ... (inherits scripts from v0.03)
-    └── generate_?????.py # 👈 NEW: Dedicated script for this version's purpose
-```
+
 
 ## 📜 **The Mandatory Data Format: JSONL for Fine-Tuning**
 
@@ -46,7 +30,7 @@ Each JSON object must contain two keys: `"prompt"` and `"completion"`.
 *   **`"prompt"`**: A textual description of the game state. This serves as the input to the LLM.
 *   **`"completion"`**: A textual description of the agent's chosen move and the reasoning behind it. This is the target output the LLM will be trained to generate.
 
-This format is specifically designed to be easily consumed by standard LLM fine-tuning pipelines (e.g., for Supervised Fine-Tuning).
+This format is specifically designed to be easily consumed by standard LLM fine-tuning pipelines (e.g., for Supervised Fine-Tuning). All file operations must use UTF-8 encoding for cross-platform compatibility (SUPREME_RULE NO.7).
 
 ## 📋 **Compliance Checklist: The Definition of Done**
 
@@ -56,6 +40,7 @@ The `heuristics-v0.04` extension is considered complete and successful if:
 - [ ] Are the agent classes modified to generate natural language explanations for their moves?
 - [ ] Does this script produce a `.jsonl` file where each line is a valid JSON object?
 - [ ] Does each JSON object strictly adhere to the `{"prompt": "...", "completion": "..."}` schema?
+- [ ] Are all file operations using UTF-8 encoding (SUPREME_RULE NO.7)?
 
 ---
 

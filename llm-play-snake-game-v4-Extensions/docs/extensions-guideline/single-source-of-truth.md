@@ -1,12 +1,10 @@
 # Single Source of Truth Principle
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and serves as a GOOD_RULES authoritative reference for SSOT standards.
-
 ## 🎯 **Core Philosophy: One Truth, One Place**
 
 ### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making architectural changes to ensure SSOT compliance
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently throughout architectural references
+- **final-decision.md Guideline 1**: Enforces reading all GOOD_RULES before making architectural changes to ensure SSOT compliance
+- **final-decision.md Guideline 2**: Uses precise `final-decision-N.md` format consistently throughout architectural references
 - **simple logging**: Promotes lightweight common utilities with simple logging using only the print functions from `ROOT/utils/print_utils.py` (such as `print_info`, `print_warning`, `print_success`, `print_error`, `print_important`) to maintain SSOT for logging patterns. Never use raw print().
 
 The Single Source of Truth (SSOT) principle ensures that every piece of information has exactly one authoritative location. This eliminates contradictions, reduces maintenance burden, and ensures consistency across the entire Snake Game AI ecosystem.
@@ -14,7 +12,7 @@ The Single Source of Truth (SSOT) principle ensures that every piece of informat
 ## 🏗️ **SSOT Architecture**
 
 ### **Configuration Hierarchy**
-> For an expanded rationale and hierarchy diagram see **`config.md`** and **`final-decision-2.md`**.
+> For an expanded rationale and hierarchy diagram see **`config.md`** and **``**.
 
 | Level | Location | Purpose | Example |
 |-------|----------|---------|---------|
@@ -137,19 +135,6 @@ save_dataset(data, algorithm, model_type)  # Centralized decision
 - [ ] All format decisions follow authoritative guide
 - [ ] No local redefinitions of standard patterns
 - [ ] Clear documentation of SSOT locations
-
-## 🔗 **SSOT References**
-
-### **Authoritative Sources**
-- **Configuration**: `config.md` + `final-decision-2.md`
-- **Path Management**: `unified-path-management-guide.md`
-- **Data Formats**: `data-format-decision-guide.md`
-- **Streamlit Architecture**: `unified-streamlit-architecture-guide.md`
-
-### **Supporting Documentation**
-- **Extension Guidelines**: Version-specific implementation guides
-- **Final Decisions**: Architectural decisions and rationale
-- **Code Examples**: Concrete implementation patterns
 
 ---
 

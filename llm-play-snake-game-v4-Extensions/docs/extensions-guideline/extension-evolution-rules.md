@@ -1,12 +1,8 @@
 # Extension Evolution Rules
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines extension evolution rules.
-
-> **See also:** `final-decision-10.md`, `standalone.md`, `conceptual-clarity.md`.
-
 ## 🎯 **Core Philosophy: Progressive Enhancement**
 
-Extension evolution follows a **progressive enhancement** model where each version builds upon the previous one, adding new capabilities while maintaining backward compatibility within the same extension family, strictly following SUPREME_RULES from `final-decision-10.md`.
+Extension evolution follows a **progressive enhancement** model where each version builds upon the previous one, adding new capabilities while maintaining backward compatibility within the same extension family.
 
 ### **Educational Value**
 - **Incremental Learning**: Each version introduces new concepts gradually
@@ -56,7 +52,7 @@ class AgentFactory:
     
     @classmethod
     def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create agent using canonical factory pattern following SUPREME_RULES from final-decision-10.md."""
+        """Create agent using canonical factory pattern following SUPREME_RULES from final-decision.md."""
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")
@@ -153,7 +149,7 @@ class AgentFactory:
 class AgentFactory:
     @classmethod
     def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create agent using canonical factory pattern following SUPREME_RULES from final-decision-10.md."""
+        """Create agent using canonical factory pattern following SUPREME_RULES from final-decision.md."""
         pass
 ```
 
@@ -301,6 +297,6 @@ class AdvancedAgent:
 
 ## 🔗 **See Also**
 
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`standalone.md`**: Standalone principle and extension independence
 - **`conceptual-clarity.md`**: Conceptual clarity guidelines for extensions 

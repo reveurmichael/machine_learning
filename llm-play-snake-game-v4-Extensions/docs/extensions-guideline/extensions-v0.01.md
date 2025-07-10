@@ -1,9 +1,5 @@
 # Extensions v0.01: Foundation Patterns
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the foundation patterns for all v0.01 extensions.
-
-> **See also:** `core.md`, `standalone.md`, `final-decision-10.md`, `project-structure-plan.md`.
-
 ## 🎯 **Core Philosophy: Proof of Concept**
 
 Extensions v0.01 represent the **foundation stage** of algorithm implementation. They focus on proving that a specific algorithmic approach can work within the Snake Game AI framework while maintaining educational clarity and technical simplicity.
@@ -39,7 +35,7 @@ class HeuristicAgentFactory:
     
     @classmethod
     def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create agent using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        """Create agent using canonical create() method following SUPREME_RULES from final-decision.md"""
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")
@@ -327,7 +323,7 @@ v0.01 extensions serve as the foundation for v0.02 extensions, which will:
 
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`standalone.md`**: Standalone principle and extension independence
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`project-structure-plan.md`**: Project structure and organization
 
 

@@ -1,11 +1,12 @@
 """
 CSV Utilities for Snake Game AI Extensions
 
-This module provides CSV-specific formatting utilities for generating
+This module provides clean, consolidated CSV utilities for generating
 CSV entries from game states and agent explanations.
 
 Design Philosophy:
-- Single responsibility: Only handles CSV formatting
+- Forward-looking: No legacy compatibility, clean and self-contained
+- Single responsibility: Only CSV formatting and feature extraction
 - Agent-agnostic: Works with any agent and game state
 - Consistent schema: Standardized CSV output format across all agents
 - Extensible: Supports inheritance for task-specific customization
@@ -31,8 +32,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 from utils.print_utils import print_warning
 
-# Import agent utilities for SSOT compliance
-# Note: This follows the standalone principle - we import from core/utils, not other extensions
+# Import centralized CSV formats
+from ..config.csv_formats import (
+    CSV_FEATURE_COLUMNS, CSV_TARGET_COLUMN
+)
 
 
 @dataclass
@@ -60,13 +63,13 @@ class CSVFeatureExtractor:
     positioning and directional indicators rather than absolute coordinates
     that would vary with grid size.
     
-    Educational Note (simple logging):
+    Educational Note:
     This class is designed to be extensible for extensions that need
     specialized feature extraction while maintaining compatibility with
     the standard 16-feature format. Extensions can inherit and customize
     specific feature extraction methods.
     
-    simple logging Implementation:
+    Implementation:
     - Base class provides complete 16-feature extraction
     - Protected methods allow selective feature customization
     - Virtual methods enable additional feature extraction
@@ -75,13 +78,7 @@ class CSVFeatureExtractor:
     
     def __init__(self):
         """Initialize the CSV feature extractor."""
-        self.feature_names = [
-            'game_id', 'step_in_game', 'head_x', 'head_y', 'apple_x', 'apple_y', 'snake_length',
-            'apple_dir_up', 'apple_dir_down', 'apple_dir_left', 'apple_dir_right',
-            'danger_straight', 'danger_left', 'danger_right',
-            'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right',
-            'target_move'
-        ]
+        self.feature_names = CSV_FEATURE_COLUMNS.copy()
     
     def extract_features(self, game_state: Dict[str, Any], move: str, step_number: int = None) -> Dict[str, Any]:
         """
@@ -129,7 +126,7 @@ class CSVFeatureExtractor:
         features.update(extension_features)
         
         # Add target move
-        features['target_move'] = move
+        features[CSV_TARGET_COLUMN] = move
         
         return features
     
@@ -264,7 +261,7 @@ class CSVFeatureExtractor:
     
     def _extract_extension_specific_features(self, game_state: GameStateForCSV, move: str) -> Dict[str, Any]:
         """
-        Extract extension-specific features (simple logging Extension Point).
+        Extract extension-specific features (Extension Point).
         
         Override this method in subclasses to add custom features while
         maintaining compatibility with the standard 16-feature format.

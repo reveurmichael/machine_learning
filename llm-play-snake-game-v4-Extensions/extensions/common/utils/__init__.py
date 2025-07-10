@@ -9,6 +9,7 @@ This package provides shared utilities that can be used across different
 extension types (heuristics, supervised, reinforcement learning, etc.).
 
 Design Philosophy:
+- Forward-looking: No legacy compatibility, clean and self-contained
 - Reusable across extensions
 - Single responsibility per module
 - Clear separation of concerns
@@ -16,8 +17,9 @@ Design Philosophy:
 
 # Re-export other utilities
 from .path_utils import get_datasets_root, get_dataset_path, get_model_path
-from .csv_schema import CSVValidator, TabularFeatureExtractor
+from .csv_utils import CSVFeatureExtractor, create_csv_record
 from .dataset_utils import save_csv_dataset, save_jsonl_dataset
+from .game_state_utils import convert_coordinates_to_tuples
 from utils.print_utils import print_info
 
 __all__ = [
@@ -26,10 +28,11 @@ __all__ = [
     "get_dataset_path", 
     "get_model_path",
 
-    "CSVValidator",
-    "TabularFeatureExtractor", 
+    "CSVFeatureExtractor",
+    "create_csv_record", 
     "save_csv_dataset",
     "save_jsonl_dataset",
+    "convert_coordinates_to_tuples",
 ]
 
 # Dataset utilities
@@ -44,21 +47,19 @@ from .dataset_utils import (
     DatasetLoader
 )
 
-# CSV schema utilities
-from .csv_schema import (
-    create_csv_row,
-    CSVDatasetGenerator,
-    load_and_validate_csv,
-    get_feature_statistics
+# CSV utilities
+from .csv_utils import (
+    create_csv_record_with_explanation,
+    GameStateForCSV
 )
 
-# Simple utility functions following SUPREME_RULES from final-decision-10.md
+# Simple utility functions following forward-looking architecture principles
 def print_extension_info(extension_name: str, version: str):
-    """Simple extension information logging (SUPREME_RULES compliant)."""
+    """Simple extension information logging."""
     print_info(f"[CommonUtils] Extension: {extension_name} v{version}")
 
 def get_common_config():
-    """Simple common configuration access (SUPREME_RULES compliant)."""
+    """Simple common configuration access."""
     print_info("[CommonUtils] Accessing common configuration")
     return {
         "default_grid_size": 10,
@@ -98,9 +99,9 @@ def extract_features_from_game_state(game_state, feature_extractor=None):
     print_info("[CommonUtils] Extracting features from game state")
     
     if feature_extractor is None:
-        feature_extractor = TabularFeatureExtractor()
+        feature_extractor = CSVFeatureExtractor()
     
-    features = feature_extractor.extract_features(game_state)
+    features = feature_extractor.extract_features(game_state, "UNKNOWN", 0)
     print_info(f"[CommonUtils] Extracted {len(features)} features")
     return features
 
@@ -108,16 +109,16 @@ def generate_csv_schema(grid_size: int = 10):
     """Generate CSV schema for specified grid size."""
     print_info(f"[CommonUtils] Generating CSV schema for grid size {grid_size}")
     
-    from ..config.dataset_formats import CSV_BASIC_COLUMNS
-    return CSV_BASIC_COLUMNS.copy()
+    from ..config.csv_formats import CSV_ALL_COLUMNS
+    return CSV_ALL_COLUMNS.copy()
 
 def validate_csv_schema(df, expected_columns=None):
     """Simple CSV schema validation."""
     print_info("[CommonUtils] Validating CSV schema")
     
     if expected_columns is None:
-        from ..config.dataset_formats import CSV_BASIC_COLUMNS
-        expected_columns = CSV_BASIC_COLUMNS
+        from ..config.csv_formats import CSV_ALL_COLUMNS
+        expected_columns = CSV_ALL_COLUMNS
     
     missing = set(expected_columns) - set(df.columns)
     if missing:

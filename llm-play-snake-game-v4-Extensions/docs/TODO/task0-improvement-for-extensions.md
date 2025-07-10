@@ -25,7 +25,6 @@ The successful implementation of heuristics-v0.04 demonstrates that Task-0 provi
 - **Forward-looking design** with no backward compatibility baggage
 - **Rich JSONL datasets** with detailed step-by-step explanations
 - **Clean CSV datasets** with all required features
-- **No redundant fields** (removed `natural_language_summary`)
 - **Clear conclusions** in all explanations
 - **Automatic incremental updates** after each game
 - **Task-0 compatible** game logs
@@ -74,7 +73,6 @@ The successful implementation of heuristics-v0.04 demonstrates that Task-0 provi
 **Problem:** File saving and session summary logic are scattered and duplicated across managers and data classes.
 
 **Solution:**
-- Create a `UniversalFileManager` (e.g., `core/game_file_manager.py`) that provides a single API for saving game files and session summaries
 - The file manager uses the summary generator and stats collector to ensure all outputs are consistent and up-to-date
 - All extensions and Task-0 use this manager, eliminating ad-hoc file handling
 
@@ -82,32 +80,8 @@ The successful implementation of heuristics-v0.04 demonstrates that Task-0 provi
 - One method to save all game/session files
 - Automatic aggregation and updating of session summaries
 - Cleaner, more maintainable codebase
+ manager triggers these hooks at the appropriate times
 
-### 4. **Extensibility Hooks and Callbacks**
-
-**Problem:** Extensions must override or duplicate methods to add custom logic at various points in the game/session lifecycle.
-
-**Solution:**
-- Add a callback/hook system to `BaseGameManager` (e.g., `register_extension_callback(event, callback)` and `_trigger_extension_callbacks(event, **kwargs)`)
-- Extensions register their logic for events like `pre_game`, `post_game`, `pre_move`, `post_move`, and `dataset_update`
-- The base manager triggers these hooks at the appropriate times
-
-**Benefits:**
-- Extensions add features without overriding core methods
-- Cleaner separation of concerns and easier extension development
-- Future-proof for new extension types and features
-
-### 5. **Extension-Specific Data Storage and Validation**
-
-**Problem:** Each extension manages its own data and configuration validation, leading to inconsistencies.
-
-**Solution:**
-- Add `extension_data` and related methods to `BaseGameData` for standardized extension-specific storage
-- Implement an `ExtensionConfig` and `ExtensionConfigManager` for standardized configuration validation
-
-**Benefits:**
-- Consistent, reliable extension data management
-- Standardized configuration validation and error reporting
 
 ---
 
@@ -116,15 +90,7 @@ The successful implementation of heuristics-v0.04 demonstrates that Task-0 provi
 ### **Phase 1 (High Priority)**
 1. Implement `BaseGameSummaryGenerator` and refactor all summary generation to use it
 2. Integrate `GameStatisticsCollector` into `BaseGameData` and all extensions
-3. Refactor file/session management to use `UniversalFileManager`
 4. Add extensibility hooks/callbacks to `BaseGameManager`
-
-### **Phase 2 (Medium Priority)**
-5. Add extension-specific data storage and validation to `BaseGameData` and `core/extension_config.py`
-6. Standardize data export interfaces for all extensions
-
-### **Phase 3 (Long-Term)**
-7. Add advanced monitoring, dependency management, and performance tracking as needed
 
 ---
 
@@ -143,53 +109,3 @@ The successful implementation of heuristics-v0.04 demonstrates that Task-0 provi
   - Cleaner, more maintainable, and future-proof codebase
 
 ---
-
-## 🏆 **Heuristics v0.04 Success Highlights**
-
-### **Architecture Achievements**
-- ✅ **Clean extension structure** with dedicated `game_rounds.py`
-- ✅ **HeuristicRoundManager** properly extends base functionality
-- ✅ **No pollution** of base classes with extension-specific code
-- ✅ **Forward-looking design** with no backward compatibility baggage
-
-### **Dataset Generation Success**
-- ✅ **Rich JSONL datasets** with detailed step-by-step explanations
-- ✅ **Clean CSV datasets** with all required features
-- ✅ **No redundant fields** (removed `natural_language_summary`)
-- ✅ **Clear conclusions** in all explanations
-- ✅ **Automatic incremental updates** after each game
-
-### **Game Log Quality**
-- ✅ **Task-0 compatible** game logs
-- ✅ **No dataset-specific pollution** in game files
-- ✅ **Clean architecture** with proper separation of concerns
-- ✅ **Canonical end reasons** without remapping
-
-### **Performance & Reliability**
-- ✅ **Robust error handling** with graceful fallbacks
-- ✅ **Efficient data processing** with minimal overhead
-- ✅ **Consistent behavior** across different algorithms
-- ✅ **Scalable architecture** for future extensions
-
----
-
-## 🎯 **Next Steps**
-
-1. **Review and approve** this updated document
-2. **Implement Phase 1** features in Task-0
-3. **Update supervised learning extension** to use new features
-4. **Create migration guide** for other extensions
-5. **Monitor and iterate** based on feedback
-
-## 📈 **Success Metrics**
-
-Based on heuristics-v0.04 implementation:
-- **Code reduction**: 50% less boilerplate in new extensions
-- **Development time**: 60% faster extension development
-- **Maintenance**: 70% fewer extension-specific bugs
-- **Consistency**: 100% standardized patterns across extensions
-- **Data quality**: Rich explanations with conclusions in all datasets
-
----
-
-**This document provides a roadmap for making Task-0 even more extension-friendly based on the successful heuristics-v0.04 implementation, while maintaining forward-looking architecture principles.** 

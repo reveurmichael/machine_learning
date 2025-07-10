@@ -1,7 +1,5 @@
 # Task-0: LLM-Powered Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Task-0's foundational role in the Snake Game AI ecosystem.
-
 ## 🎯 **Core Philosophy: Foundation for All Extensions**
 
 Task-0 represents the **foundational implementation** of the Snake Game AI project, establishing the architectural patterns, base classes, and core infrastructure that all subsequent extensions (Tasks 1-5) build upon. It demonstrates LLM-powered game playing while providing the blueprint for multi-algorithm AI research.

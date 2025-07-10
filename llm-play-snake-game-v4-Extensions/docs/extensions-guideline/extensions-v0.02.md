@@ -1,12 +1,8 @@
 # Extensions v0.02: Multi-Algorithm Patterns
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the multi-algorithm patterns for all v0.02 extensions.
-
-> **See also:** `core.md`, `standalone.md`, `final-decision-10.md`, `factory-design-pattern.md`.
-
 ## 🎯 **Core Philosophy: Algorithm Comparison**
 
-Extensions v0.02 extend v0.01 by implementing **multiple related algorithms** within the same extension. This enables comparative analysis and demonstrates how different algorithmic approaches solve the same problem. GUI components are optional per SUPREME_RULES from `final-decision-10.md`.
+Extensions v0.02 extend v0.01 by implementing **multiple related algorithms** within the same extension. This enables comparative analysis and demonstrates how different algorithmic approaches solve the same problem. GUI components are optional.
 
 ### **Educational Value**
 - **Algorithm Comparison**: Comparing different algorithmic approaches
@@ -446,7 +442,7 @@ v0.02 extensions serve as the foundation for v0.03 extensions, which will:
 
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`standalone.md`**: Standalone principle and extension independence
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`factory-design-pattern.md`**: Factory pattern implementation guide
 
 

@@ -1,9 +1,5 @@
 # Unified Streamlit Architecture Guide
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines unified Streamlit architecture patterns.
-
-> **See also:** `final-decision-10.md`, `app.md`, `scripts.md`, `standalone.md`.
-
 ## 🎯 **Core Streamlit Philosophy**
 
 Streamlit applications in v0.03+ extensions follow:
@@ -36,7 +32,7 @@ class BaseExtensionApp(ABC):
     Educational Value: Shows how canonical patterns work with
     Streamlit applications while maintaining simple logging.
     
-    Reference: final-decision-10.md for canonical patterns
+    Reference: final-decision.md for canonical patterns
     """
     
     def __init__(self):
@@ -114,7 +110,7 @@ class HeuristicStreamlitApp(BaseExtensionApp):
     Educational Value: Shows how SUPREME_RULES apply to Streamlit applications
     while maintaining simple logging throughout.
     
-    Reference: final-decision-10.md for canonical patterns
+    Reference: final-decision.md for canonical patterns
     """
     
     def __init__(self):
@@ -149,7 +145,7 @@ if __name__ == "__main__":
 ## 📊 **Simple Logging Standards for Streamlit Operations**
 
 ### **Required Logging Pattern (SUPREME_RULES)**
-All Streamlit operations MUST use simple print statements as established in `final-decision-10.md`:
+All Streamlit operations MUST use simple print statements as established in `final-decision.md`:
 
 ```python
 # ✅ CORRECT: Simple logging for Streamlit operations (SUPREME_RULES compliance)
@@ -168,7 +164,7 @@ def streamlit_operation(operation_type: str, parameters: dict):
 
 # def streamlit_operation(operation_type: str, parameters: dict):
 #     logger.info(f"Performing {operation_type}")  # FORBIDDEN - complex logging
-#     # This violates final-decision-10.md SUPREME_RULES
+#     # This violates final-decision.md SUPREME_RULES
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**
@@ -189,8 +185,8 @@ def streamlit_operation(operation_type: str, parameters: dict):
 
 ### **Mandatory Requirements**
 - [ ] **Canonical Method**: All Streamlit components use consistent patterns (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all Streamlit operations (final-decision-10.md compliance)
-- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all Streamlit documentation
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all Streamlit operations (final-decision.md compliance)
+- [ ] **GOOD_RULES Reference**: References `final-decision.md` in all Streamlit documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all Streamlit implementations
 
 ### **Streamlit-Specific Standards**
@@ -202,13 +198,13 @@ def streamlit_operation(operation_type: str, parameters: dict):
 ### **Educational Integration**
 - [ ] **Clear Examples**: Simple examples using canonical patterns
 - [ ] **Pattern Documentation**: Clear explanation of Streamlit pattern benefits
-- [ ] **SUPREME_RULES Compliance**: All examples follow final-decision-10.md standards
+- [ ] **SUPREME_RULES Compliance**: All examples follow final-decision.md standards
 - [ ] **Cross-Reference**: Links to related patterns and principles
 
 ## 🔗 **Cross-References and Integration**
 
 ### **Related Documents**
-- **`final-decision-10.md`**: SUPREME_RULES for canonical Streamlit patterns
+- **`final-decision.md`**: SUPREME_RULES for canonical Streamlit patterns
 - **`app.md`**: Application architecture patterns
 - **`scripts.md`**: Script architecture and execution
 - **`standalone.md`**: Standalone extension principles

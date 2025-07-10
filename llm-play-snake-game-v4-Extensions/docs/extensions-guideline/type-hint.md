@@ -1,7 +1,5 @@
 # Type Hinting Standards for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and establishes comprehensive type hinting standards across all extensions.
-
 ## 🎯 **Core Philosophy: Type Safety for AI Development**
 
 Type hints serve as both **documentation** and **development aid**, enabling better code understanding, IDE support, and automated error detection. In the Snake Game AI project, type hints are particularly valuable for ensuring consistency across multiple algorithm implementations and extensions.

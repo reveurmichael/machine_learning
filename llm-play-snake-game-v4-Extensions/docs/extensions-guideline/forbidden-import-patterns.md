@@ -1,9 +1,5 @@
 # Forbidden Import Patterns for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines forbidden import patterns that violate the standalone principle.
-
-> **See also:** `standalone.md`, `extensions-move-guidelines.md`, `final-decision-10.md`.
-
 ## 🚫 **Absolutely Forbidden Import Patterns**
 
 The following import patterns are **completely forbidden** in any extension and will cause immediate build failures:

@@ -1,7 +1,5 @@
 # ONNX Export Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows the architectural patterns established across all extensions.
-
 ## 🎯 **Core Philosophy: Framework-Agnostic Model Deployment**
 
 ONNX (Open Neural Network Exchange) provides a **unified, framework-agnostic** format for neural-network models, ensuring:
@@ -126,7 +124,7 @@ class XGBoostONNXExporter(BaseONNXExporter):
 
 ## 📁 **Standardised Storage Structure**
 
-Models exported to ONNX **must** follow the path rules defined in `final-decision-1.md`:
+Models exported to ONNX **must** follow the path rules defined in ``:
 ```
 logs/extensions/models/
 └── grid-size-{N}/

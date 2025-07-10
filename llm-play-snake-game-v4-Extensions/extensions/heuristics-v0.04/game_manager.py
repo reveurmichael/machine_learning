@@ -65,7 +65,8 @@ from agents import create, get_available_algorithms, DEFAULT_ALGORITHM
 from dataset_generator import DatasetGenerator
 
 # Import BFSAgent for SSOT utilities
-from agents.agent_bfs import BFSAgent
+from extensions.common.utils.game_state_utils import to_serializable
+from heuristics_utils import calculate_manhattan_distance, calculate_valid_moves_ssot, bfs_pathfind
 
 # Import state management for robust pre/post state separation
 from state_management import StateManager, validate_explanation_head_consistency
@@ -73,7 +74,7 @@ from state_management import StateManager, validate_explanation_head_consistency
 # Type alias for any heuristic agent (from agents package)
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from agents import BFSAgent
+    pass
 
 # JSON serialization moved to BFSAgent for SSOT compliance
 
@@ -255,7 +256,7 @@ class HeuristicGameManager(BaseGameManager):
         # Initialize state manager for robust pre/post state separation
         state_manager = StateManager()
 
-        # Create initial pre-move state for round 1
+        # Validate initial game state (no round creation yet - rounds start with actual moves)
         initial_raw_state = self.game.get_state_snapshot()
         initial_pre_state = state_manager.create_pre_move_state(initial_raw_state)
 
@@ -264,19 +265,10 @@ class HeuristicGameManager(BaseGameManager):
             print_error(f"[FAIL-FAST] Initial game state has no snake positions: {initial_raw_state}")
             raise RuntimeError("[SSOT] Initial game state has no snake positions - game reset failed")
 
-        # Store initial pre-move state in round data
-        if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
-            self.game.game_state.round_manager.round_buffer.number = 1
-            round_data = self.game.game_state.round_manager._get_or_create_round_data(1)
-            round_data['game_state'] = dict(initial_pre_state.game_state)  # Convert back to dict for storage
-            self.game.game_state.round_manager.sync_round_data()
-
-            # Fail-fast: Verify round 1 was recorded
-            rounds_keys = list(self.game.game_state.round_manager.rounds_data.keys())
-            if 1 not in rounds_keys and '1' not in rounds_keys:
-                raise RuntimeError(f"[SSOT] Round 1 not recorded after setup. Available rounds: {rounds_keys}")
-        else:
-            raise RuntimeError("[SSOT] Round manager missing after game reset. Cannot record round 1 pre-move state.")
+        # Ensure round manager is available but don't create any rounds yet
+        # Rounds will be created starting from Round 1 when the first move is made
+        if not (hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager):
+            raise RuntimeError("[SSOT] Round manager missing after game reset.")
 
         # Game loop with robust state management
         steps = 0
@@ -324,8 +316,8 @@ class HeuristicGameManager(BaseGameManager):
             # Validate move against pre-move state using centralized utilities
             head = pre_state.get_head_position()
             body_positions = pre_state.get_snake_positions()
-            manhattan_distance = BFSAgent.calculate_manhattan_distance(dict(pre_state.game_state))
-            valid_moves = BFSAgent.calculate_valid_moves_ssot(dict(pre_state.game_state))
+            manhattan_distance = calculate_manhattan_distance(dict(pre_state.game_state))
+            valid_moves = calculate_valid_moves_ssot(dict(pre_state.game_state))
 
             if move == "NO_PATH_FOUND":
                 if valid_moves:
@@ -355,7 +347,7 @@ class HeuristicGameManager(BaseGameManager):
 
             # --- POST-MOVE VALIDATION ---
             # Check if there are any valid moves left after move
-            post_valid_moves = BFSAgent.calculate_valid_moves_ssot(dict(post_state.game_state))
+            post_valid_moves = calculate_valid_moves_ssot(dict(post_state.game_state))
             if not post_valid_moves:
                 print_error("[DEBUG] No valid moves left after move. Ending game as TRAPPED/NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
@@ -368,7 +360,7 @@ class HeuristicGameManager(BaseGameManager):
             obstacles = set(tuple(p) for p in post_snake_positions[:-1])
 
             # Simple BFS pathfinding implementation
-            path_to_apple = BFSAgent._bfs_pathfind(post_head, post_apple, obstacles, post_state.get_grid_size())
+            path_to_apple = bfs_pathfind(post_head, post_apple, obstacles, post_state.get_grid_size())
             if path_to_apple is None:
                 print_error("Apple unreachable after move. Ending game as NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
@@ -417,16 +409,15 @@ class HeuristicGameManager(BaseGameManager):
         explanations = getattr(self.game.game_state, 'move_explanations', [])
         metrics = getattr(self.game.game_state, 'move_metrics', [])
         dataset_game_states = self.game.game_state.generate_game_summary().get('dataset_game_states', {})
-        # Only count pre-move states for rounds 2..N+1
-        # TODO: this is so so ugly and violates KISS, violates core.md, violates round.md
-        n_states = len([k for k in dataset_game_states.keys() if str(k).isdigit() and int(k) > 1])
+        # Count pre-move states for rounds 1..N (clean Task-0 pattern)
+        n_states = len([k for k in dataset_game_states.keys() if str(k).isdigit() and int(k) >= 1])
         n_expl = len(explanations)
         n_metrics = len(metrics)
         if not (n_expl == n_metrics == n_states):
             print_error("[SSOT] FAIL-FAST: Misalignment detected after game!")
-            print_error(f"[SSOT] Explanations: {n_expl}, Metrics: {n_metrics}, Pre-move states (rounds 2+): {n_states}")
+            print_error(f"[SSOT] Explanations: {n_expl}, Metrics: {n_metrics}, Pre-move states (rounds 1+): {n_states}")
             print_error(f"[SSOT] dataset_game_states keys: {list(dataset_game_states.keys())}")
-            raise RuntimeError(f"[SSOT] Misalignment: explanations={n_expl}, metrics={n_metrics}, pre-move states (rounds 2+): {n_states}")
+            raise RuntimeError(f"[SSOT] Misalignment: explanations={n_expl}, metrics={n_metrics}, pre-move states (rounds 1+): {n_states}")
 
         return game_duration
 
@@ -494,7 +485,7 @@ class HeuristicGameManager(BaseGameManager):
         # game_count is incremented before this method is called, so it's already correct
         game_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
         with open(game_file, 'w', encoding='utf-8') as f:
-            json.dump(BFSAgent.to_serializable(game_data), f, indent=2)
+            json.dump(to_serializable(game_data), f, indent=2)
 
     def _display_game_results(self, game_duration: float) -> None:
         """Display game results."""

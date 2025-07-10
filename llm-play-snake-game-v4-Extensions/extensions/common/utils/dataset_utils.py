@@ -1,8 +1,8 @@
 """
 Dataset utilities for Snake Game AI extensions.
 
-This file follows the principles from final-decision-10.md:
-- This file follows the principles from final-decision-10.md.
+This file follows the principles from final-decision.md:
+- This file follows the principles from final-decision.md.
 - All utilities must use simple print logging (simple logging).
 - All utilities must be OOP, extensible, and never over-engineered.
 - Reference: SimpleFactory in factory_utils.py is the canonical factory pattern for all extensions.
@@ -28,7 +28,7 @@ Design Philosophy:
 - Enables easy addition of new extensions without friction
 - All code examples use print() and create() as canonical patterns.
 
-Reference: docs/extensions-guideline/final-decision-10.md
+Reference: docs/extensions-guideline/final-decision.md
 """
 
 import sys

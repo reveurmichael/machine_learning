@@ -1,17 +1,15 @@
 # No Over-Preparation Guidelines for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and establishes principles for avoiding over-engineering in extension development.
-
 ## 🎯 **Core Philosophy: Build What You Need, When You Need It**
 
-The "No Over-Preparation" principle ensures that extensions remain focused, maintainable, and educational by avoiding unnecessary complexity and premature optimization. Extensions should solve actual problems rather than hypothetical future needs, strictly following SUPREME_RULES from `final-decision-10.md`.
+The "No Over-Preparation" principle ensures that extensions remain focused, maintainable, and educational by avoiding unnecessary complexity and premature optimization. Extensions should solve actual problems rather than hypothetical future needs.
 
 ### **Design Philosophy**
 - **Present-Focused Development**: Build for current requirements, not speculative futures
 - **Educational Clarity**: Avoid complexity that obscures learning objectives
 - **Iterative Enhancement**: Add features when actually needed, not preemptively
 - **Concrete Implementation**: Prefer working solutions over abstract frameworks
-- **Simple Logging**: All logging must use the print functions from `ROOT/utils/print_utils.py` (such as `print_info`, `print_warning`, `print_success`, `print_error`, `print_important`). Never use raw print(). Strictly follow SUPREME_RULES from `final-decision-10.md`.
+- **Simple Logging**: All logging must use the print functions from `ROOT/utils/print_utils.py` (such as `print_info`, `print_warning`, `print_success`, `print_error`, `print_important`). Never use raw print(). Strictly follow SUPREME_RULES from `final-decision.md`.
 
 ### **Core Philosophy**
 - **Educational Project**: Encourages experimentation and learning

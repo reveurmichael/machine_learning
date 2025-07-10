@@ -1,19 +1,19 @@
 # Reinforcement Learning Standards for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines reinforcement learning standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision.md`) and defines reinforcement learning standards.
 
 > **Guidelines Alignment:**
-> - This document is governed by the guidelines in `final-decision-10.md`.
+> - This document is governed by the guidelines in `final-decision.md`.
 > - All extension factories must use the canonical method name `create()` (never `create_agent`, `create_model`, etc.).
 > - All code must use simple print logging (simple logging).
 > - Reference: `extensions/common/utils/factory_utils.py` for the canonical `SimpleFactory` implementation.
 > - This file follows KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES (target 300-500 lines).
 
-> **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`, `stable-baseline.md`.
+> **See also:** `agents.md`, `core.md`, `final-decision.md`, `factory-design-pattern.md`, `config.md`, `stable-baseline.md`.
 
 ## 🎯 **Core Philosophy: Learning Through Experience**
 
-Reinforcement learning in the Snake Game AI project enables **autonomous learning** through trial and error, where agents learn optimal strategies by interacting with the game environment and receiving rewards. This approach creates adaptive, intelligent agents that improve over time, strictly following `final-decision-10.md` SUPREME_RULES.
+Reinforcement learning in the Snake Game AI project enables **autonomous learning** through trial and error, where agents learn optimal strategies by interacting with the game environment and receiving rewards. This approach creates adaptive, intelligent agents that improve over time, strictly following `final-decision.md` SUPREME_RULES.
 
 ### **Educational Value**
 - **Reinforcement Learning**: Understanding RL principles and algorithms
@@ -566,5 +566,5 @@ class RLTrainingPipeline:
 - **`agents.md`**: Agent implementation standards
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`config.md`**: Configuration management
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`factory-design-pattern.md`**: Factory pattern implementation

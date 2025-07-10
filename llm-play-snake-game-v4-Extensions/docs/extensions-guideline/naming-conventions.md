@@ -1,5 +1,3 @@
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for naming convention standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
-
 # Naming Conventions
 
 ## 🎯 **Core Philosophy: Names as Contracts**
@@ -7,8 +5,8 @@
 In this project, names are not arbitrary labels; they are contracts. A well-chosen name tells a developer (or an AI assistant) what a component is, where it belongs, and how it should be used.
 
 ### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making naming changes to ensure comprehensive understanding of architectural patterns
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and naming standards
+- **final-decision.md Guideline 1**: Enforces reading all GOOD_RULES before making naming changes to ensure comprehensive understanding of architectural patterns
+- **final-decision.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and naming standards
 - **simple logging**: Enables lightweight common utilities with OOP extensibility through consistent naming that supports inheritance rather than tight coupling
 
 Our naming conventions are designed to enforce:

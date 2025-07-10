@@ -1,12 +1,12 @@
 """
-Core dataset generator – convert raw logs into CSV / JSONL.
+Core dataset generator – generate CSV / JSONL from in-memory game data.
 
-This module provides the core DatasetGenerator class that converts
-heuristic game logs into structured datasets for machine learning.
+This module provides the core DatasetGenerator class that processes
+live heuristic game data during execution and generates structured datasets for machine learning.
 
 Design Philosophy:
 - Algorithm-agnostic: Can be reused by supervised/RL extensions
-- Single responsibility: Only handles dataset conversion
+- Single responsibility: Only handles dataset generation from live data
 - Standardized logging: Uses print_utils functions for all operations
 - Generic: Uses common utilities for CSV feature extraction
 """
@@ -22,35 +22,42 @@ import traceback
 
 # Fix UTF-8 encoding issues on Windows
 # This ensures that all subprocesses and file operations use UTF-8
-# All file operations (CSV, JSONL, JSON) in v0.04 use UTF-8 encoding for cross-platform compatibility
+# All file operations (CSV, JSONL, JSON) use UTF-8 encoding for cross-platform compatibility
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 # Add project root to path to allow absolute imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from utils.print_utils import print_info, print_warning, print_success, print_error
-from agents.agent_bfs import BFSAgent
+from extensions.common.utils.game_state_utils import (
+    extract_head_position, extract_body_positions, extract_grid_size
+)
+from heuristics_utils import (
+    calculate_manhattan_distance, calculate_valid_moves_ssot, 
+    count_free_space_in_direction
+)
 
 # Import common CSV utilities for SSOT compliance
 from extensions.common.utils.csv_utils import CSVFeatureExtractor, create_csv_record_with_explanation
 from extensions.common.utils.game_analysis_utils import calculate_danger_assessment, calculate_apple_direction
+
+# Import round utilities for clean round management
+from game_rounds import create_dataset_records
+
+# Import common utilities for coordinate conversion
+from extensions.common.utils.game_state_utils import convert_coordinates_to_tuples
 
 __all__ = ["DatasetGenerator"]
 
 
 class DatasetGenerator:
     """
-    # TODO: class docstring wrong. we are not converting, we are just generating.
-    Convert raw heuristic game logs to datasets (CSV / JSONL).
+    Generate datasets (CSV / JSONL) from in-memory heuristic game data.
     Designed to be algorithm-agnostic so supervised / RL can reuse it.
     
-    This generator reads heuristic algorithm game logs and converts them
-    into structured datasets suitable for machine learning tasks.
-    
-    Design Philosophy:
-    - Uses common CSV utilities for feature extraction (SSOT compliance)
-    - Maintains JSONL functionality for language-rich datasets
-    - Generic and extensible for all tasks 1-5
+    This class processes live game data during execution and generates structured datasets
+    suitable for machine learning training. It supports both CSV and JSONL formats
+    and can handle multiple algorithms and grid sizes.
     """
 
     def __init__(self, algorithm: str, output_dir: Path):
@@ -79,7 +86,9 @@ class DatasetGenerator:
         """Open CSV file for writing."""
         csv_path = self.output_dir / f"{self.algorithm}_dataset.csv"
         fh = csv_path.open("w", newline="", encoding="utf-8")
-        writer = csv.DictWriter(fh, fieldnames=self.csv_extractor.feature_names)
+        # Use complete column list including metadata and target columns
+        from extensions.common.config.csv_formats import CSV_ALL_COLUMNS
+        writer = csv.DictWriter(fh, fieldnames=CSV_ALL_COLUMNS)
         writer.writeheader()
         self._csv_writer = (writer, fh)
         print_info(f"Opened CSV file: {csv_path}", "DatasetGenerator")
@@ -142,7 +151,7 @@ class DatasetGenerator:
 
     # ---------------- INTERNAL
     def _process_single_game(self, game_data: Dict[str, Any]) -> None:
-        """Process a single game and generate dataset entries."""
+        """Process a single game and generate dataset entries using clean round management."""
         try:
             # Extract moves and explanations
             moves_history = game_data.get("detailed_history", {}).get("moves", [])
@@ -153,52 +162,27 @@ class DatasetGenerator:
                 print_warning("[DatasetGenerator] No moves found in game data")
                 return
 
-            # Extract dataset game states
-            dataset_game_states = game_data.get("dataset_game_states", {})
-            # SSOT: Round 0 is only the initial state, not used for moves
-            # All moves and planned_moves start from round 1
-            rounds_data = game_data.get("detailed_history", {}).get("rounds_data", {})
-            available_rounds = set(int(k) for k in rounds_data.keys())
-            required_rounds = set(range(1, len(moves_history) + 1))
-            missing_rounds = required_rounds - available_rounds
-            if missing_rounds:
-                raise RuntimeError(f"[SSOT] Missing required rounds {sorted(missing_rounds)} for {len(moves_history)} moves. Available: {sorted(available_rounds)}")
+            print_info(f"[DatasetGenerator] Processing {len(moves_history)} moves with {len(explanations)} explanations")
 
-            # Only process up to the minimum length of all three lists
-            # TODO: this is so so ugly. we should rely on game_N.json -> detailed_history -> rounds_data -> X (number of round) -> moves, which is already there. But don't read the game_N.json file, everything is already in the game_data dict, in the memory.
-            n_records = min(len(moves_history), len(explanations), len(metrics_list))
-            print_info(f"[DEBUG] moves_history: {len(moves_history)}, explanations: {len(explanations)}, metrics_list: {len(metrics_list)}, n_records: {n_records}")
+            # Use clean round utilities to extract dataset records (eliminates +2 offset!)
+            try:
+                dataset_records = create_dataset_records(game_data, moves_history, explanations, metrics_list)
+            except RuntimeError as e:
+                print_error(f"[DatasetGenerator] Round extraction failed: {e}")
+                raise
 
-            # For each move, use round N+1 (starting from 2)
-            for i in range(n_records):
-                move = moves_history[i]
+            # Process each record with proper round alignment
+            for round_num, move, explanation, metrics, game_state in dataset_records:
                 try:
-                    # TODO: +2 is so so ugly and violates KISS, violates core.md, violates round.md
-                    round_num = i + 2  # rounds start from 2 for moves (skip initial state)
-
-                    # SSOT: Check that all required data exists for this round
-                    round_data = rounds_data.get(str(round_num)) or rounds_data.get(round_num)
-                    if not round_data:
-                        print_warning(f"[SSOT] Round {round_num} missing in rounds_data. Stopping at move {i}.")
-                        break
-
-                    game_state = dataset_game_states.get(str(round_num)) or dataset_game_states.get(round_num)
-                    if not game_state:
-                        print_warning(f"[SSOT] Game state for round {round_num} missing in dataset_game_states. Stopping at move {i}.")
-                        break
-
                     # SSOT: Use centralized utilities for all position extractions
-                    head_pos_for_check = BFSAgent.extract_head_position(game_state)
-                    body_positions_for_check = BFSAgent.extract_body_positions(game_state)
+                    head_pos_for_check = extract_head_position(game_state)
+                    body_positions_for_check = extract_body_positions(game_state)
 
-                    current_explanation = explanations[i]
-                    current_metrics = metrics_list[i]
-
-                    record = self._extract_jsonl_record({
+                    record = self._create_jsonl_record({
                         "game_state": game_state,
                         "move": move,
-                        "explanation": current_explanation,
-                        "metrics": current_metrics,
+                        "explanation": explanation,
+                        "metrics": metrics,
                         "game_id": game_data.get('game_number', game_data.get('metadata', {}).get('game_number', 1)),
                         "round_num": round_num
                     })
@@ -207,32 +191,25 @@ class DatasetGenerator:
                     if self._jsonl_fh:
                         self._jsonl_fh.write(json.dumps(record) + '\n')
                         self._jsonl_fh.flush()  # Ensure immediate write on Windows
+                    
                     # Write to CSV using common utilities
                     if self._csv_writer:
-                        csv_record = self._extract_csv_features(record, step_number=round_num)  # CSV step numbers are 1-indexed
+                        csv_record = self._create_csv_record(record, step_number=round_num)
                         self._csv_writer[0].writerow(csv_record)
                         self._csv_writer[1].flush()  # Ensure immediate write on Windows
 
                 except Exception as e:
-                    print_error(f"[DatasetGenerator] Error processing move {i} (round {round_num}): {e}")
-                    print_error(f"[DatasetGenerator] Move: {move if 'move' in locals() else 'N/A'}")
-                    print_error(f"[DatasetGenerator] Round data exists: {'round_data' in locals() and round_data is not None}")
-                    print_error(f"[DatasetGenerator] Game state exists: {'game_state' in locals() and game_state is not None}")
+                    print_error(f"[DatasetGenerator] Error processing round {round_num}, move {move}: {e}")
+                    print_error(f"[DatasetGenerator] Game state exists: {game_state is not None}")
                     traceback.print_exc()
                     raise
+
         except Exception as e:
             print_error(f"[DatasetGenerator] Error processing game {game_data.get('game_number', 'unknown')}: {str(e)}")
             raise
 
-    # TODO: the name is misleading. it's not extracting a record, it's creating/having/getting a CSV record.
-    def _extract_csv_features(self, record: dict, step_number: int = None) -> dict:
-        """
-        Extract CSV features from a single game record using common utilities.
-        SSOT Compliance: Use the common CSVFeatureExtractor for consistency.
-        
-        PRE-EXECUTION: All game_state values are from BEFORE the move is executed.
-        This ensures consistency with the JSONL format and the prompt state.
-        """
+    def _create_csv_record(self, record: dict, step_number: int = None) -> dict:
+        """Create a CSV record from the dataset record."""
         game_state = record.get('game_state', {})
         explanation = record.get('explanation', {})
         game_id = record.get('game_id', 1)
@@ -243,41 +220,24 @@ class DatasetGenerator:
 
         return csv_record
 
-    # TODO: the name is misleading. it's not extracting a record, it's creating/having/getting a record.
-    def _extract_jsonl_record(self, record: dict) -> Dict[str, Any]:
-        """
-        Extracts and formats a single JSONL record from game data.
-        SSOT Compliance: Uses the agent's actual move and explanation as the source of truth.
-        
-        PRE-EXECUTION: All game_state values are from BEFORE the move is executed.
-        This ensures consistency between the prompt (which shows pre-move state) and
-        the completion metrics (which should match the prompt's state).
-        
-        Args:
-            record: Game record containing state and move information
-        Returns:
-            Dictionary with prompt and completion for JSONL format
-        """
+    def _create_jsonl_record(self, record: dict) -> Dict[str, Any]:
+        """Create a JSONL record from the dataset record."""
         game_state = record.get('game_state', {})
         explanation = record.get('explanation', {})
         move_chosen = record.get('move') # The chosen move from moves_history
         game_id = record.get('game_id', 1)
         round_num = record.get('round_num')
 
-        # SSOT: Use centralized utilities from BFSAgent for all position and calculation extractions
-        head_pos = BFSAgent.extract_head_position(game_state)
-        body_positions = BFSAgent.extract_body_positions(game_state)
+        head_pos = extract_head_position(game_state)
+        body_positions = extract_body_positions(game_state)
         apple_position = game_state.get('apple_position') # Directly extract apple_position from game_state
-        grid_size = BFSAgent.extract_grid_size(game_state)
+        grid_size = extract_grid_size(game_state)
 
         # SSOT: body_positions can be empty for initial moves when snake is only 1 segment long
         # This is valid behavior and should be included in the dataset
 
-        manhattan_distance = BFSAgent.calculate_manhattan_distance(game_state)
-        valid_moves = BFSAgent.calculate_valid_moves_ssot(game_state)
-
-        # Ensure imports are within the method for clarity and to avoid circular dependencies if moved later
-        # Removed redundant import: from extensions.common.utils.game_analysis_utils import calculate_danger_assessment, calculate_apple_direction
+        manhattan_distance = calculate_manhattan_distance(game_state)
+        valid_moves = calculate_valid_moves_ssot(game_state)
 
         # KISS: Use agent's explanation directly - no fallbacks needed
         # SSOT: The explanation comes from the agent and is already properly formatted
@@ -287,25 +247,23 @@ class DatasetGenerator:
             raise RuntimeError(f"SSOT violation: Agent explanation missing 'explanation_steps' for record {game_id}")
 
         # Extract the move direction from the explanation metrics (SSOT)
-        # TODO: There should not be "UNKNOWN" in the first place.
-        move_direction = 'UNKNOWN'
-        if isinstance(explanation, dict) and 'metrics' in explanation:
-            agent_metrics = explanation['metrics']
-            if 'final_chosen_direction' in agent_metrics:
-                move_direction = agent_metrics['final_chosen_direction']
-            elif 'move' in agent_metrics: # Fallback for older formats if needed, but prefer final_chosen_direction
-                move_direction = agent_metrics['move']
-
-        if move_direction == 'UNKNOWN':
+        # SSOT: Agent must provide valid move direction in metrics
+        if not isinstance(explanation, dict) or 'metrics' not in explanation:
+            raise RuntimeError(f"SSOT violation: Agent explanation missing 'metrics' for record {game_id}")
+        
+        agent_metrics = explanation['metrics']
+        if 'final_chosen_direction' in agent_metrics:
+            move_direction = agent_metrics['final_chosen_direction']
+        elif 'move' in agent_metrics:  # Fallback for older formats if needed, but prefer final_chosen_direction
+            move_direction = agent_metrics['move']
+        else:
             raise RuntimeError(f"SSOT violation: No valid move direction found in agent metrics for record {game_id}")
 
-        # SSOT FAIL-FAST: Ensure the move_chosen passed from moves_history matches the agent's chosen direction
         if move_chosen != move_direction:
             raise RuntimeError(f"[SSOT] FAIL-FAST: Mismatch between recorded move {move_chosen} and agent's chosen direction {move_direction} for record {game_id}")
 
         # Validate head position before processing (redundant with initial check in _process_single_game, but for robustness)
-        # SSOT: Use centralized utilities for all position extractions
-        pre_move_head = BFSAgent.extract_head_position(game_state)
+        pre_move_head = extract_head_position(game_state)
         if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
             raise RuntimeError(f"[SSOT] Invalid head position in game state for round {round_num}: {pre_move_head}")
 
@@ -331,10 +289,10 @@ class DatasetGenerator:
         apple_dir_right = apple_direction_info.get('right', False)
 
         # Calculate free space features
-        free_space_up = BFSAgent.count_free_space_in_direction(game_state, "UP")
-        free_space_down = BFSAgent.count_free_space_in_direction(game_state, "DOWN")
-        free_space_left = BFSAgent.count_free_space_in_direction(game_state, "LEFT")
-        free_space_right = BFSAgent.count_free_space_in_direction(game_state, "RIGHT")
+        free_space_up = count_free_space_in_direction(game_state, "UP")
+        free_space_down = count_free_space_in_direction(game_state, "DOWN")
+        free_space_left = count_free_space_in_direction(game_state, "LEFT")
+        free_space_right = count_free_space_in_direction(game_state, "RIGHT")
 
         # Check if the move is valid (SSOT validation - agent should only choose valid moves)
         if move_direction not in valid_moves:
@@ -373,29 +331,6 @@ class DatasetGenerator:
             "completion": completion,
         }
 
-    def _convert_coordinates_to_tuples(self, coordinates):
-        """
-        Convert coordinate lists to tuple format for consistent representation.
-        
-        Args:
-            coordinates: Can be a single coordinate [x, y] or list of coordinates [[x1, y1], [x2, y2], ...]
-        Returns:
-            Tuple format: (x, y) for single coordinate or [(x1, y1), (x2, y2), ...] for list
-        """
-        if not coordinates:
-            return coordinates
-
-        # Handle single coordinate [x, y]
-        if isinstance(coordinates, list) and len(coordinates) == 2 and all(isinstance(x, (int, float)) for x in coordinates):
-            return tuple(coordinates)
-
-        # Handle list of coordinates [[x1, y1], [x2, y2], ...]
-        if isinstance(coordinates, list) and all(isinstance(pos, list) and len(pos) == 2 for pos in coordinates):
-            return [tuple(pos) for pos in coordinates]
-
-        # Return as-is if not a coordinate format
-        return coordinates
-
     def _format_prompt(self, game_state: dict) -> str:
         """
         Format the game state into a language-rich and structured prompt for fine-tuning.
@@ -415,16 +350,16 @@ class DatasetGenerator:
         algorithm = game_state.get('algorithm', self.algorithm) 
 
         # SSOT: Use centralized utilities from BFSAgent for position extractions
-        head_pos = BFSAgent.extract_head_position(game_state)
+        head_pos = extract_head_position(game_state)
         if not snake_positions:
             return "Invalid game state: Snake has no positions."
 
         # SSOT: Use centralized body positions calculation from BFSAgent
-        body_positions = BFSAgent.extract_body_positions(game_state)
+        body_positions = extract_body_positions(game_state)
         # SSOT: body_positions can be empty for initial moves when snake is only 1 segment long
         # This is valid behavior and should be included in the dataset
-        manhattan_distance = BFSAgent.calculate_manhattan_distance(game_state)
-        valid_moves = BFSAgent.calculate_valid_moves_ssot(game_state)
+        manhattan_distance = calculate_manhattan_distance(game_state)
+        valid_moves = calculate_valid_moves_ssot(game_state)
         # Remove any direct calculations of these values below
 
         # Validate positions
@@ -443,15 +378,15 @@ class DatasetGenerator:
 
         # Calculate free space features
         # PRE-EXECUTION: Free space in each direction from current head position
-        free_space_up = BFSAgent.count_free_space_in_direction(game_state, "UP")
-        free_space_down = BFSAgent.count_free_space_in_direction(game_state, "DOWN")
-        free_space_left = BFSAgent.count_free_space_in_direction(game_state, "LEFT")
-        free_space_right = BFSAgent.count_free_space_in_direction(game_state, "RIGHT")
+        free_space_up = count_free_space_in_direction(game_state, "UP")
+        free_space_down = count_free_space_in_direction(game_state, "DOWN")
+        free_space_left = count_free_space_in_direction(game_state, "LEFT")
+        free_space_right = count_free_space_in_direction(game_state, "RIGHT")
 
         # Convert coordinates to tuple format for consistent representation
-        head_pos_tuple = self._convert_coordinates_to_tuples(head_pos)
-        apple_position_tuple = self._convert_coordinates_to_tuples(apple_position)
-        body_positions_tuple = self._convert_coordinates_to_tuples(body_positions)
+        head_pos_tuple = convert_coordinates_to_tuples(head_pos)
+        apple_position_tuple = convert_coordinates_to_tuples(apple_position)
+        body_positions_tuple = convert_coordinates_to_tuples(body_positions)
 
         # Create text-based board representation
         from utils.board_utils import create_text_board

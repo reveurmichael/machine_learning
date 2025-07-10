@@ -13,7 +13,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use ROOT/utils/print_utils.py functions (e.g. print_info, print_warning, print_error, print_success, print_important) only when absolutely necessary, rather than complex *.log file logging mechanisms. The entire project — including Task-0 and all extensions — must **never** produce `.log` files (though they generally produce `.json` files, like game_N.json, summary.json, etc.).
 
 4. **SUPREME_RULE NO.4**: All markdown files must be **coherent and aligned**:
-   * **STEP A:** Begin with `final-decision-10.md` as the foundational reference. Update all other markdown files to fully align with its core ideas and guiding principles.
+   * **STEP A:** Begin with `final-decision.md` as the foundational reference. Update all other markdown files to fully align with its core ideas and guiding principles.
    * **STEP B:** Approach this as a **chain reaction of ideas**, inspired by nuclear fission and fusion: each conceptual "atom" (a markdown file or Python module) emits "particles" (insights, corrections, stylistic adjustments) that collide with other atoms — not necessarily within the same topic domain — propagating change throughout the system. Each collision refines and harmonizes both local and global structures.
    * **STEP C:** Treat this as an **exhaustive, step-by-step, iterative process** — update, revisit, propagate, and repeat — until the entire documentation and codebase achieve deep, unwavering internal consistency, clarity, and architectural integrity.
    * **STEP D:** Actively reduce redundancy. Consolidate overlapping content and relocate shared explanations into their designated files.
@@ -28,7 +28,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 
 7. **SUPREME_RULE NO.7**: All file operations (CSV, JSONL, JSON) must use UTF-8 encoding for cross-platform compatibility, especially on Windows. This is mandatory for all extensions.
 
-8. **SUPREME_RULE NO.8**: Coordinate representations in JSONL files must be consistently formatted as tuples `(x, y)` instead of lists `[x, y]` for uniformity across all extensions.
+8. **SUPREME_RULE NO.8**: **Minimal Code**: Include only essential code snippets to illustrate concepts clearly. Use placeholders (e.g., `pass` or `...`) liberally to maintain focus and brevity, in all those md files in the ./docs/extensions-guideline/ folder.
 
 ## TEMPORARY_SUPREME_RULES
 
@@ -40,49 +40,19 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 
 **TEMPORARY_SUPREME_RULES:**
 
+* there is no more final-decision-N.md files. We now only have final-decision.md, which is the current file.
 * extensions.common.utils.path_utils.py is still used for extensions. It is there and should be used. Although, for task0, it has its own "utils/path_utils.py"
 * `factory_utils.py` is now located in `ROOT/utils` folder instead of `extensions/common/utils`.
 * extensions produced datasets are stored in `./logs/extensions/datasets/grid-size-{N}/{extension}_v{version}_{timestamp}/{algorithm}/`, both game_N.json and summary.json are stored in this same folder, as well as the csv and jsonl files.
 * For all extensions, `app.py` must serve one and only one purpose: launching scripts with adjustable parameters. It must not display statistics or any other information, nor introduce over-complicated structures or features.
-  Concretely, it must **never** include or refer to things like:
-  * `st.session_state.visualization_speed`
-  * `performance_analysis_tab`
-  * `algorithm_comparison_tab`
-  * `learning_analytics_tab`
-  * `interactive_game_tab`
-  * `tab_evaluation`
-  * `tab_replay`
-  * `performance_metrics.json`
-  * `comparison_results.json`
-  * `visualization_data.json`
-  * `self.visualization`
-  * Real-time visualization of agent reasoning processes
-  * Real-time progress displays
-  * Game state visualizations
-  * Snake move visualizations
-* In short, Streamlit `app.py` is **NOT** for:
-  * Game state visualization
-  * Real-time progress display
-  * Snake move visualization
+* make all md files coherent. starting from final-decision.md make its ideas with align with other md files (so other md files should be updated to align with final-decision.md) and then it will be like diffusion of ideas across the md files and python files in the extensions/common/ folder and then it will be consistent and coherent. the ideas/statements will be like nuclear diffusion process and hit atoms (md files in the ./docs/extensions-guideline/ folder and python files in the extensions/common/ folder) back and forth and hit between themselves again and again. do it step by step. and go back and forth. and step by step again.  be exhaustive and go really deep. In fact, you know a lot about heuristic-v0.04 now. Though heuristic-v0.04 is not perfect yet (some utils to be put into common; factory create not used yet), it is very very good example for extension. Do things only for md files in the folder ./docs/extensions-guideline/. Just modify, don't ask me questions.
 
 ## 📋 **GOOD_RULES: Authoritative References**
 
 The following files in `./docs/extensions-guideline/` are designated as **GOOD_RULES** and serve as the **single source of truth**:
 
-- `agents.md` (Agent implementation standards)
 - `coordinate-system.md` (Universal coordinate system)
-- `core.md` (Base class architecture)
-- `csv-schema-1.md` and `csv-schema-2.md` (Data format specifications)
-- `cwd-and-logs.md` (Working directory standards)
-- `data-format-decision-guide.md` (Format selection criteria)
-- `datasets-folder.md` (Directory structure standards)
-- `extensions-v0.01.md` through `extensions-v0.04.md` (Extension evolution guidelines)
-- `models.md` (Model management standards)
-- `naming-conventions.md` (Naming standards)
-- `project-structure-plan.md` (Master architectural blueprint)
-- `round.md` (Round management patterns)
-- `single-source-of-truth.md` (Architectural principles)
-- `unified-path-management-guide.md` (Path management standards)
+- `csv-schema.md`
 
 ## KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES
 
@@ -93,9 +63,17 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * Or, the concepts are relatively obvious and do not require long elaboration.
 
 **Files to keep simple (KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES):**
-
-* `final-decision-0.md` through `final-decision-9.md` 
-* `agentic-llms.md`
+* `core.md` 
+* `agents.md` 
+* `cwd-and-logs.md` 
+* `data-format-decision-guide.md` 
+* `datasets-folder.md` 
+* `extensions-v0.01.md` through `extensions-v0.04.md` 
+* `naming-conventions.md` 
+* `project-structure-plan.md` 
+* `round.md` 
+* `single-source-of-truth.md` 
+* `unified-path-management-guide.md` 
 * `ai-friendly.md`
 * `app.md`
 * `config.md` 
@@ -108,7 +86,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `extension-evolution-rules.md`
 * `extensions-move-guidelines.md`
 * `factory-design-pattern.md`
-* `fine-tuning.md`
 * `forbidden-import-patterns.md`
 * `forward-looking-architecture.md`
 * `gui-pygame.md`
@@ -117,7 +94,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `kiss.md`
 * `limits-manager-impact-on-extensions.md`
 * `llm-distillation.md`
-* `lora.md`
 * `mutilple-inheritance.md`
 * `network.md`
 * `no-gui.md`

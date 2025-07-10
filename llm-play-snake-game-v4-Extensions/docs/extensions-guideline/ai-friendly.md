@@ -1,12 +1,8 @@
 # AI-Friendly Development Guidelines
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines AI-friendly development guidelines.
-
-> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
-
 ## 🎯 **Core Philosophy: Explicit is Better Than Implicit**
 
-The codebase follows principles that make it highly readable and navigable for AI development assistants, strictly adhering to SUPREME_RULES from `final-decision-10.md`.
+The codebase follows principles that make it highly readable and navigable for AI development assistants.
 
 ## 🔍 **Navigation Aids for AI Assistants**
 
@@ -204,5 +200,5 @@ All constants in `config/` directory with clear names:
 - **`agents.md`**: Agent implementation standards
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`config.md`**: Configuration management
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`factory-design-pattern.md`**: Factory pattern implementation

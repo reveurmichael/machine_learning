@@ -1,7 +1,5 @@
 # Utility Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Utility organization follows the universal vs. task-specific separation principle established in the GOOD_RULES.
-
 ## 🎯 **Utility Philosophy**
 
 The utility architecture provides a clean separation between universal game mechanics and task-specific functionality. This enables all extensions to leverage shared infrastructure while maintaining clear boundaries between different AI approaches.

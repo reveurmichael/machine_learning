@@ -1,7 +1,5 @@
 # Multi-Format Dataset Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Multi-format datasets follow the same architectural patterns established in the GOOD_RULES.
-
 ## 🎯 **Core Philosophy: Format-Agnostic Data Pipeline**
 
 The multi-format dataset architecture provides flexible data storage and loading capabilities to support diverse machine learning approaches. Different model types require different data representations, and this architecture ensures optimal performance for each approach.
@@ -325,7 +323,7 @@ def save_multi_format_dataset(
 
 # NPZ and Parquet Data Formats for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows established architectural patterns. For data format decisions, see `data-format-decision-guide.md`.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`` → `final-decision.md`) and follows established architectural patterns. For data format decisions, see `data-format-decision-guide.md`.
 
 ## 🎯 **Core Philosophy: Efficient Scientific Data Storage**
 

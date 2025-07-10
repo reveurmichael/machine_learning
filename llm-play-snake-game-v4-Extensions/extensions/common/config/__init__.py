@@ -2,7 +2,7 @@
 Configuration constants for Snake Game AI extensions.
 
 This module defines shared configuration constants and path patterns
-used across all extensions, following SUPREME_RULES from final-decision-10.md.
+used across all extensions, following SUPREME_RULES from final-decision.md.
 
 Design Philosophy:
 - Centralized configuration management
@@ -10,7 +10,7 @@ Design Philosophy:
 - Consistent naming patterns across extensions
 - Path templates for organized data storage
 
-Reference: docs/extensions-guideline/final-decision-10.md
+Reference: docs/extensions-guideline/final-decision.md
 """
 
 import sys

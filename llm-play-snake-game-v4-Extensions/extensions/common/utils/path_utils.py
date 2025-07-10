@@ -1,6 +1,6 @@
 """Path utilities for extensions/common/utils/ package.
 
-This file follows the principles from final-decision-10.md:
+This file follows the principles from final-decision.md:
 - All utilities must use simple print logging
 - All utilities must be OOP, extensible, and never over-engineered
 - Reference: SimpleFactory in factory_utils.py is the canonical factory pattern for all extensions

@@ -1,12 +1,8 @@
 # Supervised Learning Standards for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines supervised learning standards.
-
-> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
-
 ## 🎯 **Core Philosophy: Data-Driven Decision Making**
 
-Supervised learning in the Snake Game AI project enables **data-driven decision making** through machine learning models trained on labeled game data. These models learn patterns from successful gameplay and apply them to new situations, strictly following `final-decision-10.md` SUPREME_RULES.
+Supervised learning in the Snake Game AI project enables **data-driven decision making** through machine learning models trained on labeled game data. These models learn patterns from successful gameplay and apply them to new situations.
 
 ### **Educational Value**
 - **Machine Learning**: Understanding supervised learning principles
@@ -18,47 +14,6 @@ Supervised learning in the Snake Game AI project enables **data-driven decision 
 
 All supervised learning factories must use the canonical method name `create()` for instantiation, not `create_supervised_agent()` or any other variant. This ensures consistency and aligns with the KISS principle.
 
-### **Supervised Learning Factory Implementation**
-```python
-class SupervisedLearningFactory:
-    """
-    Factory for supervised learning agents following SUPREME_RULES.
-    
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Purpose: Create supervised learning agents with canonical patterns
-    Educational Value: Shows how canonical factory patterns work with ML systems
-    """
-    
-    _registry = {
-        "MLP": MLPAgent,
-        "CNN": CNNAgent,
-        "LSTM": LSTMAgent,
-        "XGBOOST": XGBoostAgent,
-        "LIGHTGBM": LightGBMAgent,
-        "RANDOMFOREST": RandomForestAgent,
-    }
-    
-    @classmethod
-    def create(cls, algorithm_type: str, **kwargs):  # CANONICAL create() method
-        """Create supervised learning agent using canonical create() method (SUPREME_RULES compliance)"""
-        agent_class = cls._registry.get(algorithm_type.upper())
-        if not agent_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown algorithm type: {algorithm_type}. Available: {available}")
-        print_info(f"[SupervisedLearningFactory] Creating agent: {algorithm_type}")  # Simple logging
-        return agent_class(**kwargs)
-
-# ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-class SupervisedLearningFactory:
-    def create_supervised_agent(self, algorithm_type: str):  # FORBIDDEN - not canonical
-        pass
-    
-    def build_ml_model(self, algorithm_type: str):  # FORBIDDEN - not canonical
-        pass
-    
-    def make_supervised_algorithm(self, algorithm_type: str):  # FORBIDDEN - not canonical
-        pass
-```
 
 ## 🧠 **Supervised Learning Architecture Patterns**
 
@@ -90,6 +45,7 @@ class MLPAgent(BaseAgent):
         else:
             print_warning(f"[MLPAgent] No model found at {model_path}")  # Simple logging
     
+    # TODO: should be get_move() ????
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using MLP prediction"""
         # Convert game state to feature vector
@@ -559,5 +515,5 @@ class SupervisedTrainingPipeline:
 - **`agents.md`**: Agent implementation standards
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`config.md`**: Configuration management
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`factory-design-pattern.md`**: Factory pattern implementation

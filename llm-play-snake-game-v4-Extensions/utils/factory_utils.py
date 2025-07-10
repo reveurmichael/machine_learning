@@ -3,7 +3,7 @@ Universal Factory Utilities for Snake Game AI Project
 ====================================================
 
 This module provides canonical factory patterns used throughout the entire project,
-following SUPREME_RULES from final-decision-10.md. These utilities are used by:
+following SUPREME_RULES from final-decision.md. These utilities are used by:
 - Core game components (Task-0)
 - Web applications (all tasks)  
 - All extensions (Tasks 1-5)
@@ -15,7 +15,7 @@ Design Philosophy:
 - Canonical Method: All factories use create() method name
 - Simple Logging: Uses print() statements only
 
-Reference: docs/extensions-guideline/final-decision-10.md
+Reference: docs/extensions-guideline/final-decision.md
 """
 
 from typing import Dict, Type, Any, List, Optional
@@ -23,7 +23,7 @@ from typing import Dict, Type, Any, List, Optional
 
 class SimpleFactory:
     """
-    Universal simple factory class following final-decision-10.md SUPREME_RULES.
+    Universal simple factory class following final-decision.md SUPREME_RULES.
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Provides universal factory pattern for all project components
@@ -132,7 +132,7 @@ class WebAppFactory:
     def create(cls, app_type: str, **kwargs) -> Any:  # CANONICAL create() method
         """Create web application using canonical create() method.
         
-        Following SUPREME_RULES from final-decision-10.md, all factories must use
+        Following SUPREME_RULES from final-decision.md, all factories must use
         the canonical create() method name for consistency across the project.
         
         Args:

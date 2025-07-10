@@ -2,7 +2,7 @@
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Design**
 
-The CSV schema uses a **fixed set of 16 engineered features** that work for any grid size (8x8, 10x10, 12x12, 16x16, 20x20, etc.), ensuring consistency across all extensions and enabling cross-grid-size comparisons, strictly following SUPREME_RULES from `final-decision-10.md`.
+The CSV schema uses a **fixed set of 16 engineered features** that work for any grid size (8x8, 10x10, 12x12, 16x16, 20x20, etc.), ensuring consistency across all extensions and enabling cross-grid-size comparisons, strictly following forward-looking architecture principles.
 
 **When to Use CSV**: This format is optimal for tree-based models (XGBoost, LightGBM) and simple MLPs. For other model types, see the data format decision guide.
 
@@ -84,14 +84,12 @@ dataset_path = get_dataset_path(
 
 ### **Dataset Generation**
 ```python
-from extensions.common.utils.csv_schema_utils import create_csv_row
+from extensions.common.utils.csv_utils import create_csv_record
 
-csv_row = create_csv_row(
+csv_row = create_csv_record(
     game_state=current_state,
-    target_move="RIGHT", 
-    game_id=1,
-    step_in_game=5,
-    grid_size=grid_size  # Works with any grid size
+    move="RIGHT", 
+    step_number=5
 )
 ```
 
@@ -125,17 +123,88 @@ X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training
 - Transfer learning possibilities between different configurations
 - Use heuristics-v0.04 as the definitive data source
 
+## 🏗️ **Architecture Overview**
+
+### **File Structure**
+```
+extensions/common/
+├── config/
+│   └── csv_formats.py          # Centralized CSV constants and schema
+└── utils/
+    └── csv_utils.py            # Consolidated CSV utilities
+```
+
+### **Key Components**
+
+#### **1. CSV Formats (`csv_formats.py`)**
+```python
+from extensions.common.config.csv_formats import (
+    CSV_ALL_COLUMNS, CSV_FEATURE_COLUMNS, CSV_TARGET_COLUMN
+)
+
+# Core schema definition
+CSV_FEATURE_COLUMNS = [
+    'head_x', 'head_y', 'apple_x', 'apple_y',  # Position (4)
+    'snake_length',                              # Game state (1)
+    'apple_dir_up', 'apple_dir_down', 'apple_dir_left', 'apple_dir_right',  # Direction (4)
+    'danger_straight', 'danger_left', 'danger_right',  # Danger (3)
+    'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right'  # Space (4)
+]
+```
+
+#### **2. CSV Utilities (`csv_utils.py`)**
+```python
+from extensions.common.utils.csv_utils import CSVFeatureExtractor, create_csv_record
+
+# Feature extraction
+extractor = CSVFeatureExtractor()
+features = extractor.extract_features(game_state, move, step_number)
+
+# Simple record creation
+csv_record = create_csv_record(game_state, move, step_number)
+```
+
+### **Design Patterns**
+
+#### **Strategy Pattern**
+- Different feature extraction strategies for different model types
+- Pluggable preprocessing pipelines
+- Consistent interface across extensions
+
+#### **Template Method Pattern**
+- Base classes define structure
+- Extensions implement specific logic
+- Consistent behavior across implementations
+
+#### **Factory Pattern**
+- Schema generation based on grid size
+- Agent creation based on model type
+- Dataset loading based on format
+
+## 📈 **Performance Considerations**
+
+- **Feature count is fixed**: 16 features regardless of grid size
+- **Efficient lookups**: Uses sets for snake body collision detection
+- **Memory efficient**: Processes data in chunks
+- **Scalable**: Works with datasets of any size
+
+## 🔮 **Future Extensions**
+
+The schema is designed to be extensible:
+
+1. **Additional features**: Can add new engineered features without breaking existing models
+2. **Different formats**: Support for sequential data (LSTM) using NPZ and graph data (GNN) using specialized formats
+
 ## 🔗 **See Also**
 
 - **`data-format-decision-guide.md`**: Authoritative reference for all format decisions
-- **`csv-schema-2.md`**: Detailed utilities and implementation guide
 - **`evolutionary.md`**: Alternative state representations for evolutionary algorithms
 - **`datasets-folder.md`**: Directory structure and organization standards
 - **`unified-path-management-guide.md`**: Path management standards
 
 ## 🎯 **Important Guidelines: Version Selection Guidelines**
 
-- **For supervised learning**: Use CSV from either heuristics-v0.03 or heuristics-v0.04 (both widely used)
+- **For supervised learning**: Use CSV from heuristics-v0.04 (definitive version)
 - **For LLM fine-tuning**: Use JSONL from heuristics-v0.04 only
 - **For research**: Use both formats from heuristics-v0.04
 - **CSV is ACTIVE**: Not legacy - actively used for supervised learning
@@ -143,4 +212,4 @@ X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training
 
 ---
 
-**This grid-size agnostic CSV schema ensures consistent, scalable datasets for supervised learning across all Snake Game AI extensions while maintaining cross-extension compatibility. Both heuristics-v0.03 and heuristics-v0.04 are widely used depending on use cases.**
+**This grid-size agnostic CSV schema ensures consistent, scalable datasets for supervised learning across all Snake Game AI extensions while maintaining cross-extension compatibility and following forward-looking architecture principles.** 

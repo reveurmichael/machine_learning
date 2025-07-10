@@ -1,12 +1,8 @@
 # Working Directory and Logging Standards
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for working directory and logging standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
+##  **Core Philosophy: Single Source of Truth**
 
-> **See also:** `standalone.md`, `final-decision-10.md`, `project-structure-plan.md`.
-
-## �� **Core Philosophy: Single Source of Truth**
-
-The Snake Game AI project uses a **unified path management system** centered around the canonical `ensure_project_root()` function in `utils.path_utils`. This system provides predictable file locations and simple logging mechanisms, strictly following SUPREME_RULES from `final-decision-10.md`.
+The Snake Game AI project uses a **unified path management system** centered around the canonical `ensure_project_root()` function in `utils.path_utils`. This system provides predictable file locations and simple logging mechanisms.
 
 **Critical Rule**: All extensions MUST use `from utils.path_utils import ensure_project_root` - NO custom implementations are allowed.
 
@@ -117,22 +113,26 @@ for _ in range(10):
 
 ## 📊 **Logging Standards**
 
-### **Simple Print Logging (SUPREME_RULES)**
-All logging must use simple print statements. No complex logging frameworks are allowed:
+### **Simple Print Logging (SUPREME_RULE NO.3)**
+All logging must use simple print statements from `utils/print_utils.py`. No complex logging frameworks or `.log` files are allowed:
 
 ```python
-# ✅ CORRECT: Simple print logging (SUPREME_RULES compliance)
+# ✅ CORRECT: Simple print logging (SUPREME_RULE NO.3 compliance)
 from utils.print_utils import print_info, print_warning, print_error, print_success
 
 print_info(f"[GameManager] Starting game {game_id}")
 print_info(f"[Agent] Selected move: {move}")
 print_info(f"[Game] Score: {score}")
 
-# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
+# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULE NO.3)
 # import logging
 # logger = logging.getLogger(__name__)
 # logger.info("Starting game")
 # logger.error("Game failed")
+
+# ❌ FORBIDDEN: .log files (violates SUPREME_RULE NO.3)
+# with open("game.log", "w") as f:
+#     f.write("Game started")
 ```
 
 
@@ -198,8 +198,8 @@ logs/extensions/datasets/grid-size-10/heuristics_v0.04_20240101_120000/
 
 ### **Mandatory Requirements**
 - [ ] **Single Source of Truth**: Uses ONLY `utils.path_utils.ensure_project_root()` (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all operations (SUPREME_RULES from final-decision-10.md compliance)
-- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision-10.md in all documentation
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all operations (SUPREME_RULES from final-decision.md compliance)
+- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision.md in all documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 
 ### **Path-Specific Standards**
@@ -215,5 +215,5 @@ logs/extensions/datasets/grid-size-10/heuristics_v0.04_20240101_120000/
 ## 🔗 **See Also**
 
 - **`standalone.md`**: Standalone principle and extension independence
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`final-decision.md`**: SUPREME_RULES governance system and canonical standards
 - **`project-structure-plan.md`**: Project structure standards 

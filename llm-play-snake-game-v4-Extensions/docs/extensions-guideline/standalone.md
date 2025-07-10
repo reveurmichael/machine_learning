@@ -1,12 +1,8 @@
 # Standalone Principle for Extensions
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for standalone principles and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
-
-> **See also:** `core.md`, `project-structure-plan.md`, `final-decision-10.md`, `config.md`.
-
 ## 🎯 **Core Philosophy: The Golden Rule of Modularity**
 
-This document defines the single most important architectural principle for extensions: the **Standalone Principle**. It is a non-negotiable rule that governs the entire `extensions/` directory and ensures that the project remains modular, maintainable, and educational, strictly following SUPREME_RULES from `final-decision-10.md`.
+This document defines the single most important architectural principle for extensions: the **Standalone Principle**. It is a non-negotiable rule that governs the entire `extensions/` directory and ensures that the project remains modular, maintainable, and educational.
 
 > **The Golden Rule:**
 > **An extension directory, when combined with the `extensions/common/` directory, must be a completely self-contained, standalone unit.**
@@ -368,7 +364,7 @@ def validate_extension_standalone(extension_path: str) -> bool:
 
 ## 🔗 **See Also**
 
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision.md`**: final-decision.md governance system
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`project-structure-plan.md`**: Project structure and organization
 - **`config.md`**: Configuration architecture standards

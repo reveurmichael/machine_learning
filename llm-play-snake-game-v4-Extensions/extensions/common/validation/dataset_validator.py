@@ -7,13 +7,13 @@ This helper intentionally performs **only the most basic** sanity checks:
 
 Anything beyond that is the business of individual extensions.
 
-This module follows final-decision-10.md Guideline 3: lightweight, OOP-based common utilities 
+This module follows final-decision.md Guideline 3: lightweight, OOP-based common utilities 
 with simple logging (print() statements) rather than complex *.log file mechanisms.
 
 Design Philosophy:
 - Simple, object-oriented utilities that can be inherited and extended
 - No tight coupling with ML/DL/RL/LLM-specific concepts
-- Simple logging with print() statements (final-decision-10.md Guideline 3)
+- Simple logging with print() statements (final-decision.md Guideline 3)
 - Enables easy addition of new extensions without friction
 """
 from __future__ import annotations
@@ -29,7 +29,7 @@ from typing import Union
 import pandas as pd
 
 from utils.print_utils import print_info, print_error
-from ..config.dataset_formats import CSV_BASIC_COLUMNS
+from ..config.csv_formats import CSV_ALL_COLUMNS
 from . import ValidationResult, ValidationLevel
 
 __all__ = ["validate_dataset"]
@@ -41,7 +41,7 @@ __all__ = ["validate_dataset"]
 def _validate_csv(path: Path) -> ValidationResult:
     """Validate CSV dataset with basic column checks.
     
-    Follows final-decision-10.md Guideline 3: Simple logging with print() statements.
+    Follows final-decision.md Guideline 3: Simple logging with print() statements.
     """
     print_info(f"Validating CSV: {path}", "DatasetValidator")
     
@@ -55,14 +55,14 @@ def _validate_csv(path: Path) -> ValidationResult:
             message=f"Failed to read CSV: {exc}",
         )
 
-    missing = set(CSV_BASIC_COLUMNS) - set(df.columns)
+    missing = set(CSV_ALL_COLUMNS) - set(df.columns)
     if missing:
         print_error(f"CSV missing columns: {missing}")
         return ValidationResult(
             is_valid=False,
             level=ValidationLevel.ERROR,
             message=f"CSV is missing required columns: {sorted(missing)}",
-            details={"expected": CSV_BASIC_COLUMNS, "found": list(df.columns)},
+            details={"expected": CSV_ALL_COLUMNS, "found": list(df.columns)},
         )
 
     print_info(f"CSV validation passed: {len(df)} rows", "DatasetValidator")
@@ -81,7 +81,7 @@ def _validate_csv(path: Path) -> ValidationResult:
 def validate_dataset(file_path: Union[str, Path]) -> ValidationResult:
     """Validate a dataset file (CSV or JSONL).
     
-    Follows final-decision-10.md Guideline 3: Simple logging with print() statements.
+    Follows final-decision.md Guideline 3: Simple logging with print() statements.
     """
     path = Path(file_path)
     print_info(f"Starting validation: {path}", "DatasetValidator")

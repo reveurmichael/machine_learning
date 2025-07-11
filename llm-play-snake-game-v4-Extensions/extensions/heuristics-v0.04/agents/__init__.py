@@ -56,9 +56,6 @@ from .agent_bfs_tokens_512 import BFS512TokenAgent
 from .agent_bfs_tokens_1024 import BFS1024TokenAgent
 from .agent_bfs_tokens_2048 import BFS2048TokenAgent
 from .agent_bfs_tokens_4096 import BFS4096TokenAgent
-from .agent_bfs_safe_greedy_tokens_512 import BFSSafeGreedy512TokenAgent
-from .agent_bfs_safe_greedy_tokens_1024 import BFSSafeGreedy1024TokenAgent
-from .agent_bfs_safe_greedy_tokens_2048 import BFSSafeGreedy2048TokenAgent
 from .agent_bfs_safe_greedy_tokens_4096 import BFSSafeGreedy4096TokenAgent
 
 # Canonical factory instance following SUPREME_RULES
@@ -71,9 +68,6 @@ _agent_factory.register("BFS-512", BFS512TokenAgent)
 _agent_factory.register("BFS-1024", BFS1024TokenAgent)
 _agent_factory.register("BFS-2048", BFS2048TokenAgent)
 _agent_factory.register("BFS-4096", BFS4096TokenAgent)
-_agent_factory.register("BFS-SAFE-GREEDY-512", BFSSafeGreedy512TokenAgent)
-_agent_factory.register("BFS-SAFE-GREEDY-1024", BFSSafeGreedy1024TokenAgent)
-_agent_factory.register("BFS-SAFE-GREEDY-2048", BFSSafeGreedy2048TokenAgent)
 _agent_factory.register("BFS-SAFE-GREEDY-4096", BFSSafeGreedy4096TokenAgent)
 
 # Default algorithm
@@ -117,9 +111,6 @@ __all__ = [
     "BFS1024TokenAgent", 
     "BFS2048TokenAgent",
     "BFS4096TokenAgent",
-    "BFSSafeGreedy512TokenAgent",
-    "BFSSafeGreedy1024TokenAgent", 
-    "BFSSafeGreedy2048TokenAgent",
     "BFSSafeGreedy4096TokenAgent",
 
     # Canonical factory method

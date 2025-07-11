@@ -45,6 +45,7 @@ from extensions.common.utils.csv_utils import (
     CSVFeatureExtractor,
     create_csv_record_with_explanation,
 )
+# Import common utilities for game analysis (only needed for fallback)
 from extensions.common.utils.game_analysis_utils import (
     calculate_danger_assessment,
     calculate_apple_direction,
@@ -268,28 +269,48 @@ class DatasetGenerator:
         return csv_record
 
     def _create_jsonl_record(self, record: dict) -> Dict[str, Any]:
-        """Create a JSONL record from the dataset record."""
+        """Create a JSONL record from the dataset record using centralized agent method."""
         game_state = record.get("game_state", {})
         explanation = record.get("explanation", {})
-        move_chosen = record.get("move")  # The chosen move from moves_history
+        move_chosen = record.get("move")
+        game_id = record.get("game_id", 1)
+        round_num = record.get("round_num", 1)
+
+        # SSOT: Use agent's centralized JSONL generation method
+        # This eliminates code duplication and ensures consistency
+        if not self.agent:
+            raise RuntimeError("Agent is required for JSONL generation")
+        
+        # Check if agent has the centralized method
+        if hasattr(self.agent, 'generate_jsonl_record'):
+            return self.agent.generate_jsonl_record(
+                game_state=game_state,
+                move=move_chosen,
+                explanation=explanation,
+                game_id=game_id,
+                round_num=round_num
+            )
+        
+        # Fallback for agents without centralized method (backwards compatibility)
+        return self._create_jsonl_record_fallback(record)
+
+    def _create_jsonl_record_fallback(self, record: dict) -> Dict[str, Any]:
+        """Fallback JSONL record creation for agents without centralized method."""
+        game_state = record.get("game_state", {})
+        explanation = record.get("explanation", {})
+        move_chosen = record.get("move")
         game_id = record.get("game_id", 1)
         round_num = record.get("round_num")
 
         head_pos = extract_head_position(game_state)
         body_positions = extract_body_positions(game_state)
-        apple_position = game_state.get(
-            "apple_position"
-        )  # Directly extract apple_position from game_state
+        apple_position = game_state.get("apple_position")
         grid_size = extract_grid_size(game_state)
-
-        # SSOT: body_positions can be empty for initial moves when snake is only 1 segment long
-        # This is valid behavior and should be included in the dataset
 
         manhattan_distance = calculate_manhattan_distance(game_state)
         valid_moves = calculate_valid_moves_ssot(game_state)
 
         # KISS: Use agent's explanation directly - no fallbacks needed
-        # SSOT: The explanation comes from the agent and is already properly formatted
         if isinstance(explanation, dict) and "explanation_steps" in explanation:
             explanation_text = "\n".join(explanation["explanation_steps"])
         else:
@@ -297,8 +318,7 @@ class DatasetGenerator:
                 f"SSOT violation: Agent explanation missing 'explanation_steps' for record {game_id}"
             )
 
-        # Extract the move direction from the explanation metrics (SSOT)
-        # SSOT: Agent must provide valid move direction in metrics
+        # Extract move direction from explanation metrics (SSOT)
         if not isinstance(explanation, dict) or "metrics" not in explanation:
             raise RuntimeError(
                 f"SSOT violation: Agent explanation missing 'metrics' for record {game_id}"
@@ -307,9 +327,7 @@ class DatasetGenerator:
         agent_metrics = explanation["metrics"]
         if "final_chosen_direction" in agent_metrics:
             move_direction = agent_metrics["final_chosen_direction"]
-        elif (
-            "move" in agent_metrics
-        ):  # Fallback for older formats if needed, but prefer final_chosen_direction
+        elif "move" in agent_metrics:
             move_direction = agent_metrics["move"]
         else:
             raise RuntimeError(
@@ -321,7 +339,7 @@ class DatasetGenerator:
                 f"[SSOT] FAIL-FAST: Mismatch between recorded move {move_chosen} and agent's chosen direction {move_direction} for record {game_id}"
             )
 
-        # Validate head position before processing (redundant with initial check in _process_single_game, but for robustness)
+        # Validate head position
         pre_move_head = extract_head_position(game_state)
         if (
             pre_move_head is None
@@ -332,7 +350,7 @@ class DatasetGenerator:
                 f"[SSOT] Invalid head position in game state for round {round_num}: {pre_move_head}"
             )
 
-        # --- SSOT FAIL-FAST: Explanation head must match prompt head ---
+        # SSOT FAIL-FAST: Explanation head must match prompt head
         explanation_head = (
             explanation.get("metrics", {}).get("head_position")
             if isinstance(explanation, dict)
@@ -342,37 +360,32 @@ class DatasetGenerator:
             print_error(
                 f"[SSOT] FAIL-FAST: JSONL explanation head {explanation_head} != prompt head {pre_move_head} for game {game_id} round {round_num}"
             )
-            print_error(f"[SSOT] Game state: {game_state}")
-            print_error(f"[SSOT] Explanation: {explanation}")
             raise RuntimeError(
                 f"[SSOT] FAIL-FAST: JSONL explanation head {explanation_head} != prompt head {pre_move_head} for game {game_id} round {round_num}"
             )
 
-        # Check if the move is valid (SSOT validation - agent should only choose valid moves)
+        # Check if the move is valid
         if move_direction not in valid_moves:
             raise RuntimeError(
                 f"SSOT violation: JSONL target_move '{move_direction}' is not in valid moves {valid_moves} for head {head_pos} in game {game_id} round {round_num}."
             )
 
-        # ----------------------- OPTIONAL METRICS -----------------------
+        # Calculate optional metrics based on agent switches
         metrics_dict = {
             "valid_moves": valid_moves,
             "manhattan_distance": manhattan_distance,
         }
 
-        # Calculate apple direction features only if agent needs them
         if getattr(self.agent, "include_apple_direction", False):
             apple_direction_info = calculate_apple_direction(head_pos, apple_position)
             metrics_dict["apple_direction"] = apple_direction_info
 
-        # Calculate danger assessment only if agent needs it
         if getattr(self.agent, "include_danger_assessment", False):
             danger_assessment = calculate_danger_assessment(
                 head_pos, body_positions, grid_size, move_direction
             )
             metrics_dict["danger_assessment"] = danger_assessment
 
-        # Calculate free space features only if agent needs it
         if getattr(self.agent, "include_free_space", False):
             metrics_dict["free_space"] = {
                 "up": count_free_space_in_direction(game_state, "UP"),
@@ -380,8 +393,6 @@ class DatasetGenerator:
                 "left": count_free_space_in_direction(game_state, "LEFT"),
                 "right": count_free_space_in_direction(game_state, "RIGHT"),
             }
-
-        # ----------------------------------------------------------------
 
         # Format prompt and completion using agent hooks
         if not self.agent:
@@ -394,8 +405,6 @@ class DatasetGenerator:
             metrics_dict,
         )
 
-        # Return the complete JSONL record
-        # PRE-EXECUTION: All features are from pre-move state
         return {
             "prompt": prompt,
             "completion": completion,

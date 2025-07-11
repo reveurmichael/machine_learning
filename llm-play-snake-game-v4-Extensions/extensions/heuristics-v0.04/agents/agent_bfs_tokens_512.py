@@ -27,7 +27,8 @@ from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions, extract_grid_size
 )
-from heuristics_utils import count_obstacles_in_path
+from heuristics_utils import count_obstacles_in_path, calculate_manhattan_distance, calculate_valid_moves_ssot, count_free_space_in_direction
+from extensions.common.utils.game_analysis_utils import calculate_apple_direction, calculate_danger_assessment
 
 
 class BFS512TokenAgent(BFSAgent):
@@ -80,7 +81,6 @@ class BFS512TokenAgent(BFSAgent):
         grid_size = extract_grid_size(game_state)
         
         # SSOT: Validate move against game state
-        from heuristics_utils import calculate_valid_moves_ssot
         valid_moves = calculate_valid_moves_ssot(game_state)
         if move not in valid_moves:
             raise RuntimeError(
@@ -108,17 +108,14 @@ class BFS512TokenAgent(BFSAgent):
         # Calculate optional metrics based on switches
         additional_metrics = {}
         if self.include_apple_direction:
-            from extensions.common.utils.game_analysis_utils import calculate_apple_direction
             additional_metrics["apple_direction"] = calculate_apple_direction(head_pos, apple_position)
         
         if self.include_danger_assessment:
-            from extensions.common.utils.game_analysis_utils import calculate_danger_assessment
             additional_metrics["danger_assessment"] = calculate_danger_assessment(
                 head_pos, body_positions, grid_size, move
             )
         
         if self.include_free_space:
-            from heuristics_utils import count_free_space_in_direction
             additional_metrics["free_space"] = {
                 "up": count_free_space_in_direction(game_state, "UP"),
                 "down": count_free_space_in_direction(game_state, "DOWN"),

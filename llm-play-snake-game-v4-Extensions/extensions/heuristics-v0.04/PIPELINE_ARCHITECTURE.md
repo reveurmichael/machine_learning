@@ -2,116 +2,96 @@
 
 ## Overview
 
-The JSONL generation pipeline has been redesigned to follow SSOT (Single Source of Truth) principles with maximum simplicity and maintainability. The new architecture centralizes all logic in the agent classes while keeping the pipeline as short as possible.
+The JSONL generation pipeline follows SSOT (Single Source of Truth) and forward-looking architecture principles with maximum simplicity. All logic is centralized in agent classes with the shortest possible pipeline.
 
 ## Key Principles
 
 1. **SSOT**: All JSONL generation logic centralized in agent classes
-2. **KISS**: Minimal functions and short pipeline
-3. **Flexibility**: Easy on/off switches for customization
-4. **Maintainability**: No code duplication across components
+2. **KISS**: Minimal functions and shortest pipeline
+3. **Forward-Looking**: No fallbacks, no backward compatibility
+4. **Clean Separation**: Generic data extraction vs. agent-specific wording control
 
 ## Architecture
 
-### Before (Complex Multi-Layer Pipeline)
+### Current (Ultra-Simplified Pipeline)
 ```
 DatasetGenerator._create_jsonl_record()
-├── Extract positions and features
-├── Calculate metrics
-├── Validate data
-├── Build additional features
-├── Format prompt via agent.format_prompt()
-├── Format completion via agent.format_completion()
-└── Return record
-```
-
-### After (Simplified Centralized Pipeline)
-```
-DatasetGenerator._create_jsonl_record()
+├── Extract generic data (game_state, explanation, move, etc.)
 └── agent.generate_jsonl_record() # ONE METHOD CALL
-    ├── All validation and extraction
-    ├── All metric calculation  
-    ├── All feature building
+    ├── All SSOT validation and fail-fast checks
+    ├── All metric calculation and feature building
+    ├── Prompt/completion wording control
     └── Complete record generation
 ```
 
+**Total Pipeline**: 2 steps (data extraction + agent delegation)
+
+## Responsibility Separation
+
+### DatasetGenerator (Generic)
+- Extract `game_state`, `explanation`, `move_chosen`, `game_id`, `round_num`
+- Delegate to agent's centralized method
+- **No** validation, formatting, or wording logic
+
+### Agent (Specific) 
+- All SSOT validation and fail-fast checks
+- All metric calculation and feature building
+- Complete control over prompt/completion wording
+- All JSONL record generation logic
+
 ## Agent Implementation (BFS512TokenAgent)
 
-### Core Method
+### Required Method
 ```python
 def generate_jsonl_record(self, game_state, move, explanation, game_id, round_num):
-    """SSOT: Single method to generate complete JSONL record."""
-    # All logic centralized here
+    """SSOT: Complete JSONL record generation with validation."""
+    # All validation, formatting, and generation logic here
     return {"prompt": prompt, "completion": completion}
 ```
 
-### Control Switches
+### Control Switches (Agent-Specific Wording)
 ```python
-# Prompt customization
 self.include_board_representation = False  # ASCII board in prompt
-
-# Completion customization  
-self.include_danger_assessment = False     # Danger analysis
-self.include_apple_direction = False       # Apple direction info
-self.include_free_space = False           # Free space metrics
-self.include_metrics_in_completion = False # Metrics in completion text
+self.include_danger_assessment = False     # Danger analysis in completion
+self.include_apple_direction = False       # Apple direction in completion
+self.include_free_space = False           # Free space metrics in completion
+self.include_metrics_in_completion = False # Show metrics in completion text
 ```
 
-## Usage Examples
+## DatasetGenerator Implementation
 
-### Basic JSONL Generation
 ```python
-agent = BFS512TokenAgent()
-# All switches default to False for minimal output
+def _create_jsonl_record(self, record: dict) -> Dict[str, Any]:
+    """Create JSONL record using agent's centralized generation method."""
+    # Generic data extraction (centralized in dataset_generator)
+    game_state = record.get("game_state", {})
+    explanation = record.get("explanation", {})
+    move_chosen = record.get("move")
+    game_id = record.get("game_id", 1)
+    round_num = record.get("round_num", 1)
 
-record = agent.generate_jsonl_record(
-    game_state=game_state,
-    move="UP",
-    explanation=explanation,
-    game_id=1,
-    round_num=1
-)
-```
-
-### Enhanced JSONL with All Features
-```python
-agent = BFS512TokenAgent()
-agent.include_apple_direction = True
-agent.include_danger_assessment = True
-agent.include_free_space = True
-agent.include_metrics_in_completion = True
-
-record = agent.generate_jsonl_record(...)  # Same call, richer output
+    # Delegate all logic to agent
+    return self.agent.generate_jsonl_record(
+        game_state, move_chosen, explanation, game_id, round_num
+    )
 ```
 
 ## Benefits
 
-1. **Shorter Pipeline**: From ~200 lines in DatasetGenerator to 1 method call
-2. **Centralized Logic**: All JSONL logic lives in agent classes
-3. **Easy Customization**: Simple boolean switches for features
-4. **SSOT Compliance**: Single validation and extraction point
-5. **Maintainable**: No code duplication between components
-6. **Backwards Compatible**: Fallback for older agents
-
-## Dataset Generator Changes
-
-The `DatasetGenerator._create_jsonl_record()` method is now just:
-
-```python
-def _create_jsonl_record(self, record):
-    if hasattr(self.agent, 'generate_jsonl_record'):
-        return self.agent.generate_jsonl_record(...)  # Centralized
-    else:
-        return self._create_jsonl_record_fallback(...)  # Backwards compatibility
-```
+1. **Ultra-Short Pipeline**: 2-step process (extract + delegate)
+2. **SSOT Compliance**: Single point of validation and generation
+3. **Clean Separation**: Generic extraction vs. specific wording control
+4. **Forward-Looking**: No legacy code or fallbacks
+5. **KISS Principle**: Maximum simplicity with full functionality
+6. **Agent Control**: Complete control over prompt/completion formatting
 
 ## Extension to Other Agents
 
-To add centralized JSONL generation to any agent:
+Any agent implementing `generate_jsonl_record()` method automatically works with the pipeline:
 
-1. Add control switches as class attributes
-2. Implement `generate_jsonl_record()` method
-3. Move agent-specific logic from DatasetGenerator to agent
-4. DatasetGenerator automatically uses the centralized method
+1. Agent receives extracted generic data
+2. Agent handles all validation and formatting
+3. Agent controls all wording and features
+4. Pipeline remains identical across all agents
 
-This architecture makes the codebase more maintainable while preserving all functionality and flexibility. 
+This architecture achieves the shortest possible pipeline while maintaining complete functionality and SSOT compliance. 

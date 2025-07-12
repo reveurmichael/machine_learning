@@ -17,7 +17,7 @@ Design Patterns:
 - SSOT: Uses all parent methods, only overrides explanation generation
 """
 
-from typing import List, Tuple, Dict, Any
+from typing import List, Dict, Any
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
@@ -28,7 +28,7 @@ from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions, extract_grid_size
 )
-from heuristics_utils import count_obstacles_in_path, calculate_manhattan_distance, calculate_valid_moves_ssot, count_free_space_in_direction
+from heuristics_utils import calculate_valid_moves_ssot, count_free_space_in_direction
 from extensions.common.utils.game_analysis_utils import calculate_apple_direction, calculate_danger_assessment
 
 class BFSSafeGreedy4096TokenAgent(BFSSafeGreedyAgent):

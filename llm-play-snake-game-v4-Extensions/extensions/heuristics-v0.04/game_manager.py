@@ -60,7 +60,7 @@ from config.game_constants import END_REASON_MAP
 
 # Import heuristic-specific components using relative imports
 from game_logic import HeuristicGameLogic
-from agents import create, get_available_algorithms, DEFAULT_ALGORITHM
+from agents import get_available_algorithms, DEFAULT_ALGORITHM
 
 # Import dataset generation utilities for automatic updates
 from dataset_generator import DatasetGenerator

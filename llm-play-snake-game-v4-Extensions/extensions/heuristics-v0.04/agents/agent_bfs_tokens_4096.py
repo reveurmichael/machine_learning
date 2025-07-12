@@ -28,7 +28,7 @@ from .agent_bfs import BFSAgent
 from extensions.common.utils.game_state_utils import (
     extract_head_position, extract_body_positions, extract_grid_size
 )
-from heuristics_utils import count_obstacles_in_path, calculate_manhattan_distance, calculate_valid_moves_ssot, count_free_space_in_direction
+from heuristics_utils import count_obstacles_in_path, calculate_valid_moves_ssot, count_free_space_in_direction
 from extensions.common.utils.game_analysis_utils import calculate_apple_direction, calculate_danger_assessment
 
 class BFS4096TokenAgent(BFSAgent):

@@ -37,7 +37,7 @@ class BFS4096TokenAgent(BFSAgent):
     
     Inheritance Pattern:
     - Inherits from BFSAgent (reuses all pathfinding logic)
-    - Overrides _generate_basic_explanation() for detailed output
+    - Overrides _generate_move_explanation() for detailed output
     - Maintains identical algorithm behavior with full explanations
     
     Token Limit: ~4096 tokens (full detailed explanations)
@@ -47,15 +47,15 @@ class BFS4096TokenAgent(BFSAgent):
         """Initialize BFS 4096-token agent, extending base BFS."""
         super().__init__()  # Initialize parent BFS agent
         self.algorithm_name = "BFS-4096"
-        # Control whether to include ASCII board representation in prompts (saves tokens)
-        self.include_board_representation = True
         
         # ----- JSONL Generation Control Switches -----
-        self.include_danger_assessment = False
-        self.include_apple_direction = False
-        self.include_free_space = False
-        self.include_metrics_in_completion = False
-        
+        # Control whether to include ASCII board representation in prompts (saves tokens)
+        self.include_board_representation = True
+        self.include_danger_assessment = True
+        self.include_apple_direction = True
+        self.include_free_space = True
+        self.include_metrics_in_completion = True
+
     def generate_jsonl_record(self, game_state: dict, move: str, explanation: dict, 
                             game_id: int = 1, round_num: int = 1) -> Dict[str, Any]:
         """
@@ -70,7 +70,7 @@ class BFS4096TokenAgent(BFSAgent):
             explanation: Agent's move explanation with metrics
             game_id: Game identifier
             round_num: Round number
-        
+            
         Returns:
             Complete JSONL record ready for writing
         """
@@ -139,7 +139,7 @@ class BFS4096TokenAgent(BFSAgent):
             "completion": completion,
         }
 
-    def _generate_basic_explanation(self, game_state: dict, path: List[Tuple[int, int]], 
+    def _generate_move_explanation(self, game_state: dict, path: List[Tuple[int, int]], 
                                  direction: str, valid_moves: List[str],
                                  manhattan_distance: int, remaining_free_cells: int) -> dict:
         """
@@ -171,7 +171,7 @@ class BFS4096TokenAgent(BFSAgent):
         space_pressure = "low" if board_fill_ratio < 0.3 else "medium" if board_fill_ratio < 0.6 else "high"
         efficiency_str = f"{efficiency_ratio:.2f} ({path_length}/{manhattan_distance})"
         
-        # Full detailed explanation (identical to original BFS)
+        # Full detailed explanation (4096 tokens)
         explanation_parts = [
             "=== BFS PATHFINDING ANALYSIS ===",
             "",
@@ -241,8 +241,11 @@ class BFS4096TokenAgent(BFSAgent):
 
         return explanation_dict
 
-    def format_prompt(self, game_state: dict) -> str:
-        """Return a prompt string built from *game_state*."""
+    def format_prompt(self, game_state: dict) -> str:  # noqa: D401 – simple description is OK
+        """Return a detailed prompt string built from *game_state*.
+
+        This implementation provides full context for 4096-token explanations.
+        """
         grid_size = game_state.get("grid_size", 10)
         head_pos = extract_head_position(game_state)
         apple_pos = game_state.get("apple_position", [0, 0])
@@ -253,9 +256,9 @@ class BFS4096TokenAgent(BFSAgent):
             f"Head: {head_pos}, Apple: {apple_pos}, Length: {snake_len}.",
         ]
 
-        # Optional board representation
+        # Include board representation for detailed analysis
         if self.include_board_representation:
-            from utils.board_utils import create_text_board
+            from utils.board_utils import create_text_board  # local import – avoids heavy global import cost
 
             board_text = create_text_board(
                 grid_size,
@@ -269,11 +272,11 @@ class BFS4096TokenAgent(BFSAgent):
 
         return "\n".join(prompt_parts)
 
-    def format_completion(self, move: str, explanation_text: str, metrics: dict) -> str:
-        """Return a completion string for the JSONL entry."""
+    def format_completion(self, move: str, explanation_text: str, metrics: dict) -> str:  # noqa: D401
+        """Return a detailed completion string for the JSONL entry."""
         parts = [explanation_text.strip()]
 
-        # Optionally append metrics section based on switches
+        # Include metrics section for detailed analysis
         if self.include_metrics_in_completion and any([
             self.include_danger_assessment,
             self.include_apple_direction, 
@@ -295,16 +298,17 @@ class BFS4096TokenAgent(BFSAgent):
             formatted_metrics.append(f"- Valid moves: {metrics['valid_moves']}")
         
         if 'manhattan_distance' in metrics:
-            formatted_metrics.append(f"- Manhattan distance to apple: {metrics['manhattan_distance']}")
+            formatted_metrics.append(f"- Manhattan distance: {metrics['manhattan_distance']}")
         
         # Include optional metrics based on switches
         if self.include_apple_direction and 'apple_direction' in metrics:
             formatted_metrics.append(f"- Apple direction: {metrics['apple_direction']}")
-            
-        if self.include_free_space and 'free_space' in metrics:
-            formatted_metrics.append(f"- Free space: {metrics['free_space']}")
-            
+        
         if self.include_danger_assessment and 'danger_assessment' in metrics:
             formatted_metrics.append(f"- Danger assessment: {metrics['danger_assessment']}")
+        
+        if self.include_free_space and 'free_space' in metrics:
+            free_space = metrics['free_space']
+            formatted_metrics.append(f"- Free space: UP={free_space['up']}, DOWN={free_space['down']}, LEFT={free_space['left']}, RIGHT={free_space['right']}")
         
         return "\n".join(formatted_metrics)

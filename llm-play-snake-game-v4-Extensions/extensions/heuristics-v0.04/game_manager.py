@@ -1,3 +1,6 @@
+# TODO: In the attached "extensions/heuristics-v0.04/game_manager.py", I have a bunch of TODOs. Please go through them and fix them. Basically, you might want to make writting game_manager.py for extensions much easier (not only for heuristics-v0.04, but also for other extensions). However, keep in mind that writing jsonl files is specific to heuristics-v0.04. Hence, state_management.py (PRE/POST move states) is specific to heuristics-v0.04. For this time, you are allowed to adjust Task0 codebase. But, don't change any functionality of Task0 and heuristics-v0.04. Attached md files can be useful for you, though some of them are outdated. You might want to update core.md file after you are finished.
+
+
 from __future__ import annotations
 import sys
 import os
@@ -596,6 +599,7 @@ class HeuristicGameManager(BaseGameManager):
         return game_data
 
     # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well.
+    # TODO: we do have already def save_game_summary(self, filepath: str, **kwargs) -> Dict[str, Any] in game_data.py of Task0
     def _save_game_data(self, game_data: Dict[str, Any]) -> None:
         """Save individual game data."""
         # Use game_count to match Task-0 numbering (games start at 1, not 0)

@@ -367,13 +367,6 @@ class HeuristicGameManager(BaseGameManager):
 
             # --- FAIL-FAST: VALIDATE EXPLANATION HEAD CONSISTENCY ---
             if not validate_explanation_head_consistency(pre_state, explanation):
-                import json as _json
-
-                print_error("[SSOT] FAIL-FAST: Explanation head position mismatch")
-                print_error(
-                    f"[SSOT] Pre-move state: {_json.dumps(dict(pre_state.game_state))}"
-                )
-                print_error(f"[SSOT] Explanation: {_json.dumps(explanation)}")
                 raise RuntimeError(
                     "[SSOT] FAIL-FAST: Explanation head position does not match pre-move state"
                 )
@@ -413,15 +406,6 @@ class HeuristicGameManager(BaseGameManager):
                 break
 
             if move not in valid_moves:
-                print_error(
-                    f"[SSOT VIOLATION] Agent chose '{move}' but valid moves are {valid_moves} for head {head}"
-                )
-                print_error(
-                    "[SSOT VIOLATION] This indicates a bug in the agent or state management"
-                )
-                print_error(
-                    f"[SSOT VIOLATION] Game state: head={head}, snake={body_positions}, grid_size={pre_state.get_grid_size()}"
-                )
                 raise RuntimeError(
                     f"SSOT violation: agent move '{move}' not in valid moves {valid_moves}"
                 )
@@ -595,20 +579,23 @@ class HeuristicGameManager(BaseGameManager):
         """Generate game data for logging and dataset generation."""
         # Use the game data's generate_game_summary method for Task-0 compatible game files
         # This ensures clean data without game_state in rounds_data and without move_metrics
-        game_summary = self.game.game_state.generate_game_summary()
+        game_data = (
+            self.game.game_state.generate_game_summary()
+        )  # TODO: generate_game_summary should be renamed to generate_game_data in the BaseGameManager. 
 
         # Add algorithm name and duration for heuristics
-        game_summary["algorithm"] = self.algorithm_name
-        game_summary["duration_seconds"] = round(game_duration, 2)
+        game_data["algorithm"] = self.algorithm_name
+        game_data["duration_seconds"] = round(game_duration, 2)
 
         # Add explanations and metrics for dataset generation (v0.04 enhancement)
-        game_summary["move_explanations"] = getattr(
+        game_data["move_explanations"] = getattr(
             self.game.game_state, "move_explanations", []
         )
-        game_summary["move_metrics"] = getattr(self.game.game_state, "move_metrics", [])
+        game_data["move_metrics"] = getattr(self.game.game_state, "move_metrics", [])
 
-        return game_summary
+        return game_data
 
+    # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well.
     def _save_game_data(self, game_data: Dict[str, Any]) -> None:
         """Save individual game data."""
         # Use game_count to match Task-0 numbering (games start at 1, not 0)
@@ -617,12 +604,16 @@ class HeuristicGameManager(BaseGameManager):
         with open(game_file, "w", encoding="utf-8") as f:
             json.dump(to_serializable(game_data), f, indent=2)
 
+    # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well.
+    # TODO: also, game_duration: float seems be not not used.
     def _display_game_results(self, game_duration: float) -> None:
         """Display game results."""
         print_info(
             f"📊 Score: {self.game.game_state.score}, Steps: {self.game.game_state.steps}"
         )
 
+    # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well.
+    # This one should follow the same pattern as  def _generate_game_data(self, game_duration: float) -> Dict[str, Any]. In it, we have game_summary = baseclass return its game_summary dict, and in game_summary we add extension specific key values.
     def _save_session_summary(self) -> None:
         """Save session summary."""
         session_duration = (datetime.now() - self.session_start_time).total_seconds()
@@ -654,6 +645,7 @@ class HeuristicGameManager(BaseGameManager):
             },
         }
 
+        # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well. Maybe we should make this one as a function/method in the BaseGameManager. But such function should already exist in FileManager??? Double check.
         # Save summary
         summary_file = os.path.join(self.log_dir, "summary.json")
         with open(summary_file, "w", encoding="utf-8") as f:
@@ -670,22 +662,27 @@ class HeuristicGameManager(BaseGameManager):
         print_info(f"⚡ Score per step: {summary['score_per_step']:.3f}")
         print_info(f"🎯 Score per round: {summary['score_per_round']:.3f}")
 
+    # TODO: if we are just using super().call_the_baseclass_method(), then we should not have this one here.
     def start_new_round(self, round_type: str | None = None) -> None:
         """Start a new round with automatic dataset updates."""
         super().start_new_round(round_type)
 
+    # TODO: if we are just using super().call_the_baseclass_method(), then we should not have this one here.
     def flush_buffer_with_game_state(self):
         """Flush buffer with current game state for dataset generation."""
         super().flush_buffer_with_game_state()
 
+    # TODO: if we are just using super().call_the_baseclass_method(), then we should not have this one here.
     def finish_round(self, reason: str = "") -> None:
         """Finish round with automatic dataset updates."""
         super().finish_round(reason)
 
+    # TODO: if we are just using super().call_the_baseclass_method(), then we should not have this one here.
     def increment_round(self, reason: str = "") -> None:
         """Increment round with automatic dataset updates."""
         super().increment_round(reason)
 
+    # TODO: this one seems to be heuristics-v0.04 specific. Hence is not shared.
     def _update_datasets_incrementally(self, games_data: List[Dict[str, Any]]) -> None:
         """Update datasets incrementally after each game."""
         if not self.dataset_generator:
@@ -696,6 +693,7 @@ class HeuristicGameManager(BaseGameManager):
             game_data["game_number"] = self.game_count
             self.dataset_generator._process_single_game(game_data)
 
+    # TODO: this one seems to shared among all extensions and Task0, and is hence generic. Double check.
     def setup_game(self) -> None:
         """Create game logic and optional GUI interface with correct grid size."""
         # Get grid size from command line arguments

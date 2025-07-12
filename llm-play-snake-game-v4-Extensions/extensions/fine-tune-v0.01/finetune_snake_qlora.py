@@ -13,6 +13,20 @@
 # ANY OF THE ABOVE COMMENTS SHOULD NEVER BE REMOVED
 
 import os
+
+USE_HF_MIRROR_ENDPOINT = 1
+if USE_HF_MIRROR_ENDPOINT == 1:
+    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com" # or, you can put on the terminal: export HF_ENDPOINT=https://hf-mirror.com
+else:
+    os.environ["HF_ENDPOINT"] = "https://huggingface.co"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TRANSFORMERS_OFFLINE"] = "0"
+os.environ["HF_HUB_OFFLINE"] = "0"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["DISABLE_TF"] = "1"
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
+
+
 import argparse
 import json
 import warnings
@@ -40,21 +54,6 @@ torch.utils.checkpoint.checkpoint = patched_checkpoint
 torch.backends.cudnn.benchmark = True
 
 from peft import prepare_model_for_kbit_training as original_prepare
-
-# =====================
-# ENVIRONMENT SETUP
-# =====================
-USE_HF_MIRROR_ENDPOINT = 1
-if USE_HF_MIRROR_ENDPOINT == 1:
-    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com" # or, you can put on the terminal: export HF_ENDPOINT=https://hf-mirror.com
-else:
-    os.environ["HF_ENDPOINT"] = "https://huggingface.co"
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-os.environ["TRANSFORMERS_OFFLINE"] = "0"
-os.environ["HF_HUB_OFFLINE"] = "0"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-os.environ["DISABLE_TF"] = "1"
-os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
 
 from datasets import load_dataset
 from transformers import (

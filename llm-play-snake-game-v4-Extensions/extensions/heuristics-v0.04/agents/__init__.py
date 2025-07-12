@@ -5,17 +5,15 @@ Heuristics Agents Package - Canonical Factory Pattern Implementation
 This package provides a canonical factory pattern for creating heuristic agents.
 It demonstrates software evolution through inheritance and encapsulation.
 
-Available Algorithms:
-1. BFS - Basic breadth-first search
-2. BFS-SAFE-GREEDY - Enhanced BFS with safety validation (inherits from BFS)
-3. BFS-512 - Token-limited BFS with concise explanations
-4. BFS-1024 - Token-limited BFS with moderate explanations
-5. BFS-2048 - Token-limited BFS with detailed explanations
-6. BFS-4096 - Token-limited BFS with full explanations (identical to BFS)
-7. BFS-SAFE-GREEDY-512 - Token-limited BFS-SAFE-GREEDY with concise explanations
-8. BFS-SAFE-GREEDY-1024 - Token-limited BFS-SAFE-GREEDY with moderate explanations
-9. BFS-SAFE-GREEDY-2048 - Token-limited BFS-SAFE-GREEDY with detailed explanations
-10. BFS-SAFE-GREEDY-4096 - Token-limited BFS-SAFE-GREEDY with full explanations (identical to BFS-SAFE-GREEDY)
+Available Algorithms (Token Variants Only):
+1. BFS-512 - Token-limited BFS with concise explanations (~512 tokens)
+2. BFS-1024 - Token-limited BFS with moderate explanations (~1024 tokens)
+3. BFS-2048 - Token-limited BFS with detailed explanations (~2048 tokens)
+4. BFS-4096 - Token-limited BFS with full explanations (~4096 tokens)
+5. BFS-SAFE-GREEDY-4096 - Token-limited BFS-SAFE-GREEDY with full explanations (~4096 tokens)
+
+Note: Base classes (BFS, BFS-SAFE-GREEDY) are blueprint templates and not registered
+for dataset generation. Only token variants are used for actual JSONL generation.
 
 Design Patterns:
 - Factory Pattern: Canonical create() method for instantiation (SUPREME_RULES)
@@ -49,7 +47,7 @@ except ImportError:
     sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
     from utils.factory_utils import SimpleFactory
 
-# Import all agent classes
+# Import all agent classes (including base classes for inheritance)
 from .agent_bfs import BFSAgent
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
 from .agent_bfs_tokens_512 import BFS512TokenAgent
@@ -70,8 +68,8 @@ _agent_factory.register("BFS-2048", BFS2048TokenAgent)
 _agent_factory.register("BFS-4096", BFS4096TokenAgent)
 _agent_factory.register("BFS-SAFE-GREEDY-4096", BFSSafeGreedy4096TokenAgent)
 
-# Default algorithm
-DEFAULT_ALGORITHM: str = "BFS"
+# Default algorithm (use 512 token variant as default)
+DEFAULT_ALGORITHM: str = "BFS-512"
 
 def create(algorithm_name: str, **kwargs) -> Any:
     """
@@ -97,14 +95,14 @@ def get_available_algorithms() -> List[str]:
     Get list of available algorithm names.
     
     Returns:
-        List of algorithm names
+        List of algorithm names (token variants only)
     """
     return _agent_factory.list_available()
 
 
 # Public API
 __all__ = [
-    # Agent classes
+    # Agent classes (including base classes for inheritance)
     "BFSAgent",
     "BFSSafeGreedyAgent",
     "BFS512TokenAgent",

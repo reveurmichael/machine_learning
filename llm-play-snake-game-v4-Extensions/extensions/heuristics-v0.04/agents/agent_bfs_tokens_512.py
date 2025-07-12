@@ -105,25 +105,26 @@ class BFS512TokenAgent(BFSAgent):
                 f"SSOT violation: explanation missing 'explanation_steps' for game {game_id}"
             )
         
-        # Calculate optional metrics based on switches
+        # Calculate comprehensive metrics for detailed JSONL output
         additional_metrics = {}
-        if self.include_apple_direction:
-            additional_metrics["apple_direction"] = calculate_apple_direction(head_pos, apple_position)
         
-        if self.include_danger_assessment:
-            additional_metrics["danger_assessment"] = calculate_danger_assessment(
-                head_pos, body_positions, grid_size, move
-            )
+        # Always include apple direction for detailed format
+        additional_metrics["apple_direction"] = calculate_apple_direction(head_pos, apple_position)
         
-        if self.include_free_space:
-            additional_metrics["free_space"] = {
-                "up": count_free_space_in_direction(game_state, "UP"),
-                "down": count_free_space_in_direction(game_state, "DOWN"),
-                "left": count_free_space_in_direction(game_state, "LEFT"),
-                "right": count_free_space_in_direction(game_state, "RIGHT"),
-            }
+        # Always include danger assessment for detailed format
+        additional_metrics["danger_assessment"] = calculate_danger_assessment(
+            head_pos, body_positions, grid_size, move
+        )
         
-        # Build metrics for completion
+        # Always include free space analysis for detailed format
+        additional_metrics["free_space"] = {
+            "up": count_free_space_in_direction(game_state, "UP"),
+            "down": count_free_space_in_direction(game_state, "DOWN"),
+            "left": count_free_space_in_direction(game_state, "LEFT"),
+            "right": count_free_space_in_direction(game_state, "RIGHT"),
+        }
+        
+        # Build comprehensive metrics for completion
         base_metrics = {
             "valid_moves": valid_moves,
             "manhattan_distance": explanation.get("metrics", {}).get("manhattan_distance", 0),
@@ -191,77 +192,83 @@ class BFS512TokenAgent(BFSAgent):
         return explanation_dict
 
     def format_prompt(self, game_state: dict) -> str:  # noqa: D401 – simple description is OK
-        """Return a concise prompt string built from *game_state*.
+        """Return a detailed prompt string built from *game_state*.
 
-        This implementation intentionally keeps the prompt extremely short
-        to stay well within a 512-token budget.  Additional details (board
-        ASCII art, danger assessment, etc.) can be enabled by toggling the
-        corresponding *include_* attributes.
+        This implementation provides comprehensive game state information
+        to enable detailed analysis and decision-making.
         """
         grid_size = game_state.get("grid_size", 10)
         head_pos = extract_head_position(game_state)
         apple_pos = game_state.get("apple_position", [0, 0])
+        body_positions = extract_body_positions(game_state)
         snake_len = len(game_state.get("snake_positions", []))
 
         prompt_parts = [
-            f"Snake on {grid_size}x{grid_size} grid.",
-            f"Head: {head_pos}, Apple: {apple_pos}, Length: {snake_len}.",
+            f"You are playing Snake on a {grid_size}x{grid_size} grid. The coordinate system is (0,0) at bottom-left to ({grid_size-1},{grid_size-1}) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.",
+            "",
+            "Current game state:",
+            f"- Snake head position: ({head_pos[0]}, {head_pos[1]})",
+            f"- Apple position: ({apple_pos[0]}, {apple_pos[1]})",
+            f"- Snake body positions: {body_positions}",
+            f"- Snake length: {snake_len}",
+            "",
+            "What is the best move to make? Consider:",
+            "1. Path to the apple",
+            "2. Avoiding collisions with walls and snake body", 
+            "3. Maximizing score and survival",
+            "",
+            "Choose from: UP, DOWN, LEFT, RIGHT"
         ]
-
-        # Optional board representation (rarely used for 512-token agent)
-        if self.include_board_representation:
-            from utils.board_utils import create_text_board  # local import – avoids heavy global import cost
-
-            board_text = create_text_board(
-                grid_size,
-                head_pos,
-                game_state.get("snake_positions", []),
-                apple_pos,
-            )
-            prompt_parts.append("Board:\n" + board_text)
-
-        prompt_parts.append("Choose next move (UP, DOWN, LEFT, RIGHT):")
 
         return "\n".join(prompt_parts)
 
     def format_completion(self, move: str, explanation_text: str, metrics: dict) -> str:  # noqa: D401
-        """Return a concise completion string for the JSONL entry."""
-        parts = [explanation_text.strip()]
-
-        # Optionally append metrics section based on switches
-        if self.include_metrics_in_completion and any([
-            self.include_danger_assessment,
-            self.include_apple_direction, 
-            self.include_free_space
-        ]):
-            metrics_summary = self._format_metrics_summary(metrics)
-            if metrics_summary:
-                parts.append("\nMetrics:\n" + metrics_summary)
-
-        parts.append(f"\nConclusion: {move.upper()}")
-        return "\n".join(parts)
-
-    def _format_metrics_summary(self, metrics: dict) -> str:
-        """Format metrics for completion text based on enabled switches."""
-        formatted_metrics = []
+        """Return a detailed completion string for the JSONL entry."""
+        # Extract path information from explanation
+        path_info = ""
+        if "Path found:" in explanation_text:
+            path_line = [line for line in explanation_text.split('\n') if line.startswith("Path found:")]
+            if path_line:
+                path_info = path_line[0]
         
-        # Include basic metrics
+        # Extract move information
+        move_info = ""
+        if f"Moving {move}" in explanation_text:
+            move_lines = [line for line in explanation_text.split('\n') if f"Moving {move}" in line]
+            if move_lines:
+                move_info = move_lines[0]
+        
+        parts = []
+        
+        # Add path and move information
+        if path_info:
+            parts.append(path_info)
+        if move_info:
+            parts.append(move_info)
+        
+        # Add comprehensive metrics section
+        parts.append("")
+        parts.append("Metrics:")
+        
+        # Format metrics in the requested style
         if 'valid_moves' in metrics:
-            formatted_metrics.append(f"- Valid moves: {metrics['valid_moves']}")
+            parts.append(f"- Valid moves: {metrics['valid_moves']}")
         
         if 'manhattan_distance' in metrics:
-            formatted_metrics.append(f"- Manhattan distance to apple: {metrics['manhattan_distance']}")
+            parts.append(f"- Manhattan distance to apple: {metrics['manhattan_distance']}")
         
-        # Include optional metrics based on switches
-        if self.include_apple_direction and 'apple_direction' in metrics:
-            formatted_metrics.append(f"- Apple direction: {metrics['apple_direction']}")
+        if 'apple_direction' in metrics:
+            parts.append(f"- Apple direction: {metrics['apple_direction']}")
         
-        if self.include_free_space and 'free_space' in metrics:
-            formatted_metrics.append(f"- Free space: {metrics['free_space']}")
-            
-        if self.include_danger_assessment and 'danger_assessment' in metrics:
-            formatted_metrics.append(f"- Danger assessment: {metrics['danger_assessment']}")
+        if 'danger_assessment' in metrics:
+            parts.append(f"- Danger assessment: {metrics['danger_assessment']}")
         
-        return "\n".join(formatted_metrics)
+        if 'free_space' in metrics:
+            parts.append(f"- Free space: {metrics['free_space']}")
+        
+        parts.append("")
+        parts.append(f"Conclusion: The move is: {move.upper()}")
+        
+        return "\n".join(parts)
 
 

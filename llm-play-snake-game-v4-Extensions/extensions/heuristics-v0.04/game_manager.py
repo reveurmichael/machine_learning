@@ -507,7 +507,7 @@ class HeuristicGameManager(BaseGameManager):
         # --- FAIL-FAST: Ensure final step is recorded ---
         # TODO: this should be done automatically in the BaseGameManager/BaseGameLogic
         final_steps = self.game.game_state.steps
-        # TODO: we final_rounds. Seems ugly.
+        # TODO: why final_rounds? Seems ugly.
         final_rounds = (
             self.game.game_state.round_manager.round_count
             if hasattr(self.game.game_state, "round_manager")

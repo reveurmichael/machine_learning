@@ -1,3 +1,17 @@
+import os
+
+USE_HF_MIRROR_ENDPOINT = 1
+if USE_HF_MIRROR_ENDPOINT == 1:
+    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com" # or, you can put on the terminal: export HF_ENDPOINT=https://hf-mirror.com
+else:
+    os.environ["HF_ENDPOINT"] = "https://huggingface.co"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TRANSFORMERS_OFFLINE"] = "0"
+os.environ["HF_HUB_OFFLINE"] = "0"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["DISABLE_TF"] = "1"
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
+
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel

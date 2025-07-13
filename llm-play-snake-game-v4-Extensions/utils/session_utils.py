@@ -23,8 +23,10 @@ __all__ = [
     "run_human_play_web",
 ]
 
-# Initialize file manager for session operations
-_file_manager = FileManager()
+
+def get_file_manager():
+    from core.game_file_manager import FileManager
+    return FileManager()
 
 
 def run_replay(log_folder: str, game_num: int):
@@ -190,7 +192,7 @@ def continue_game_web(
         subprocess.Popen(cmd)
         url_host = "localhost" if host in {"0.0.0.0", "127.0.0.1"} else host
         st.success(
-            f"🌐 Continuation (web) started for '{_file_manager.get_folder_display_name(log_folder)}' – open http://{url_host}:{port} to watch."
+            f"🌐 Continuation (web) started for '{get_file_manager().get_folder_display_name(log_folder)}' – open http://{url_host}:{port} to watch."
         )
     except Exception as exc:
         st.error(f"Error starting web continuation: {exc}")

@@ -4,9 +4,9 @@ from peft import PeftModel
 
 # ─── UPDATE THIS ────────────────────────────────────────────────────────────
 # Point to your fine‑tuned adapter folder:
-checkpoint_dir = "/home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/extensions/fine-tune-v0.01/finetuned_snake/deepscaler-1.5b_20250709_173903/checkpoint-29156/"
+checkpoint_dir = "/home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/extensions/fine-tune-v0.01/finetuned_snake/gemma-3-4b-it_20250712_152346/"
 # Base model ID (must match what you fine‑tuned against):
-base_model_id  = "agentica-org/DeepScaleR-1.5B-Preview"
+base_model_id  = "google/gemma-3-4b-it"
 # ─────────────────────────────────────────────────────────────────────────────
 
 # 1. Load tokenizer
@@ -32,7 +32,7 @@ model = PeftModel.from_pretrained(
 model.eval()
 
 # 4. Prepare your prompt
-prompt = """You are playing Snake on a 10x10 grid. The coordinate system is (0,0) at bottom-left to (9,9) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.\n\nCurrent game state:\n- Score: 4\n- Steps: 33\n- Algorithm: BFS\n- Snake head position: (1, 0)\n- Apple position: (0, 0)\n- Snake body positions: [(2, 0), (2, 1), (2, 2), (2, 3)]\n- Snake length: 5\n\nBoard representation:\n. . . . . . . . . .\n. . . . . . . . . .\n. . . . . . . . . .\n. . . . . . . . . .\n. . . . . . . . . .\n. . . . . . . . . .\n. . S . . . . . . .\n. . S . . . . . . .\n. . S . . . . . . .\nA H S . . . . . . .\n\nWhat is the best move to make? Consider:\n1. Path to the apple\n2. Avoiding collisions with walls and snake body\n3. Maximizing score and survival\n\nChoose from: UP, DOWN, LEFT, RIGHT\n\nMove:
+prompt = """You are playing Snake on a 10x10 grid. The coordinate system is (0,0) at bottom-left to (9,9) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.\n\nCurrent game state:\n- Snake head position: (3, 3)\n- Apple position: (2, 3)\n- Snake body positions: [[4, 3], [5, 3], [6, 3], [7, 3], [8, 3], [9, 3], [9, 4], [9, 5], [9, 6], [9, 7], [8, 7], [8, 8], [8, 9], [7, 9], [6, 9], [5, 9], [4, 9], [3, 9]]\n- Snake length: 19\n\nWhat is the best move to make? Consider:\n1. Path to the apple\n2. Avoiding collisions with walls and snake body\n3. Maximizing score and survival\n\nChoose from: UP, DOWN, LEFT, RIGHT
 """
 
 # 5. Tokenize + generate

@@ -133,7 +133,6 @@ What is your primary use case?
 
 ## 🚫 **Anti-Patterns to Avoid**
 
-
 ### **Wrong Format for Algorithm**
 ```python
 # ❌ WRONG: CSV for CNNs
@@ -163,3 +162,22 @@ agent_ga.evolve(raw_population)  # Preserves genetic representation
 - **Heuristics v0.04**: Generates standardized CSV datasets for supervised learning + JSONL datasets for LLM fine-tuning
 - **Supervised v0.01+**: Consumes CSV datasets from heuristics-v0.03 or heuristics-v0.04 for training all model types
 - **Evaluation**: Consistent comparison framework across all algorithm types
+
+## ✅ **Success Indicators**
+
+### **Working Implementation Examples**
+- **Heuristics v0.04**: Successfully generates both CSV and JSONL datasets
+- **Dataset Generation**: Automatic incremental updates after each game
+- **File Handling**: Proper UTF-8 encoding and file management
+- **Agent Integration**: Agents provide comprehensive data formatting
+- **Cross-Format Support**: Multiple data formats generated efficiently
+
+### **Quality Standards**
+- **Data Accuracy**: Generated data accurately represents game state
+- **Format Compliance**: Strict adherence to format specifications
+- **Performance**: Efficient data generation without blocking game execution
+- **Error Handling**: Robust error handling for data generation failures
+
+---
+
+**This data format decision guide ensures optimal format selection for different algorithm types while maintaining cross-extension compatibility and following forward-looking architecture principles.**

@@ -5,7 +5,7 @@
 # python finetune_snake_qlora.py --model gemma-3-4b-it --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250712_152139/bfs-512/BFS-512_dataset.jsonl --max_length 512  (前期试了试，可以输出不错的结果)
 
 # 512 tokens, 600 games
-# python finetune_snake_qlora.py --model deepseek-r1-qwen-7b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250713_154127/bfs-512/BFS-512_dataset.jsonl --max_length 512
+# python finetune_snake_qlora.py --model deepseek-r1-qwen-7b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250713_154127/bfs-512/BFS-512_dataset.jsonl --max_length 512 （正在进行）
 
 
 

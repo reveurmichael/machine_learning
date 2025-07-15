@@ -1,5 +1,5 @@
 # DON'T REMOVE THIS COMMENT
-## Example: DON'T REMOVE THIS COMMENT
+# DON'T REMOVE THIS COMMENT
 
 # 512 tokens, 200 games
 # python finetune_snake_qlora.py --model gemma-3-4b-it --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250712_152139/bfs-512/BFS-512_dataset.jsonl --max_length 512  (前期试了试，可以输出不错的结果)
@@ -13,7 +13,7 @@
 
 
 
-## Important information that should NEVER BE REMOVED:
+# Important information that should NEVER BE REMOVED:
 # 1. The script is for torch 2.3
 # 2. By default, the script is for 4-bit quantization. Though 16-bit quantization is also supported with argparse.
 

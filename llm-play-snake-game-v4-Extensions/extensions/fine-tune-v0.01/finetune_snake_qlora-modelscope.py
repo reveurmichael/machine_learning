@@ -2,7 +2,7 @@
 # DON'T REMOVE THIS COMMENT
 
 # 512 tokens, 200 games
-# python finetune_snake_qlora-modelscope.py --model llama3.1-8b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250712_152139/bfs-512/BFS-512_dataset.jsonl --max_length 512  (
+# python finetune_snake_qlora-modelscope.py --model llama3.1-8b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250712_152139/bfs-512/BFS-512_dataset.jsonl --max_length 512 
 
 # Important information that should NEVER BE REMOVED:
 # 1. The script is for torch 2.3

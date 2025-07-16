@@ -18,7 +18,7 @@ if USE_HF_MIRROR_ENDPOINT == 1:
 else:
     os.environ["HF_ENDPOINT"] = "https://huggingface.co"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-os.environ["TRANSFORMERS_OFFLINE"] = "0"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
 os.environ["HF_HUB_OFFLINE"] = "0"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["DISABLE_TF"] = "1"
@@ -65,7 +65,7 @@ from peft import LoraConfig, get_peft_model
 # 🎯 Centralized model configuration for easy maintenance and model-specific optimizations
 MODEL_CONFIGS = {
     "llama3.1-8b": {
-        "model_name": "meta-llama/Llama-3.1-8B",
+        "model_name": "/home/utseus22/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3___1-8B-Instruct",
         "use_attn_eager": False,
     },
 }

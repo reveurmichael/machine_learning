@@ -81,17 +81,9 @@ MODEL_CONFIGS = {
         "model_name": "deepseek-ai/deepseek-r1-distill-qwen-7b",
         "use_attn_eager": False,
     },
-    "mistral-7b": {
-        "model_name": "mistralai/Mistral-7B-v0.1",
-        "use_attn_eager": False,
-    },
     "gemma2-9b": {
         "model_name": "google/gemma-2-9b",
         "use_attn_eager": True,  # 🔥 needs "eager" attention
-    },
-    "llama3.1-8b": {
-        "model_name": "meta-llama/Llama-3.1-8B",
-        "use_attn_eager": False,
     },
     # 🆕 New Gemma 3 models for Snake game fine-tuning
     "gemma-3n-e4b-it": {

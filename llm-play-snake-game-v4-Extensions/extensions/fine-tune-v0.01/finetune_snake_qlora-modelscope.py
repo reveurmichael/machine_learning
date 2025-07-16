@@ -68,6 +68,10 @@ MODEL_CONFIGS = {
         "model_name": "/home/utseus22/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3___1-8B-Instruct",
         "use_attn_eager": False,
     },
+    "mistral-7b": {
+        "model_name": "/home/utseus22/.cache/modelscope/hub/models/rubraAI/Mistral-7B-Instruct-v0.3",
+        "use_attn_eager": False,
+    },
 }
 
 def get_supported_models() -> Dict[str, str]:

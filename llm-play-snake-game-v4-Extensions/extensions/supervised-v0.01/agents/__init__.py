@@ -4,7 +4,6 @@ from typing import Any, List
 
 from utils.factory_utils import SimpleFactory
 
-from .greedy_agent import GreedyAgent
 from .mlp_agent import MLPAgent
 from .cnn_agent import CNNAgent
 from .rnn_agent import RNNAgent
@@ -20,8 +19,6 @@ _factory.register("RNN", RNNAgent)
 _factory.register("LSTM", LSTMAgent)
 _factory.register("LIGHTGBM", LightGBMAgent)
 _factory.register("XGBOOST", XGBoostAgent)
-# Legacy fallback (kept for convenience during transition)
-_factory.register("GREEDY", GreedyAgent)
 
 DEFAULT_ALGORITHM = "MLP"
 
@@ -41,5 +38,4 @@ __all__ = [
     "LSTMAgent",
     "LightGBMAgent",
     "XGBoostAgent",
-    "GreedyAgent",
 ]

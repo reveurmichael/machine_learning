@@ -3,7 +3,7 @@
 These extensions illustrate a clean evolution path leveraging the streamlined core API.
 
 - v0.01: Minimal supervised playback
-  - Algorithms (factory `create()`): MLP, CNN, RNN, LSTM, LIGHTGBM, XGBOOST (optional `model_path`), plus GREEDY as a transitional fallback
+  - Algorithms (factory `create()`): MLP, CNN, RNN, LSTM, LIGHTGBM, XGBOOST (optional `model_path`)
   - Manager uses `setup_game()`, public round API, and `save_current_game_json()`
 - v0.02: Feature logging
   - Records per-move features in logic (`_post_move`)

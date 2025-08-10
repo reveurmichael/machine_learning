@@ -50,11 +50,10 @@ class SupervisedV03GameManager(BaseGameManager):
             # Save per-game
             self.save_current_game_json(metadata={"algorithm": self.algorithm_name})
             if hasattr(self.game, "move_features"):
-                features_path = Path(self.get_game_json_path(self.game_count)).with_name(
-                    f"game_{self.game_count}_features.json"
+                self.write_json_in_logdir(
+                    f"game_{self.game_count}_features.json",
+                    self.game.move_features,  # type: ignore[arg-type]
                 )
-                import json
-                features_path.write_text(json.dumps(self.game.move_features, indent=2), encoding="utf-8")
 
             # Collect metrics per game
             per_game_metrics = getattr(self.game, "compute_metrics", lambda: {"apples_per_step": 0.0})()
@@ -73,12 +72,13 @@ class SupervisedV03GameManager(BaseGameManager):
         }
         self.save_simple_session_summary(summary)
 
-        metrics_path = Path(self.get_summary_json_path()).with_name("metrics.json")
-        import json
-        metrics_path.write_text(json.dumps({
-            "per_game": all_metrics,
-            "avg_apples_per_step": sum(m.get("apples_per_step", 0.0) for m in all_metrics) / max(1, len(all_metrics)),
-            "avg_steps_per_game": self.total_steps / max(1, self.game_count),
-        }, indent=2), encoding="utf-8")
+        self.write_json_in_logdir(
+            "metrics.json",
+            {
+                "per_game": all_metrics,
+                "avg_apples_per_step": sum(m.get("apples_per_step", 0.0) for m in all_metrics) / max(1, len(all_metrics)),
+                "avg_steps_per_game": self.total_steps / max(1, self.game_count),
+            },
+        )
 
         print_success("✅ Supervised v0.03 session complete!")

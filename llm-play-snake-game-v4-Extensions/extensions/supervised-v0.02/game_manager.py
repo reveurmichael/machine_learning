@@ -51,11 +51,10 @@ class SupervisedV02GameManager(BaseGameManager):
 
             # Save sidecar features JSON for training pipelines
             if hasattr(self.game, "move_features"):
-                features_path = Path(self.get_game_json_path(self.game_count)).with_name(
-                    f"game_{self.game_count}_features.json"
+                self.write_json_in_logdir(
+                    f"game_{self.game_count}_features.json",
+                    self.game.move_features,  # type: ignore[arg-type]
                 )
-                import json
-                features_path.write_text(json.dumps(self.game.move_features, indent=2), encoding="utf-8")
 
             self.reset_for_next_game()
 

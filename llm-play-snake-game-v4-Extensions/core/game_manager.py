@@ -458,6 +458,20 @@ class BaseGameManager:
         self.save_game_json_dict(minimal, game_number=self.game_count)
         return path
 
+    def write_json_in_logdir(self, filename: str, data: dict, indent: int = 2) -> str:
+        """Write a sidecar JSON file under current `log_dir`.
+        
+        Returns the full path written.
+        """
+        if not self.log_dir:
+            raise RuntimeError("log_dir is not set. Call setup_logging() first.")
+        import os, json
+        path = os.path.join(self.log_dir, filename)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=indent)
+        return path
+
     def reset_for_next_game(self) -> None:
         """Standard reset routine to prepare for the next game.
         

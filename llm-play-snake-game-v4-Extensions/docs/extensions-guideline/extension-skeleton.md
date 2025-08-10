@@ -87,10 +87,14 @@ class MyExtensionGameManager(BaseGameManager):
 Key core helpers used:
 - `setup_game()` automatically respects `--grid_size`.
 - `round_manager.record_round_game_state(state)` to store snapshots without private access.
-- `get_game_json_path(n)`, `save_game_json_dict`, `save_simple_session_summary` for canonical I/O.
+- `get_game_json_path(n)`, `save_game_json_dict`, `save_simple_session_summary`, `save_current_game_json()` for canonical I/O.
+- `write_json_in_logdir(filename, data)` for sidecar JSON (e.g., features, metrics).
 - `reset_for_next_game()` to standardize cleanup.
 
 Best practices:
 - Keep per-extension logic in its `game_logic` and `agent` modules.
 - Avoid direct file I/O or touching private attributes; always prefer core helpers.
 - Use `on_before_move`, `on_after_move`, `on_game_end` hooks if you need extra side-effects.
+
+See also:
+- `supervised-series.md` for a minimal evolution path (v0.01 → v0.03)

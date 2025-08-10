@@ -341,15 +341,9 @@ class HeuristicGameManager(BaseGameManager):
                 hasattr(self.game.game_state, "round_manager")
                 and self.game.game_state.round_manager
             ):
-                round_num = self.game.game_state.round_manager.round_buffer.number
-                round_data = (
-                    self.game.game_state.round_manager._get_or_create_round_data(
-                        round_num
-                    )
+                self.game.game_state.round_manager.record_round_game_state(
+                    dict(pre_state.game_state)
                 )
-                round_data["game_state"] = dict(
-                    pre_state.game_state
-                )  # Convert back to dict for storage
 
             # --- AGENT DECISION MAKING WITH IMMUTABLE STATE ---
             # Extract state dict for agent compatibility (safe because original was deep-copied)
@@ -394,14 +388,8 @@ class HeuristicGameManager(BaseGameManager):
                     hasattr(self.game.game_state, "round_manager")
                     and self.game.game_state.round_manager
                 ):
-                    round_num = self.game.game_state.round_manager.round_buffer.number
-                    round_data = (
-                        self.game.game_state.round_manager._get_or_create_round_data(
-                            round_num
-                        )
-                    )
-                    round_data["game_state"] = copy.deepcopy(
-                        self.game.get_state_snapshot()
+                    self.game.game_state.round_manager.record_round_game_state(
+                        copy.deepcopy(self.game.get_state_snapshot())
                     )
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
@@ -456,20 +444,14 @@ class HeuristicGameManager(BaseGameManager):
         from core.game_manager_helper import BaseGameManagerHelper
         if BaseGameManagerHelper.check_max_steps(self.game, self.args.max_steps):
             # Persist final state into the current round before breaking
-            if (
-                hasattr(self.game.game_state, "round_manager")
-                and self.game.game_state.round_manager
-            ):
-                round_num = self.game.game_state.round_manager.round_buffer.number
-                round_data = (
-                    self.game.game_state.round_manager._get_or_create_round_data(
-                        round_num
+                            if (
+                    hasattr(self.game.game_state, "round_manager")
+                    and self.game.game_state.round_manager
+                ):
+                    self.game.game_state.round_manager.record_round_game_state(
+                        copy.deepcopy(self.game.get_state_snapshot())
                     )
-                )
-                round_data["game_state"] = copy.deepcopy(
-                    self.game.get_state_snapshot()
-                )
-            break
+break
 
         # Calculate duration
         game_duration = time.time() - start_time

@@ -1,4 +1,6 @@
-# No Over-Preparation Guidelines for Extensions
+# No Over-Preparation
+
+> This document aligns with `final-decision.md`. Favor the streamlined core helpers (`setup_game`, `save_current_game_json`, `write_json_in_logdir`, public round APIs) and avoid bespoke scaffolding.
 
 ## 🎯 **Core Philosophy: Build What You Need, When You Need It**
 

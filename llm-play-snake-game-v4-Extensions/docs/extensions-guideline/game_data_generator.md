@@ -1,5 +1,9 @@
 # Game Data Generator
 
+> This document aligns with `final-decision.md`. Use exact filenames when citing docs; prefer public core APIs and minimal examples. See also `core.md`, `round.md`, and `extension-skeleton.md`.
+
+## Overview
+
 ## 🎯 **Purpose and Philosophy**
 
 The `BaseGameData` serves as the **universal game data generator** for all Snake Game AI tasks (0-5). It implements the **Single Source of Truth (SSOT)** principle by providing a centralized, consistent approach to game state management and data tracking across all extensions.

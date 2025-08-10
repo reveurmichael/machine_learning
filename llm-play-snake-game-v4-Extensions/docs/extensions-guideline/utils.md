@@ -366,7 +366,7 @@ class SupervisedGameManager(BaseGameManager):
 ```
 
 ### **Configuration Integration**
-Following Final Decision 2, utilities access universal constants:
+Following `final-decision.md`, utilities access universal constants:
 
 ```python
 # Universal utilities use universal constants

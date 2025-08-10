@@ -6,7 +6,7 @@ In this project, names are not arbitrary labels; they are contracts. A well-chos
 
 ### **Guidelines Alignment**
 - **final-decision.md Guideline 1**: Enforces reading all GOOD_RULES before making naming changes to ensure comprehensive understanding of architectural patterns
-- **final-decision.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and naming standards
+- Align with `final-decision.md`: Use exact filenames when citing docs (e.g., `final-decision.md`, `utils.md`).
 - **simple logging**: Enables lightweight common utilities with OOP extensibility through consistent naming that supports inheritance rather than tight coupling
 
 Our naming conventions are designed to enforce:

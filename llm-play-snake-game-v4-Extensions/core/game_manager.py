@@ -177,6 +177,22 @@ class BaseGameManager:
         raise NotImplementedError("Subclasses must implement run()")
 
     # -------------------
+    # OPTIONAL EXTENSION HOOKS – override in extensions as needed
+    # -------------------
+
+    def on_before_move(self, direction: str) -> None:
+        """Hook invoked right before executing a move."""
+        return None
+
+    def on_after_move(self, direction: str, apple_eaten: bool) -> None:
+        """Hook invoked right after executing a move."""
+        return None
+
+    def on_game_end(self, game_index: int) -> None:
+        """Hook invoked when a game ends (index is 1-based)."""
+        return None
+
+    # -------------------
     # GENERIC GAME SETUP - Reusable across all tasks
     # -------------------
 

@@ -161,7 +161,15 @@ class BaseGameLoop:
 
         manager.current_game_moves.append(next_move)
         manager.game.draw()
+        try:
+            manager.on_before_move(next_move)
+        except Exception:
+            pass
         _, apple_eaten = self._execute_move(next_move)
+        try:
+            manager.on_after_move(next_move, apple_eaten)
+        except Exception:
+            pass
         if apple_eaten:
             self._post_apple_logic()
     
@@ -258,6 +266,10 @@ class BaseGameLoop:
             pass
 
         # Prepare for the next game
+        try:
+            manager.on_game_end(manager.game_count)
+        except Exception:
+            pass
         manager.reset_for_next_game()
 
     # Agent path – unchanged behaviour

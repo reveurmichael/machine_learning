@@ -19,27 +19,11 @@ Heuristic Game Manager
 
 Session management for multi-algorithm heuristic agents.
 
-Evolution from v0.01: This module demonstrates how to extend the simple
-proof-of-concept to support multiple algorithms using factory patterns.
-Shows natural software progression while maintaining the same base architecture.
-
 Design Philosophy:
 - Extends BaseGameManager (inherits all generic session management)
 - Uses HeuristicGameLogic for game mechanics
-- Factory pattern for algorithm selection (v0.02 enhancement)
-- No LLM dependencies (no token stats, no continuation mode)
-- Simplified logging (no Task-0 replay compatibility as requested)
-
-Evolution from v0.03: Adds language-rich move explanations and JSONL dataset generation while retaining multi-algorithm flexibility.
-
-v0.04 Enhancement: Supports incremental JSONL/CSV dataset updates after each game
-to provide real-time dataset growth visibility.
-
-Design Patterns:
-- Template Method: Inherits base session management structure
-- Factory Pattern: Uses HeuristicGameLogic for game logic
 - Strategy Pattern: Pluggable heuristic algorithms
-- Observer Pattern: Game state changes trigger dataset updates
+- Simplified logging: extension-centric structure without Task-0 specifics
 """
 
 # Ensure project root is set and properly configured
@@ -457,9 +441,7 @@ break
         game_duration = time.time() - start_time
 
         # --- FAIL-FAST: Ensure final step is recorded ---
-        # TODO: this should be done automatically in the BaseGameManager/BaseGameLogic
         final_steps = self.game.game_state.steps
-        # TODO: why final_rounds? Seems ugly.
         final_rounds = (
             self.game.game_state.round_manager.round_count
             if hasattr(self.game.game_state, "round_manager")
@@ -549,7 +531,7 @@ break
         # This ensures clean data without game_state in rounds_data and without move_metrics
         game_data = (
             self.game.game_state.generate_game_summary()
-        )  # TODO: generate_game_summary should be renamed to generate_game_data in the BaseGameManager. 
+        )
 
         # Add algorithm name and duration for heuristics
         game_data["algorithm"] = self.algorithm_name

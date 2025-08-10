@@ -429,6 +429,35 @@ class BaseGameManager:
         stats_manager = GameStatsManager()
         stats_manager.save_session_stats(self.log_dir, **kwargs)
 
+    def save_current_game_json(self, metadata: Optional[dict] = None) -> str:
+        """Save the active game's JSON to the canonical `game_N.json` path.
+        
+        Chooses the most appropriate serializer available on the game's
+        GameData instance, falling back to a generic dict writer.
+        """
+        if not self.game or not hasattr(self.game, "game_state"):
+            raise RuntimeError("No active game/game_state to save")
+        path = self.get_game_json_path(self.game_count or 1)
+        state = self.game.game_state
+        meta = metadata or {}
+        # Prefer Task-0/extension-provided summary method
+        if hasattr(state, "save_game_summary"):
+            state.save_game_summary(path, metadata=meta)  # type: ignore[arg-type]
+            return path
+        # Next, prefer generic save_game_data if present
+        if hasattr(state, "save_game_data"):
+            state.save_game_data(path, metadata=meta)  # type: ignore[arg-type]
+            return path
+        # Fallback: minimal dict writer
+        minimal = getattr(state, "to_dict", lambda: {
+            "score": getattr(self.game, "score", 0),
+            "steps": getattr(self.game, "steps", 0),
+            "game_over": True,
+            "metadata": {"game_number": self.game_count},
+        })()
+        self.save_game_json_dict(minimal, game_number=self.game_count)
+        return path
+
     def reset_for_next_game(self) -> None:
         """Standard reset routine to prepare for the next game.
         

@@ -1,3 +1,7 @@
+# Round Management
+
+> This document aligns with `final-decision.md`. Prefer public APIs (`record_round_game_state`, `get_current_round_number`) and core manager methods over private access. See also `game_data_generator.md` and `core.md`.
+
 ## Deep Analysis: Round Management Integration Patterns
 
 ### **Common Patterns Between the Two Game Managers**

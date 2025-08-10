@@ -378,6 +378,41 @@ class BaseGameManager:
             return
         print(Fore.BLUE + f"📊 Score: {self.game.game_state.score}, Steps: {self.game.game_state.steps}")
 
+    def get_summary_json_path(self) -> str:
+        """Return absolute path to the summary.json under current log_dir."""
+        if not self.log_dir:
+            raise RuntimeError("log_dir is not set. Call setup_logging() first.")
+        from utils.path_utils import get_summary_json_filename  # local import
+        return os.path.join(self.log_dir, get_summary_json_filename())
+
+    def save_game_json_dict(self, game_data: dict, game_number: Optional[int] = None, indent: int = 2) -> str:
+        """Write a Python dict as canonical game_N.json under current log_dir.
+        
+        Returns the file path written. Ensures UTF-8 encoding and directory exists.
+        """
+        path = self.get_game_json_path(game_number)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        import json
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(game_data, f, indent=indent)
+        return path
+
+    def save_simple_session_summary(self, summary: dict, indent: int = 2) -> str:
+        """Write the provided session summary dict to summary.json under log_dir."""
+        path = self.get_summary_json_path()
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        import json
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=indent)
+        return path
+
+    def update_session_summary(self, **kwargs) -> None:
+        """Merge fields into summary.json using the canonical manager utility."""
+        if not self.log_dir:
+            raise RuntimeError("log_dir is not set. Call setup_logging() first.")
+        stats_manager = GameStatsManager()
+        stats_manager.save_session_stats(self.log_dir, **kwargs)
+
     def reset_for_next_game(self) -> None:
         """Standard reset routine to prepare for the next game.
         

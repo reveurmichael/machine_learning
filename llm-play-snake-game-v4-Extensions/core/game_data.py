@@ -243,6 +243,52 @@ class BaseGameData:
         # Call subclass hook (now optional)
         self._record_no_path_found_step()
 
+    # ---------------------
+    # Universal serialisation helpers for extensions
+    # ---------------------
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a minimal, task-agnostic view of the current game data."""
+        return {
+            "score": self.score,
+            "steps": self.steps,
+            "snake_length": self.snake_length,
+            "game_over": self.game_over,
+            "game_end_reason": self.game_end_reason,
+            "round_count": getattr(self, "round_manager").round_count if hasattr(self, "round_manager") and self.round_manager else 0,
+            "time_stats": self.stats.time_stats.asdict(),
+            "step_stats": self.stats.step_stats.asdict(),
+            "metadata": {
+                "timestamp": self.timestamp,
+                "game_number": self.game_number,
+                "round_count": getattr(self, "round_manager").round_count if hasattr(self, "round_manager") and self.round_manager else 0,
+            },
+            "detailed_history": {
+                "apple_positions": self.apple_positions,
+                "moves": self.moves,
+                "rounds_data": getattr(self.round_manager, "get_ordered_rounds_data", lambda: {})() if hasattr(self, "round_manager") and self.round_manager else {},
+            },
+        }
+
+    def generate_game_data(self, **kwargs) -> Dict[str, Any]:
+        """Produce a generic game data dict suitable for non-LLM extensions."""
+        base = self.to_dict()
+        # Allow callers to add extra metadata if needed
+        if kwargs.get("metadata"):
+            base["metadata"].update(kwargs["metadata"])  # type: ignore[index]
+        return base
+
+    def save_game_data(self, filepath: str, **kwargs) -> Dict[str, Any]:
+        """Serialize :meth:`generate_game_data` to disk using NumPy-safe encoder."""
+        # Ensure final round buffer is persisted
+        if hasattr(self, "round_manager") and self.round_manager:
+            self.round_manager.flush_buffer()
+
+        summary_dict = self.generate_game_data(**kwargs)
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=4)
+        return summary_dict
+
     @property
     def snake_length(self) -> int:
         """Returns the length of the snake."""

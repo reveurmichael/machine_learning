@@ -5,12 +5,12 @@ from datetime import datetime
 from typing import Any, List
 
 from core.game_manager import BaseGameManager
-from .game_logic import RLV02GameLogic
+from .game_logic import RLGameLogic
 from .agents import create as create_agent, DEFAULT_ALGORITHM
 from utils.print_utils import print_success
 
 class RLV02GameManager(BaseGameManager):
-    GAME_LOGIC_CLS = RLV02GameLogic
+    GAME_LOGIC_CLS = RLGameLogic
 
     def __init__(self, args: argparse.Namespace, agent: Any | None = None) -> None:
         super().__init__(args)

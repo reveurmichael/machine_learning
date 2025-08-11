@@ -6,12 +6,12 @@ from pathlib import Path
 from typing import Any, List
 
 from core.game_manager import BaseGameManager
-from .game_logic import SupervisedV02GameLogic
+from .game_logic import SupervisedGameLogic
 from .agents import create as create_agent, DEFAULT_ALGORITHM
 from utils.print_utils import print_success
 
 class SupervisedV02GameManager(BaseGameManager):
-    GAME_LOGIC_CLS = SupervisedV02GameLogic
+    GAME_LOGIC_CLS = SupervisedGameLogic
 
     def __init__(self, args: argparse.Namespace, agent: Any | None = None) -> None:
         super().__init__(args)

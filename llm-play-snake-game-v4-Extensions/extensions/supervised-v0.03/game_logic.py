@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 from core.game_logic import BaseGameLogic
 from config.ui_constants import GRID_SIZE
 
-class SupervisedV03GameLogic(BaseGameLogic):
+class SupervisedGameLogic(BaseGameLogic):
     def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True) -> None:
         super().__init__(grid_size=grid_size, use_gui=use_gui)
         self.move_features: List[Dict[str, Any]] = []

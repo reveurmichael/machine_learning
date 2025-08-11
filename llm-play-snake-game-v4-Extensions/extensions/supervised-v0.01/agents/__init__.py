@@ -4,12 +4,12 @@ from typing import Any, List
 
 from utils.factory_utils import SimpleFactory
 
-from .mlp_agent import MLPAgent
-from .cnn_agent import CNNAgent
-from .rnn_agent import RNNAgent
-from .lstm_agent import LSTMAgent
-from .lightgbm_agent import LightGBMAgent
-from .xgboost_agent import XGBoostAgent
+from .agent_mlp import MLPAgent
+from .agent_cnn import CNNAgent
+from .agent_rnn import RNNAgent
+from .agent_lstm import LSTMAgent
+from .agent_lightgbm import LightGBMAgent
+from .agent_xgboost import XGBoostAgent
 
 _factory = SimpleFactory("SupervisedAgentFactory")
 # Supervised ML family

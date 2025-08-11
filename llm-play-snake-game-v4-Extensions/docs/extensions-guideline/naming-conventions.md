@@ -160,3 +160,12 @@ can infer the type: `is_paused`, `has_collision`, `use_gui`, `allow_reset`.
 | GUI             | `gui/`                               | PyGame windows & helpers. |
 | Web MVC         | `web/`                               | Flask blueprints, JS, templates (ROOT/web infrastructure for extensions) |
 | Extensions      | `extensions/<task_name>/…`
+
+## Quick Compliance Checklist
+
+- Agent files follow `agent_{algorithm}.py`; classes are `{Algorithm}Agent`.
+- RL folders are named `reinforcement-v0.0N` (not `rl-v0.0N`).
+- Supervised series exposes only ML algorithms (MLP, CNN, RNN, LSTM, LIGHTGBM, XGBOOST). No GREEDY.
+- Logic class names drop version tags: `SupervisedGameLogic`, `RLGameLogic`.
+- Factories register algorithms with uppercase keys and import from `agent_{algorithm}.py`.
+- Examples in READMEs use canonical algorithm names (`--algorithm MLP`, `--algorithm DQN`, etc.).

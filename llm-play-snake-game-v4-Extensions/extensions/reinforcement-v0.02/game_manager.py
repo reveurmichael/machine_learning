@@ -9,7 +9,7 @@ from .game_logic import RLGameLogic
 from .agents import create as create_agent, DEFAULT_ALGORITHM
 from utils.print_utils import print_success
 
-class RLGameManager(BaseGameManager):
+class RLV02GameManager(BaseGameManager):
     GAME_LOGIC_CLS = RLGameLogic
 
     def __init__(self, args: argparse.Namespace, agent: Any | None = None) -> None:
@@ -21,15 +21,13 @@ class RLGameManager(BaseGameManager):
         self.game_steps: List[int] = []
 
     def initialize(self) -> None:
-        self.setup_logging(base_dir="logs/extensions/rl-v0.01", task_name="rl_v0_01")
+        self.setup_logging(base_dir="logs/extensions/reinforcement-v0.02", task_name="reinforcement_v0_02")
         self.setup_game()
         if self.agent is None:
             self.agent = create_agent(self.algorithm_name)
-        if hasattr(self.game, "set_algorithm_name"):
-            self.game.set_algorithm_name(self.algorithm_name)
 
     def run(self) -> None:
-        print_success("✅ Starting RL v0.01 session…")
+        print_success("✅ Starting RL v0.02 session…")
         for _ in range(1, self.args.max_games + 1):
             self.game.reset()
             while not self.game.game_over:
@@ -46,6 +44,11 @@ class RLGameManager(BaseGameManager):
             self.game_scores.append(self.game.score)
             self.game_steps.append(self.game.steps)
             self.save_current_game_json(metadata={"algorithm": self.algorithm_name})
+            if hasattr(self.game, "move_features"):
+                self.write_json_in_logdir(
+                    f"game_{self.game_count}_features.json",
+                    self.game.move_features,  # type: ignore[arg-type]
+                )
             self.reset_for_next_game()
 
         summary = {
@@ -57,4 +60,4 @@ class RLGameManager(BaseGameManager):
             "algorithm": self.algorithm_name,
         }
         self.save_simple_session_summary(summary)
-        print_success("✅ RL v0.01 session complete!")
+        print_success("✅ RL v0.02 session complete!")

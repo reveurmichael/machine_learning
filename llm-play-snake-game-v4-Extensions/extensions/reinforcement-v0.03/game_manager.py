@@ -6,7 +6,7 @@ from typing import Any, List, Dict
 
 from core.game_manager import BaseGameManager
 from game_logic import RLGameLogic
-from agents import create as create_agent, DEFAULT_ALGORITHM
+from agents import create, DEFAULT_ALGORITHM
 from utils.print_utils import print_success
 
 class RLV03GameManager(BaseGameManager):
@@ -24,7 +24,7 @@ class RLV03GameManager(BaseGameManager):
         self.setup_logging(base_dir="logs/extensions/reinforcement-v0.03", task_name="reinforcement_v0_03")
         self.setup_game()
         if self.agent is None:
-            self.agent = create_agent(self.algorithm_name)
+            self.agent = create(self.algorithm_name)
 
     def run(self) -> None:
         print_success("✅ Starting RL v0.03 session…")

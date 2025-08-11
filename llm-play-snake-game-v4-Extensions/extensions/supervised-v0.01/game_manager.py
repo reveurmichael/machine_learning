@@ -6,7 +6,7 @@ from typing import Any, List
 
 from core.game_manager import BaseGameManager
 from game_logic import SupervisedGameLogic
-from agents import create as create_agent, DEFAULT_ALGORITHM
+from agents import create, DEFAULT_ALGORITHM
 from utils.print_utils import print_info, print_success
 
 class SupervisedGameManager(BaseGameManager):
@@ -24,7 +24,7 @@ class SupervisedGameManager(BaseGameManager):
         self.setup_logging(base_dir="logs/extensions/supervised-v0.01", task_name="supervised_v0_01")
         self.setup_game()
         if self.agent is None:
-            self.agent = create_agent(self.algorithm_name)
+            self.agent = create(self.algorithm_name)
         if hasattr(self.game, "set_algorithm_name"):
             self.game.set_algorithm_name(self.algorithm_name)
 

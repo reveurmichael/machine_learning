@@ -7,7 +7,7 @@ from typing import Any, List
 
 from core.game_manager import BaseGameManager
 from game_logic import SupervisedGameLogic
-from agents import create as create_agent, DEFAULT_ALGORITHM
+from agents import create, DEFAULT_ALGORITHM
 from utils.print_utils import print_success
 
 class SupervisedV02GameManager(BaseGameManager):
@@ -25,7 +25,7 @@ class SupervisedV02GameManager(BaseGameManager):
         self.setup_logging(base_dir="logs/extensions/supervised-v0.02", task_name="supervised_v0_02")
         self.setup_game()
         if self.agent is None:
-            self.agent = create_agent(self.algorithm_name)
+            self.agent = create(self.algorithm_name)
 
     def run(self) -> None:
         print_success("✅ Starting Supervised v0.02 session…")

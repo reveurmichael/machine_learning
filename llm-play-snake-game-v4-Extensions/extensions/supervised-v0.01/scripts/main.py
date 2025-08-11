@@ -24,6 +24,7 @@ def create_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--grid-size", type=int, default=DEFAULT_GRID_SIZE)
     parser.add_argument("--max-games", type=int, default=DEFAULT_MAX_GAMES)
     parser.add_argument("--max-steps", type=int, default=DEFAULT_MAX_STEPS)
+    parser.add_argument("--model-path", type=str, default=None)
     parser.add_argument("--verbose", action="store_true")
     return parser
 
@@ -36,7 +37,7 @@ def main() -> None:
         print(f"Unknown algorithm '{alg}', defaulting to {DEFAULT_ALGORITHM}")
         alg = DEFAULT_ALGORITHM
 
-    agent = create(alg)
+    agent = create(alg, model_path=args.model_path)
 
     gm_args = argparse.Namespace(
         algorithm=alg,

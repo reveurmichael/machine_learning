@@ -5,8 +5,8 @@ from datetime import datetime
 from typing import Any, List
 
 from core.game_manager import BaseGameManager
-from .game_logic import SupervisedGameLogic
-from .agents import create as create_agent, DEFAULT_ALGORITHM
+from game_logic import SupervisedGameLogic
+from agents import create as create_agent, DEFAULT_ALGORITHM
 from utils.print_utils import print_info, print_success
 
 class SupervisedGameManager(BaseGameManager):

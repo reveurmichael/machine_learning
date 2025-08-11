@@ -42,7 +42,10 @@ from core.game_loop import run_game_loop
 from config.ui_constants import TIME_DELAY, TIME_TICK
 
 # LLM components - only for Task-0
-from llm.client import LLMClient
+try:  # Lazy import so non-LLM extensions can run without LLM deps
+    from llm.client import LLMClient  # type: ignore
+except Exception:  # pragma: no cover - optional for non-LLM tasks
+    LLMClient = None  # type: ignore
 
 # Utilities - organized by purpose
 from core.game_stats_manager import GameStatsManager
@@ -466,10 +469,11 @@ class BaseGameManager:
         if not self.log_dir:
             raise RuntimeError("log_dir is not set. Call setup_logging() first.")
         import os, json
+        from core.game_data import NumPyJSONEncoder  # type: ignore
         path = os.path.join(self.log_dir, filename)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=indent)
+            json.dump(data, f, indent=indent, cls=NumPyJSONEncoder, ensure_ascii=False)
         return path
 
     def reset_for_next_game(self) -> None:
@@ -553,7 +557,7 @@ class GameManager(BaseGameManager):
         # -------------------
         # LLM infrastructure
         # -------------------
-        self.llm_client: Optional[LLMClient] = None
+        self.llm_client = None  # type: ignore[assignment]
         self.parser_provider: Optional[str] = None
         self.parser_model: Optional[str] = None
         self.agent: Optional[BaseAgent] = agent
@@ -578,9 +582,11 @@ class GameManager(BaseGameManager):
             self.prompts_dir = str(self.prompts_dir)
             self.responses_dir = str(self.responses_dir)
 
-    def create_llm_client(self, provider: str, model: Optional[str] = None) -> LLMClient:
-        """Create LLM client for the specified provider."""
-        return LLMClient(provider=provider, model=model)
+    def create_llm_client(self, provider: str, model: Optional[str] = None):
+        """Create LLM client for the specified provider (Task-0 only)."""
+        if LLMClient is None:  # type: ignore[name-defined]
+            raise RuntimeError("LLMClient not available. This method is Task-0 only.")
+        return LLMClient(provider=provider, model=model)  # type: ignore[misc]
 
     def run(self) -> None:
         """Execute LLM game session."""

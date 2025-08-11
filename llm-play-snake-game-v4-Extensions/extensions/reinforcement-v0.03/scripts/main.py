@@ -10,15 +10,18 @@ sys.path.insert(0, str(_ext_dir))
 sys.path.insert(0, str(_ext_dir.parent.parent))
 
 from agents import create, get_available_algorithms, DEFAULT_ALGORITHM  # type: ignore  # noqa: E402
-from game_manager import RLV02GameManager  # type: ignore  # noqa: E402
+from game_manager import RLV03GameManager  # type: ignore  # noqa: E402
+
+DEFAULT_GRID_SIZE = 10
+DEFAULT_MAX_GAMES = 1
+DEFAULT_MAX_STEPS = 200
 
 def create_argument_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="RL v0.02 runner")
+    p = argparse.ArgumentParser(description="RL v0.03 runner")
     p.add_argument("--algorithm", type=str, default=DEFAULT_ALGORITHM)
-    p.add_argument("--grid-size", type=int, default=10)
-    p.add_argument("--max-games", type=int, default=10)
-    p.add_argument("--max-steps", type=int, default=500)
-    p.add_argument("--model-path", type=str, default=None)
+    p.add_argument("--grid-size", type=int, default=DEFAULT_GRID_SIZE)
+    p.add_argument("--max-games", type=int, default=DEFAULT_MAX_GAMES)
+    p.add_argument("--max-steps", type=int, default=DEFAULT_MAX_STEPS)
     p.add_argument("--verbose", action="store_true")
     return p
 
@@ -29,7 +32,7 @@ def main() -> None:
     if alg not in get_available_algorithms():
         print(f"Unknown algorithm '{alg}', defaulting to {DEFAULT_ALGORITHM}")
         alg = DEFAULT_ALGORITHM
-    agent = create(alg, model_path=args.model_path)
+    agent = create(alg)
     gm_args = argparse.Namespace(
         algorithm=alg,
         grid_size=args.grid_size,
@@ -38,10 +41,10 @@ def main() -> None:
         verbose=args.verbose,
         no_gui=True,
     )
-    manager = RLV02GameManager(gm_args, agent=agent)
+    manager = RLV03GameManager(gm_args, agent=agent)
     manager.initialize()
     manager.run()
-    print("RL v0.02 completed")
+    print("RL v0.03 completed")
 
 
 if __name__ == "__main__":

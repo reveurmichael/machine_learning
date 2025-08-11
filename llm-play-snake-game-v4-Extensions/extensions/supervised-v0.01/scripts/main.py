@@ -5,9 +5,6 @@ import sys
 from pathlib import Path
 from typing import List
 
-from utils.path_utils import ensure_project_root
-from utils.print_utils import print_info, print_success
-
 # Add extension dir and project root to sys.path for local imports
 _current_dir = Path(__file__).resolve().parent
 _ext_dir = _current_dir.parent
@@ -32,12 +29,11 @@ def create_argument_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    ensure_project_root()
     args = create_argument_parser().parse_args()
 
     alg = args.algorithm
     if alg not in get_available_algorithms():
-        print_info(f"Unknown algorithm '{alg}', defaulting to {DEFAULT_ALGORITHM}")
+        print(f"Unknown algorithm '{alg}', defaulting to {DEFAULT_ALGORITHM}")
         alg = DEFAULT_ALGORITHM
 
     agent = create(alg)
@@ -54,7 +50,7 @@ def main() -> None:
     manager = SupervisedGameManager(gm_args, agent=agent)
     manager.initialize()
     manager.run()
-    print_success("Supervised v0.01 completed")
+    print("Supervised v0.01 completed")
 
 
 if __name__ == "__main__":

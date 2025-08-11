@@ -4,9 +4,6 @@ import argparse
 import sys
 from pathlib import Path
 
-from utils.path_utils import ensure_project_root
-from utils.print_utils import print_info, print_success
-
 _current_dir = Path(__file__).resolve().parent
 _ext_dir = _current_dir.parent
 sys.path.insert(0, str(_ext_dir))
@@ -30,11 +27,10 @@ def create_argument_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    ensure_project_root()
     args = create_argument_parser().parse_args()
     alg = args.algorithm
     if alg not in get_available_algorithms():
-        print_info(f"Unknown algorithm '{alg}', defaulting to {DEFAULT_ALGORITHM}")
+        print(f"Unknown algorithm '{alg}', defaulting to {DEFAULT_ALGORITHM}")
         alg = DEFAULT_ALGORITHM
     agent = create(alg)
     gm_args = argparse.Namespace(
@@ -48,7 +44,7 @@ def main() -> None:
     manager = SupervisedV02GameManager(gm_args, agent=agent)
     manager.initialize()
     manager.run()
-    print_success("Supervised v0.02 completed")
+    print("Supervised v0.02 completed")
 
 
 if __name__ == "__main__":

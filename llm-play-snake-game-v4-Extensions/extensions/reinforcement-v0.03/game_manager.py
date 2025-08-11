@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime
-from typing import Any, List
+from typing import Any, List, Dict
 
 from core.game_manager import BaseGameManager
 from game_logic import RLGameLogic
 from agents import create as create_agent, DEFAULT_ALGORITHM
 from utils.print_utils import print_success
 
-class RLV02GameManager(BaseGameManager):
+class RLV03GameManager(BaseGameManager):
     GAME_LOGIC_CLS = RLGameLogic
 
     def __init__(self, args: argparse.Namespace, agent: Any | None = None) -> None:
@@ -21,13 +21,14 @@ class RLV02GameManager(BaseGameManager):
         self.game_steps: List[int] = []
 
     def initialize(self) -> None:
-        self.setup_logging(base_dir="logs/extensions/reinforcement-v0.02", task_name="reinforcement_v0_02")
+        self.setup_logging(base_dir="logs/extensions/reinforcement-v0.03", task_name="reinforcement_v0_03")
         self.setup_game()
         if self.agent is None:
             self.agent = create_agent(self.algorithm_name)
 
     def run(self) -> None:
-        print_success("✅ Starting RL v0.02 session…")
+        print_success("✅ Starting RL v0.03 session…")
+        all_metrics: List[Dict[str, float]] = []
         for _ in range(1, self.args.max_games + 1):
             self.game.reset()
             while not self.game.game_over:
@@ -43,12 +44,19 @@ class RLV02GameManager(BaseGameManager):
             self.total_steps += self.game.steps
             self.game_scores.append(self.game.score)
             self.game_steps.append(self.game.steps)
+
+            # Per-game saves
             self.save_current_game_json(metadata={"algorithm": self.algorithm_name})
             if hasattr(self.game, "move_features"):
                 self.write_json_in_logdir(
                     f"game_{self.game_count}_features.json",
                     self.game.move_features,  # type: ignore[arg-type]
                 )
+
+            # Metrics per game
+            per_game_metrics = getattr(self.game, "compute_metrics", lambda: {"apples_per_step": 0.0})()
+            all_metrics.append(per_game_metrics)
+
             self.reset_for_next_game()
 
         summary = {
@@ -60,4 +68,13 @@ class RLV02GameManager(BaseGameManager):
             "algorithm": self.algorithm_name,
         }
         self.save_simple_session_summary(summary)
-        print_success("✅ RL v0.02 session complete!")
+
+        self.write_json_in_logdir(
+            "metrics.json",
+            {
+                "per_game": all_metrics,
+                "avg_apples_per_step": sum(m.get("apples_per_step", 0.0) for m in all_metrics) / max(1, len(all_metrics)),
+                "avg_steps_per_game": self.total_steps / max(1, self.game_count),
+            },
+        )
+        print_success("✅ RL v0.03 session complete!")

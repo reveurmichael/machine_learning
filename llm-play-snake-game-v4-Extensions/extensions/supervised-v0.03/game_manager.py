@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any, List, Dict
 
 from core.game_manager import BaseGameManager
-from .game_logic import SupervisedGameLogic
-from .agents import create as create_agent, DEFAULT_ALGORITHM
+from game_logic import SupervisedGameLogic
+from agents import create as create_agent, DEFAULT_ALGORITHM
 from utils.print_utils import print_success
 
 class SupervisedV03GameManager(BaseGameManager):

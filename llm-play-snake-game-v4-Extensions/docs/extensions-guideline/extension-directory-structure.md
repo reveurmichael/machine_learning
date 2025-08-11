@@ -5,7 +5,7 @@
 ### **Purpose**: Single algorithm, minimal complexity, proof that base classes work
 
 ```
-extensions/{algorithm}-v0.01/
+extensions/{task}-v0.01/
 ├── __init__.py                    # Package initialization
 ├── main.py                        # Simple entry point, minimal arguments
 ├── agent_{primary}.py             # Single primary algorithm implementation
@@ -39,7 +39,11 @@ extensions/heuristics-v0.01/
 extensions/supervised-v0.01/
 ├── __init__.py
 ├── main.py                        # python main.py (minimal args)
-├── agent_neural.py                # MLP, CNN, LSTM implementations
+├── agents/
+│   ├── __init__.py
+│   ├── agent_mlp.py               # MLP implementation
+│   ├── agent_cnn.py               # CNN implementation
+│   ├── agent_lstm.py              # LSTM implementation
 ├── train.py                       # Training script
 ├── game_logic.py                  # NeuralGameLogic(BaseGameLogic)
 ├── game_manager.py                # NeuralGameManager(BaseGameManager)
@@ -51,7 +55,11 @@ extensions/supervised-v0.01/
 extensions/reinforcement-v0.01/
 ├── __init__.py
 ├── main.py                        # python main.py (basic DQN)
-├── agent_dqn.py                   # DQN implementation
+├── agents/
+│   ├── __init__.py
+│   ├── agent_dqn.py               # DQN implementation
+│   ├── agent_q_learning.py        # Q-learning implementation
+│   ├── agent_ppo.py               # PPO implementation
 ├── train.py                       # RL training script
 ├── game_logic.py                  # RLGameLogic(BaseGameLogic)
 ├── game_manager.py                # RLGameManager(BaseGameManager)
@@ -63,7 +71,7 @@ extensions/reinforcement-v0.01/
 ### **Purpose**: Multiple algorithms, organized structure, algorithm selection
 
 ```
-extensions/{algorithm}-v0.02/
+extensions/{task}-v0.02/
 ├── __init__.py                    # Enhanced package initialization
 ├── main.py                        # Multi-algorithm entry point with --algorithm arg
 ├── game_logic.py                  # Enhanced algorithm-specific logic
@@ -90,7 +98,7 @@ extensions/{algorithm}-v0.02/
 ### **Purpose**: Streamlit app.py for script launching, dataset generation, optional replay capabilities (SUPREME_RULE NO.5)
 
 ```
-extensions/{algorithm}-v0.03/
+extensions/{task}-v0.03/
 ├── __init__.py                    # Package initialization
 ├── app.py                         # ✨ NEW: Streamlit app for launching scripts with adjustable parameters (SUPREME_RULE NO.5)
 ├── {algorithm}_config.py          # ✨ NEW: Renamed from config.py for clarity

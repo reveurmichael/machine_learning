@@ -118,6 +118,26 @@ class BaseRoundManager:
             self.sync_round_data()
             self.round_buffer = None  # type: ignore[assignment]
 
+    # ---------------------
+    # Extension-friendly public helpers
+    # ---------------------
+
+    def record_round_game_state(self, state: dict) -> None:
+        """Attach an arbitrary game_state payload to the current round.
+
+        This provides a stable public API so extensions never need to touch
+        private methods when storing immutable pre-/post-move snapshots.
+        """
+        if not state:
+            return
+        number = self.round_buffer.number if self.round_buffer else self.round_count
+        round_data = self._get_or_create_round_data(number)
+        round_data["game_state"] = state
+
+    def get_current_round_number(self) -> int:
+        """Return the current round number from the buffer if available."""
+        return self.round_buffer.number if self.round_buffer else self.round_count
+
     def _get_or_create_round_data(self, round_num: int) -> dict:
         """Get or create round data dictionary."""
         return self.rounds_data.setdefault(round_num, {"round": round_num})

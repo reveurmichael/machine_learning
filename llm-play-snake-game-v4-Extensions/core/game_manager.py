@@ -42,7 +42,10 @@ from core.game_loop import run_game_loop
 from config.ui_constants import TIME_DELAY, TIME_TICK
 
 # LLM components - only for Task-0
-from llm.client import LLMClient
+try:  # Lazy import so non-LLM extensions can run without LLM deps
+    from llm.client import LLMClient  # type: ignore
+except Exception:  # pragma: no cover - optional for non-LLM tasks
+    LLMClient = None  # type: ignore
 
 # Utilities - organized by purpose
 from core.game_stats_manager import GameStatsManager
@@ -177,13 +180,37 @@ class BaseGameManager:
         raise NotImplementedError("Subclasses must implement run()")
 
     # -------------------
+    # OPTIONAL EXTENSION HOOKS – override in extensions as needed
+    # -------------------
+
+    def on_before_move(self, direction: str) -> None:
+        """Hook invoked right before executing a move."""
+        return None
+
+    def on_after_move(self, direction: str, apple_eaten: bool) -> None:
+        """Hook invoked right after executing a move."""
+        return None
+
+    def on_game_end(self, game_index: int) -> None:
+        """Hook invoked when a game ends (index is 1-based)."""
+        return None
+
+    # -------------------
     # GENERIC GAME SETUP - Reusable across all tasks
     # -------------------
 
     def setup_game(self) -> None:
-        """Create game logic and optional GUI interface."""
+        """Create game logic and optional GUI interface.
+        
+        Extensions can pass a `--grid_size` CLI argument to have the game
+        instantiate with the requested grid size without overriding this method.
+        """
         # Use the specified game logic class (BaseGameLogic by default)
-        self.game = self.GAME_LOGIC_CLS(use_gui=self.use_gui)
+        grid_size = getattr(self.args, "grid_size", None)
+        if grid_size is not None:
+            self.game = self.GAME_LOGIC_CLS(grid_size=grid_size, use_gui=self.use_gui)
+        else:
+            self.game = self.GAME_LOGIC_CLS(use_gui=self.use_gui)
 
         # Attach GUI if visual mode is requested
         if self.use_gui:
@@ -232,6 +259,19 @@ class BaseGameManager:
             print(Fore.BLUE + f"📊 Round {self.round_count} started ({reason})")
         else:
             print(Fore.BLUE + f"📊 Round {self.round_count} started")
+
+    def flush_buffer_with_game_state(self) -> None:
+        """Flush the current round buffer and sync data safely.
+        
+        Extensions can call this to ensure any buffered round data is persisted
+        before writing files or computing summaries.
+        """
+        if not self.game or not hasattr(self.game, "game_state"):
+            return
+        game_state = self.game.game_state
+        if hasattr(game_state, "round_manager"):
+            game_state.round_manager.flush_buffer()
+            game_state.round_manager.sync_round_data()
 
     def increment_round(self, reason: str = "") -> None:
         """Increment the round counter and flush the current round data.
@@ -327,6 +367,141 @@ class BaseGameManager:
             stats_manager = GameStatsManager()
             stats_manager.save_session_stats(self.log_dir)
 
+    # -------------------
+    # EXTENSION CONVENIENCE HELPERS - Optional utilities for extensions
+    # -------------------
+
+    def get_game_json_filename(self, game_number: Optional[int] = None) -> str:
+        """Return canonical filename for a game_N.json.
+        
+        Args:
+            game_number: 1-based game number; defaults to current counter or 1 if unset.
+        """
+        from core.game_file_manager import FileManager  # local import to avoid cycles
+        file_manager = FileManager()
+        number = game_number if game_number is not None else max(1, int(self.game_count))
+        return file_manager.get_game_json_filename(number)
+
+    def get_game_json_path(self, game_number: Optional[int] = None) -> str:
+        """Return absolute path to the canonical game_N.json under current log_dir."""
+        if not self.log_dir:
+            raise RuntimeError("log_dir is not set. Call setup_logging() first.")
+        from core.game_file_manager import FileManager  # local import
+        file_manager = FileManager()
+        filename = self.get_game_json_filename(game_number)
+        return file_manager.join_log_path(self.log_dir, filename)
+
+    def display_basic_results(self) -> None:
+        """Print minimal per-game results (score and steps)."""
+        if not self.game or not hasattr(self.game, "game_state"):
+            return
+        print(Fore.BLUE + f"📊 Score: {self.game.game_state.score}, Steps: {self.game.game_state.steps}")
+
+    def get_summary_json_path(self) -> str:
+        """Return absolute path to the summary.json under current log_dir."""
+        if not self.log_dir:
+            raise RuntimeError("log_dir is not set. Call setup_logging() first.")
+        from utils.path_utils import get_summary_json_filename  # local import
+        return os.path.join(self.log_dir, get_summary_json_filename())
+
+    def save_game_json_dict(self, game_data: dict, game_number: Optional[int] = None, indent: int = 2) -> str:
+        """Write a Python dict as canonical game_N.json under current log_dir.
+        
+        Returns the file path written. Ensures UTF-8 encoding and directory exists.
+        """
+        path = self.get_game_json_path(game_number)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        import json
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(game_data, f, indent=indent)
+        return path
+
+    def save_simple_session_summary(self, summary: dict, indent: int = 2) -> str:
+        """Write the provided session summary dict to summary.json under log_dir."""
+        path = self.get_summary_json_path()
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        import json
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=indent)
+        return path
+
+    def update_session_summary(self, **kwargs) -> None:
+        """Merge fields into summary.json using the canonical manager utility."""
+        if not self.log_dir:
+            raise RuntimeError("log_dir is not set. Call setup_logging() first.")
+        stats_manager = GameStatsManager()
+        stats_manager.save_session_stats(self.log_dir, **kwargs)
+
+    def save_current_game_json(self, metadata: Optional[dict] = None) -> str:
+        """Save the active game's JSON to the canonical `game_N.json` path.
+        
+        Chooses the most appropriate serializer available on the game's
+        GameData instance, falling back to a generic dict writer.
+        """
+        if not self.game or not hasattr(self.game, "game_state"):
+            raise RuntimeError("No active game/game_state to save")
+        path = self.get_game_json_path(self.game_count or 1)
+        state = self.game.game_state
+        meta = metadata or {}
+        # Prefer Task-0/extension-provided summary method
+        if hasattr(state, "save_game_summary"):
+            state.save_game_summary(path, metadata=meta)  # type: ignore[arg-type]
+            return path
+        # Next, prefer generic save_game_data if present
+        if hasattr(state, "save_game_data"):
+            state.save_game_data(path, metadata=meta)  # type: ignore[arg-type]
+            return path
+        # Fallback: minimal dict writer
+        minimal = getattr(state, "to_dict", lambda: {
+            "score": getattr(self.game, "score", 0),
+            "steps": getattr(self.game, "steps", 0),
+            "game_over": True,
+            "metadata": {"game_number": self.game_count},
+        })()
+        self.save_game_json_dict(minimal, game_number=self.game_count)
+        return path
+
+    def write_json_in_logdir(self, filename: str, data: dict, indent: int = 2) -> str:
+        """Write a sidecar JSON file under current `log_dir`.
+        
+        Returns the full path written.
+        """
+        if not self.log_dir:
+            raise RuntimeError("log_dir is not set. Call setup_logging() first.")
+        import os, json
+        from core.game_data import NumPyJSONEncoder  # type: ignore
+        path = os.path.join(self.log_dir, filename)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=indent, cls=NumPyJSONEncoder, ensure_ascii=False)
+        return path
+
+    def reset_for_next_game(self) -> None:
+        """Standard reset routine to prepare for the next game.
+        
+        Safe for extensions to call at the end of a game.
+        """
+        # Reset per-game flags/counters for the upcoming game
+        self.need_new_plan = True
+        self.game_active = True
+        self.current_game_moves = []
+        self.round_count = 1
+        if self.game:
+            self.game.reset()
+        # Reset first-plan flag for the new game
+        self._first_plan = True
+        # Reset all consecutive counters if present (Task-0 exposes limits_manager)
+        if hasattr(self, 'limits_manager'):
+            try:
+                self.limits_manager.reset_all_counters()
+            except Exception:
+                pass
+        # Generic counters used broadly
+        self.consecutive_empty_steps = 0
+        self.consecutive_something_is_wrong = 0
+        self.consecutive_invalid_reversals = 0
+        self.consecutive_no_path_found = 0
+
 
 # -------------------
 # TASK-0 SPECIFIC CLASS - LLM Snake Game
@@ -382,7 +557,7 @@ class GameManager(BaseGameManager):
         # -------------------
         # LLM infrastructure
         # -------------------
-        self.llm_client: Optional[LLMClient] = None
+        self.llm_client = None  # type: ignore[assignment]
         self.parser_provider: Optional[str] = None
         self.parser_model: Optional[str] = None
         self.agent: Optional[BaseAgent] = agent
@@ -407,9 +582,11 @@ class GameManager(BaseGameManager):
             self.prompts_dir = str(self.prompts_dir)
             self.responses_dir = str(self.responses_dir)
 
-    def create_llm_client(self, provider: str, model: Optional[str] = None) -> LLMClient:
-        """Create LLM client for the specified provider."""
-        return LLMClient(provider=provider, model=model)
+    def create_llm_client(self, provider: str, model: Optional[str] = None):
+        """Create LLM client for the specified provider (Task-0 only)."""
+        if LLMClient is None:  # type: ignore[name-defined]
+            raise RuntimeError("LLMClient not available. This method is Task-0 only.")
+        return LLMClient(provider=provider, model=model)  # type: ignore[misc]
 
     def run(self) -> None:
         """Execute LLM game session."""

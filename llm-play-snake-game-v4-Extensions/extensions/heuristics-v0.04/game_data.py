@@ -31,27 +31,6 @@ from core.game_stats_manager import NumPyJSONEncoder
 from game_rounds import HeuristicRoundManager
 
 
-@dataclass
-class HeuristicTimeStats:
-    """Time statistics for heuristic algorithms without LLM pollution.
-    
-    This class provides the same timing functionality as TimeStats but
-    excludes LLM-specific fields like llm_communication_time.
-    """
-    start_time: float
-    
-    def record_end_time(self) -> None:
-        """Record the end time."""
-        self.end_time = time.time()
-    
-    def asdict(self) -> dict:
-        """Convert to dictionary for JSON serialization."""
-        end = getattr(self, 'end_time', None) or time.time()
-        return {
-            "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
-            "end_time": datetime.fromtimestamp(end).strftime("%Y-%m-%d %H:%M:%S"),
-            "total_duration_seconds": end - self.start_time,
-        }
 
 
 class HeuristicGameData(BaseGameData):
@@ -73,8 +52,9 @@ class HeuristicGameData(BaseGameData):
         # Override round_manager to use heuristic-specific version
         self.round_manager = HeuristicRoundManager()
 
-        # Override time_stats to use heuristic-specific version without LLM pollution
-        self.stats.time_stats = HeuristicTimeStats(start_time=time.time())
+        # Use core TimeStats (LLM time fields remain zero in heuristic runs)
+        from core.game_stats import TimeStats
+        self.stats.time_stats = TimeStats(start_time=time.time())
 
         # Heuristic-specific tracking
         self.algorithm_name: str = "BFS"  # Default algorithm
@@ -102,8 +82,9 @@ class HeuristicGameData(BaseGameData):
         # Ensure we use heuristic-specific round manager
         self.round_manager = HeuristicRoundManager()
 
-        # Ensure we use heuristic-specific time stats without LLM pollution
-        self.stats.time_stats = HeuristicTimeStats(start_time=time.time())
+        # Ensure we use core TimeStats (LLM time fields remain zero)
+        from core.game_stats import TimeStats
+        self.stats.time_stats = TimeStats(start_time=time.time())
 
         # Reset heuristic-specific counters
         self.path_calculations = 0

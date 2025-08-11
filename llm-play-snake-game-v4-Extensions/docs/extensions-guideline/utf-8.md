@@ -92,3 +92,10 @@ stdout = result.stdout.decode("utf-8", errors="replace")
 
 > **Remember:** UTF-8 is *the* lingua franca. One minute of encoding diligence
 > saves hours of cross-platform debugging later. 🚀 
+
+## Quick Compliance Checklist
+
+- All `open()` calls specify `encoding="utf-8"` for text files.
+- `json.dump(..., ensure_ascii=False)` when writing JSON with potential non-ASCII.
+- CSV writers/readers pass `encoding="utf-8"`.
+- Subprocess logs: set `PYTHONIOENCODING=utf-8` or capture bytes and decode with `errors="replace"`. 

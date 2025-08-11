@@ -6,7 +6,7 @@ In this project, names are not arbitrary labels; they are contracts. A well-chos
 
 ### **Guidelines Alignment**
 - **final-decision.md Guideline 1**: Enforces reading all GOOD_RULES before making naming changes to ensure comprehensive understanding of architectural patterns
-- **final-decision.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and naming standards
+- Align with `final-decision.md`: Use exact filenames when citing docs (e.g., `final-decision.md`, `utils.md`).
 - **simple logging**: Enables lightweight common utilities with OOP extensibility through consistent naming that supports inheritance rather than tight coupling
 
 Our naming conventions are designed to enforce:
@@ -160,3 +160,12 @@ can infer the type: `is_paused`, `has_collision`, `use_gui`, `allow_reset`.
 | GUI             | `gui/`                               | PyGame windows & helpers. |
 | Web MVC         | `web/`                               | Flask blueprints, JS, templates (ROOT/web infrastructure for extensions) |
 | Extensions      | `extensions/<task_name>/…`
+
+## Quick Compliance Checklist
+
+- Agent files follow `agent_{algorithm}.py`; classes are `{Algorithm}Agent`.
+- RL folders are named `reinforcement-v0.0N` (not `rl-v0.0N`).
+- Supervised series exposes only ML algorithms (MLP, CNN, RNN, LSTM, LIGHTGBM, XGBOOST). No GREEDY.
+- Logic class names drop version tags: `SupervisedGameLogic`, `RLGameLogic`.
+- Factories register algorithms with uppercase keys and import from `agent_{algorithm}.py`.
+- Examples in READMEs use canonical algorithm names (`--algorithm MLP`, `--algorithm DQN`, etc.).

@@ -1,5 +1,7 @@
 # Core Architecture Documentation
 
+> This document aligns with `final-decision.md`. Use exact filenames when citing docs. Keep examples minimal and link to related docs explicitly.
+
 ## ✅ **Current Core Architecture Assessment**
 
 Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring.

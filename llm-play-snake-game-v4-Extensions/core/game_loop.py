@@ -122,7 +122,7 @@ class BaseGameLoop:
         """Grab the next pre-computed move from :pyattr:`GameLogic.planned_moves`."""
 
         manager = self.manager
-        if manager.awaiting_plan:
+        if getattr(manager, "awaiting_plan", False):
             return
         next_move = manager.game.get_next_planned_move()
         # ------------------
@@ -161,7 +161,15 @@ class BaseGameLoop:
 
         manager.current_game_moves.append(next_move)
         manager.game.draw()
+        try:
+            manager.on_before_move(next_move)
+        except Exception:
+            pass
         _, apple_eaten = self._execute_move(next_move)
+        try:
+            manager.on_after_move(next_move, apple_eaten)
+        except Exception:
+            pass
         if apple_eaten:
             self._post_apple_logic()
     
@@ -180,8 +188,89 @@ class BaseGameLoop:
         return None
 
     def _handle_game_over(self) -> None:
-        """Delegate heavy game-over processing to utils.game_manager_utils then reset for next game."""
-        return None
+        """Generic game-over handling for non-LLM extensions.
+        
+        - Increments manager counters
+        - Writes a canonical game_N.json if the game exposes save_game_summary or via manager helper
+        - Updates a minimal session summary via GameStatsManager if available
+        - Resets for the next game using manager.reset_for_next_game()
+        
+        Task-0 overrides this method with LLM-specific handling.
+        """
+        manager = self.manager
+        game = manager.game
+        if not game:
+            return
+
+        # Print readable end reason if available
+        if hasattr(game, "last_collision_type") and getattr(game, "last_collision_type"):
+            from config.game_constants import END_REASON_MAP
+            collision_type = game.last_collision_type
+            reason_readable = END_REASON_MAP.get(collision_type, collision_type)
+            print(Fore.RED + f"❌ Game over: {reason_readable}!")
+
+        # Update counters for next game
+        manager.game_count += 1
+        manager.total_score += game.score
+        manager.total_steps += game.steps
+        manager.game_scores.append(game.score)
+
+        # Collect round count if available
+        round_count = getattr(getattr(game, "game_state", None), "get_round_count", lambda: 0)()
+        manager.round_counts.append(round_count or 0)
+
+        # Save individual game JSON if possible
+        if manager.log_dir:
+            try:
+                # Prefer the canonical game_state.save_game_summary if available
+                if hasattr(game, "game_state") and hasattr(game.game_state, "save_game_summary"):
+                    path = manager.get_game_json_path(manager.game_count)
+                    # Minimal kwargs for non-LLM tasks
+                    game.game_state.save_game_summary(path, metadata={})
+                else:
+                    # Fallback: persist a minimal dict using the helper
+                    minimal = {
+                        "score": getattr(game.game_state, "score", game.score),
+                        "steps": getattr(game.game_state, "steps", game.steps),
+                        "snake_length": getattr(game.game_state, "snake_length", len(getattr(game, "snake_positions", []))),
+                        "game_over": True,
+                        "game_end_reason": getattr(game.game_state, "game_end_reason", getattr(game, "last_collision_type", None)),
+                        "round_count": round_count or 0,
+                        "detailed_history": {
+                            "apple_positions": getattr(game.game_state, "apple_positions", []),
+                            "moves": getattr(game.game_state, "moves", []),
+                            "rounds_data": getattr(getattr(game.game_state, "round_manager", None), "get_ordered_rounds_data", lambda: {})(),
+                        },
+                        "metadata": {
+                            "timestamp": getattr(game.game_state, "timestamp", ""),
+                            "game_number": getattr(game.game_state, "game_number", manager.game_count),
+                            "round_count": round_count or 0,
+                        },
+                    }
+                    manager.save_game_json_dict(minimal, game_number=manager.game_count)
+                print(Fore.GREEN + f"💾 Saved data for game {manager.game_count}")
+            except Exception as e:
+                print(Fore.RED + f"Failed to save game_{manager.game_count}.json: {e}")
+
+        # Optionally update a minimal session summary
+        try:
+            manager.update_session_summary(
+                game_count=manager.game_count,
+                total_score=manager.total_score,
+                total_steps=manager.total_steps,
+                game_scores=manager.game_scores,
+                round_counts=manager.round_counts,
+                total_rounds=sum(manager.round_counts) if manager.round_counts else 0,
+            )
+        except Exception:
+            pass
+
+        # Prepare for the next game
+        try:
+            manager.on_game_end(manager.game_count)
+        except Exception:
+            pass
+        manager.reset_for_next_game()
 
     # Agent path – unchanged behaviour
     def _process_agent_game(self) -> None:
@@ -214,10 +303,12 @@ class BaseGameLoop:
             # -------------------
             # Elegant Limits Management for Invalid Reversals
             # -------------------
-            # Use limits manager helper method to eliminate code duplication
-            game_should_continue = manager.limits_manager.record_move_with_adapter(
-                "INVALID_REVERSAL", manager, override_game_active=game_active
-            )
+            game_should_continue = True
+            if hasattr(manager, "limits_manager"):
+                # Use limits manager helper method to eliminate code duplication
+                game_should_continue = manager.limits_manager.record_move_with_adapter(
+                    "INVALID_REVERSAL", manager, override_game_active=game_active
+                )
 
             if not game_should_continue:
                 game_active = False
@@ -231,8 +322,16 @@ class BaseGameLoop:
         # Elegant Max Steps Management
         # -------------------
         if game_active:
-            # Use limits manager helper method to eliminate code duplication
-            game_active = manager.limits_manager.check_step_limit_with_adapter(manager)
+            if hasattr(manager, "limits_manager"):
+                # Use limits manager helper method to eliminate code duplication
+                game_active = manager.limits_manager.check_step_limit_with_adapter(manager)
+            else:
+                # Fallback: generic max-steps check using helper
+                from core.game_manager_helper import BaseGameManagerHelper
+                max_steps = getattr(manager.args, "max_steps", None)
+                if max_steps is not None:
+                    if BaseGameManagerHelper.check_max_steps(manager.game, max_steps):
+                        game_active = False
 
         manager.game.draw()
         pause = manager.get_pause_between_moves()
@@ -244,11 +343,13 @@ class BaseGameLoop:
         # -------------------
         # For valid directional moves, use the limits manager to intelligently reset counters
         if direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
-            # Use limits manager helper method to eliminate code duplication
-            manager.limits_manager.record_move_with_adapter(direction, manager, override_game_active=True)
+            if hasattr(manager, "limits_manager"):
+                # Use limits manager helper method to eliminate code duplication
+                manager.limits_manager.record_move_with_adapter(direction, manager, override_game_active=True)
 
         # Counter updates
-        manager.consecutive_something_is_wrong = 0
+        if hasattr(manager, "consecutive_something_is_wrong"):
+            manager.consecutive_something_is_wrong = 0
         if direction != "EMPTY":
             manager.consecutive_empty_steps = 0
             manager.consecutive_no_path_found = 0

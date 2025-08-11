@@ -19,27 +19,11 @@ Heuristic Game Manager
 
 Session management for multi-algorithm heuristic agents.
 
-Evolution from v0.01: This module demonstrates how to extend the simple
-proof-of-concept to support multiple algorithms using factory patterns.
-Shows natural software progression while maintaining the same base architecture.
-
 Design Philosophy:
 - Extends BaseGameManager (inherits all generic session management)
 - Uses HeuristicGameLogic for game mechanics
-- Factory pattern for algorithm selection (v0.02 enhancement)
-- No LLM dependencies (no token stats, no continuation mode)
-- Simplified logging (no Task-0 replay compatibility as requested)
-
-Evolution from v0.03: Adds language-rich move explanations and JSONL dataset generation while retaining multi-algorithm flexibility.
-
-v0.04 Enhancement: Supports incremental JSONL/CSV dataset updates after each game
-to provide real-time dataset growth visibility.
-
-Design Patterns:
-- Template Method: Inherits base session management structure
-- Factory Pattern: Uses HeuristicGameLogic for game logic
 - Strategy Pattern: Pluggable heuristic algorithms
-- Observer Pattern: Game state changes trigger dataset updates
+- Simplified logging: extension-centric structure without Task-0 specifics
 """
 
 # Ensure project root is set and properly configured
@@ -51,8 +35,6 @@ import argparse
 import time
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-import json
-import os
 import copy
 
 # Import from project root using absolute imports
@@ -343,15 +325,9 @@ class HeuristicGameManager(BaseGameManager):
                 hasattr(self.game.game_state, "round_manager")
                 and self.game.game_state.round_manager
             ):
-                round_num = self.game.game_state.round_manager.round_buffer.number
-                round_data = (
-                    self.game.game_state.round_manager._get_or_create_round_data(
-                        round_num
-                    )
+                self.game.game_state.round_manager.record_round_game_state(
+                    dict(pre_state.game_state)
                 )
-                round_data["game_state"] = dict(
-                    pre_state.game_state
-                )  # Convert back to dict for storage
 
             # --- AGENT DECISION MAKING WITH IMMUTABLE STATE ---
             # Extract state dict for agent compatibility (safe because original was deep-copied)
@@ -396,14 +372,8 @@ class HeuristicGameManager(BaseGameManager):
                     hasattr(self.game.game_state, "round_manager")
                     and self.game.game_state.round_manager
                 ):
-                    round_num = self.game.game_state.round_manager.round_buffer.number
-                    round_data = (
-                        self.game.game_state.round_manager._get_or_create_round_data(
-                            round_num
-                        )
-                    )
-                    round_data["game_state"] = copy.deepcopy(
-                        self.game.get_state_snapshot()
+                    self.game.game_state.round_manager.record_round_game_state(
+                        copy.deepcopy(self.game.get_state_snapshot())
                     )
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
@@ -454,47 +424,24 @@ class HeuristicGameManager(BaseGameManager):
             if hasattr(self.game, "update_display"):
                 self.game.update_display()
 
-            # Check max steps after move execution
-            # TODO: use the uniform END_REASON_MAP
-            # TODO: also, make sure game_limits_manager.py is used (transparently).
-            if steps >= self.args.max_steps:
-                print_error("[DEBUG] Max steps reached. Current game state:")
-                print_error(f"[DEBUG] Head: {self.game.head_position}")
-                print_error(f"[DEBUG] Snake: {self.game.snake_positions}")
-                print_error(f"[DEBUG] Apple: {self.game.apple_position}")
-                print_error(f"[DEBUG] Score: {self.game.game_state.score}")
-                print_error(f"[DEBUG] Steps: {self.game.game_state.steps}")
-                print_error(f"[DEBUG] Game over: {self.game.game_over}")
-                print_error(
-                    f"[DEBUG] Game end reason: {getattr(self.game.game_state, 'game_end_reason', 'None')}"
-                )
-
-                # Record the final move before ending the game
-                if (
+                    # Check max steps after move execution using core helper
+        from core.game_manager_helper import BaseGameManagerHelper
+        if BaseGameManagerHelper.check_max_steps(self.game, self.args.max_steps):
+            # Persist final state into the current round before breaking
+                            if (
                     hasattr(self.game.game_state, "round_manager")
                     and self.game.game_state.round_manager
                 ):
-                    round_num = self.game.game_state.round_manager.round_buffer.number
-                    round_data = (
-                        self.game.game_state.round_manager._get_or_create_round_data(
-                            round_num
-                        )
+                    self.game.game_state.round_manager.record_round_game_state(
+                        copy.deepcopy(self.game.get_state_snapshot())
                     )
-                    round_data["game_state"] = copy.deepcopy(
-                        self.game.get_state_snapshot()
-                    )
-
-                # TODO: double check: is this already there in the BaseGameManager/BaseGameLogic?
-                self.game.game_state.record_game_end("MAX_STEPS_REACHED")
-                break
+break
 
         # Calculate duration
         game_duration = time.time() - start_time
 
         # --- FAIL-FAST: Ensure final step is recorded ---
-        # TODO: this should be done automatically in the BaseGameManager/BaseGameLogic
         final_steps = self.game.game_state.steps
-        # TODO: why final_rounds? Seems ugly.
         final_rounds = (
             self.game.game_state.round_manager.round_count
             if hasattr(self.game.game_state, "round_manager")
@@ -545,8 +492,9 @@ class HeuristicGameManager(BaseGameManager):
         # Generate game data with explanations and metrics
         game_data = self._generate_game_data(game_duration)
 
-        # Save game data
-        self._save_game_data(game_data)
+        # Save game data using streamlined core saver (unless disabled)
+        if not getattr(self.args, "no_game_json", False):
+            self.save_current_game_json(metadata={"algorithm": self.algorithm_name})
 
         # Update datasets automatically
         self._update_datasets_incrementally([game_data])
@@ -584,7 +532,7 @@ class HeuristicGameManager(BaseGameManager):
         # This ensures clean data without game_state in rounds_data and without move_metrics
         game_data = (
             self.game.game_state.generate_game_summary()
-        )  # TODO: generate_game_summary should be renamed to generate_game_data in the BaseGameManager. 
+        )
 
         # Add algorithm name and duration for heuristics
         game_data["algorithm"] = self.algorithm_name
@@ -598,26 +546,14 @@ class HeuristicGameManager(BaseGameManager):
 
         return game_data
 
-    # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well.
-    # TODO: we do have already def save_game_summary(self, filepath: str, **kwargs) -> Dict[str, Any] in game_data.py of Task0
     def _save_game_data(self, game_data: Dict[str, Any]) -> None:
-        """Save individual game data."""
-        # Use game_count to match Task-0 numbering (games start at 1, not 0)
-        # game_count is incremented before this method is called, so it's already correct
-        game_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
-        with open(game_file, "w", encoding="utf-8") as f:
-            json.dump(to_serializable(game_data), f, indent=2)
+        """Save individual game data using core helper for canonical path/encoding."""
+        self.save_game_json_dict(to_serializable(game_data), game_number=self.game_count)
 
-    # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well.
-    # TODO: also, game_duration: float seems be not not used.
     def _display_game_results(self, game_duration: float) -> None:
-        """Display game results."""
-        print_info(
-            f"📊 Score: {self.game.game_state.score}, Steps: {self.game.game_state.steps}"
-        )
+        """Display game results using core helper."""
+        self.display_basic_results()
 
-    # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well.
-    # This one should follow the same pattern as  def _generate_game_data(self, game_duration: float) -> Dict[str, Any]. In it, we have game_summary = baseclass return its game_summary dict, and in game_summary we add extension specific key values.
     def _save_session_summary(self) -> None:
         """Save session summary."""
         session_duration = (datetime.now() - self.session_start_time).total_seconds()
@@ -649,11 +585,8 @@ class HeuristicGameManager(BaseGameManager):
             },
         }
 
-        # TODO: do we have this in the BaseGameManager? If not, we should add it. Since this pattern is most likely to be used in all extensions and generic and used in Task0 as well. Maybe we should make this one as a function/method in the BaseGameManager. But such function should already exist in FileManager??? Double check.
-        # Save summary
-        summary_file = os.path.join(self.log_dir, "summary.json")
-        with open(summary_file, "w", encoding="utf-8") as f:
-            json.dump(summary, f, indent=2)
+        # Save summary via core helper
+        self.save_simple_session_summary(summary)
 
         # Display summary
         print_info(f"🧠 Algorithm: {self.algorithm_name}")
@@ -666,25 +599,9 @@ class HeuristicGameManager(BaseGameManager):
         print_info(f"⚡ Score per step: {summary['score_per_step']:.3f}")
         print_info(f"🎯 Score per round: {summary['score_per_round']:.3f}")
 
-    # TODO: if we are just using super().call_the_baseclass_method(), then we should not have this one here.
-    def start_new_round(self, round_type: str | None = None) -> None:
-        """Start a new round with automatic dataset updates."""
-        super().start_new_round(round_type)
 
-    # TODO: if we are just using super().call_the_baseclass_method(), then we should not have this one here.
-    def flush_buffer_with_game_state(self):
-        """Flush buffer with current game state for dataset generation."""
-        super().flush_buffer_with_game_state()
 
-    # TODO: if we are just using super().call_the_baseclass_method(), then we should not have this one here.
-    def finish_round(self, reason: str = "") -> None:
-        """Finish round with automatic dataset updates."""
-        super().finish_round(reason)
 
-    # TODO: if we are just using super().call_the_baseclass_method(), then we should not have this one here.
-    def increment_round(self, reason: str = "") -> None:
-        """Increment round with automatic dataset updates."""
-        super().increment_round(reason)
 
     # TODO: this one seems to be heuristics-v0.04 specific. Hence is not shared.
     def _update_datasets_incrementally(self, games_data: List[Dict[str, Any]]) -> None:
@@ -697,22 +614,5 @@ class HeuristicGameManager(BaseGameManager):
             game_data["game_number"] = self.game_count
             self.dataset_generator._process_single_game(game_data)
 
-    # TODO: this one seems to shared among all extensions and Task0, and is hence generic. Double check.
-    def setup_game(self) -> None:
-        """Create game logic and optional GUI interface with correct grid size."""
-        # Get grid size from command line arguments
-        grid_size = getattr(self.args, "grid_size", 10)
-
-        # Use the specified game logic class with correct grid size
-        self.game = self.GAME_LOGIC_CLS(grid_size=grid_size, use_gui=self.use_gui)
-
-        # Attach GUI if visual mode is requested
-        if self.use_gui:
-            # Lazy import keeps headless extensions free of pygame.
-            from gui.game_gui import GameGUI  # noqa: WPS433 – intentional local import
-
-            gui = GameGUI()
-            # Ensure GUI pixel scaling matches the *actual* game grid size
-            if hasattr(self.game, "grid_size"):
-                gui.resize(self.game.grid_size)  # auto-adjust cell size & grid lines
-            self.game.set_gui(gui)
+    # BaseGameManager.setup_game already handles grid_size and GUI wiring.
+    # No override needed here.

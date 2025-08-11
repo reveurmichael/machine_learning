@@ -1,6 +1,0 @@
-Now, among all those guideline files, in their statements within those md files, in ./docs/extensions-guildeline (ignore empty md files), what are obviously wrong or not good or not coherent? what's the solution to adopt to make things good? write that into : ROOT/contradiction-1.md
-
-
-
-make all md files coherent. starting from final-decision.md make its ideas with align with other md files (so other md files should be updated to align with final-decision.md) and then it will be like diffusion of ideas across the md files and python files in the extensions/common/ folder and then it will be consistent and coherent. the ideas/statements will be like nuclear diffusion process and hit atoms (md files in the ./docs/extensions-guideline/ folder and python files in the extensions/common/ folder) back and forth and hit between themselves again and again. do it step by step. and go back and forth. and step by step again.  be exhaustive and go really deep. In fact, you know a lot about heuristic-v0.04 now. Though heuristic-v0.04 is not perfect yet (some utils to be put into common; factory create not used yet), it is very very good example for extensions. Do things only for md files in the folder ./docs/extensions-guideline/. Just modify, don't ask me questions.
-

@@ -1,5 +1,7 @@
 # Utility Architecture for Snake Game AI
 
+> Aligns with `final-decision.md`. Prefer exact filenames and core public APIs. For extension patterns, see `extension-skeleton.md` and `supervised-series.md`.
+
 ## 🎯 **Utility Philosophy**
 
 The utility architecture provides a clean separation between universal game mechanics and task-specific functionality. This enables all extensions to leverage shared infrastructure while maintaining clear boundaries between different AI approaches.
@@ -366,7 +368,7 @@ class SupervisedGameManager(BaseGameManager):
 ```
 
 ### **Configuration Integration**
-Following Final Decision 2, utilities access universal constants:
+Following `final-decision.md`, utilities access universal constants:
 
 ```python
 # Universal utilities use universal constants

@@ -76,7 +76,15 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from abc import ABC, abstractmethod
 from config.game_constants import PROMPTS_DIR_NAME, RESPONSES_DIR_NAME
-from llm.log_utils import get_llm_directories
+# Safe import: avoid pulling heavy LLM deps in headless runs
+try:
+    from llm.log_utils import get_llm_directories  # type: ignore
+except Exception:  # pragma: no cover - fallback for non-LLM tasks
+    def get_llm_directories(*args, **kwargs):  # type: ignore
+        return {
+            "prompts_dir": PROMPTS_DIR_NAME,
+            "responses_dir": RESPONSES_DIR_NAME,
+        }
 from utils.path_utils import get_default_logs_root, get_summary_json_filename
 from utils.singleton_utils import SingletonABCMeta
 

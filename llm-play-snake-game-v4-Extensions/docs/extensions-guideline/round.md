@@ -1,3 +1,7 @@
+# Round Management
+
+> This document aligns with `final-decision.md`. Prefer public APIs (`record_round_game_state`, `get_current_round_number`) and core manager methods over private access. See also `game_data_generator.md` and `core.md`.
+
 ## Deep Analysis: Round Management Integration Patterns
 
 ### **Common Patterns Between the Two Game Managers**
@@ -165,7 +169,7 @@ class BaseRoundManager:
 Why *rounds* are first-class:
     • **Task-0** (LLM planning) – one LLM plan → one round.
     • **Task-1** (heuristic) – one heuristic path-finder invocation → one round.
-    • **Task-2** (ML policy) – one greedy rollout / sub-episode → one round.
+    • **Task-2** (ML policy) – one supervised rollout / sub-episode → one round.
     • **Task-3** (RL) – one curriculum "phase" → one round.
     • **Task-4/5** (hybrid or meta-learning) – still benefit from grouping
 """

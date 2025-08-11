@@ -15,7 +15,10 @@ st.title("🧠 Supervised v0.01 Runner")
 
 with st.sidebar:
     st.header("⚙️ Parameters")
-    algorithm = st.selectbox("Algorithm", ["GREEDY"], index=0)
+    from agents import get_available_algorithms, DEFAULT_ALGORITHM
+    algorithms = get_available_algorithms()
+    default_index = max(0, algorithms.index(DEFAULT_ALGORITHM)) if DEFAULT_ALGORITHM in algorithms else 0
+    algorithm = st.selectbox("Algorithm", algorithms, index=default_index)
     grid_size: int = st.slider("Grid size", min_value=5, max_value=25, value=10)
     max_games: int = st.number_input("Max games", min_value=1, max_value=1000000, value=5)
     max_steps: int = st.number_input("Max steps per game", min_value=100, max_value=10000, value=500)

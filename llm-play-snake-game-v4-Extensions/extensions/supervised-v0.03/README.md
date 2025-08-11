@@ -6,4 +6,4 @@ Incremental improvement over v0.02:
 - Uses streamlined core APIs throughout
 
 Run:
-- `python scripts/main.py --algorithm GREEDY --max-games 10 --grid-size 10`
+- `python scripts/main.py --algorithm MLP --max-games 10 --grid-size 10`

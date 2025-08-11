@@ -243,7 +243,7 @@ def get_dataset_info(file_path: Union[str, Path]) -> Dict[str, Any]:
                 "column_names": list(df.columns)
             })
         elif file_path.suffix == '.jsonl':
-            with open(file_path, 'r') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 lines = sum(1 for line in f if line.strip())
             info.update({"records": lines})
         elif file_path.suffix == '.npz':

@@ -4,9 +4,9 @@ from typing import Any, List
 
 from utils.factory_utils import SimpleFactory
 
-from .q_learning_agent import QLearningAgent
-from .dqn_agent import DQNAgent
-from .ppo_agent import PPOAgent
+from .agent_q_learning import QLearningAgent
+from .agent_dqn import DQNAgent
+from .agent_ppo import PPOAgent
 
 _factory = SimpleFactory("RLV01AgentFactory")
 _factory.register("Q_LEARNING", QLearningAgent)

@@ -381,7 +381,7 @@ def main() -> bool:
         model.save_pretrained(output_dir)
         tokenizer.save_pretrained(output_dir)
         config_file = os.path.join(output_dir, "training_config.json")
-        with open(config_file, "w") as f:
+        with open(config_file, "w", encoding="utf-8") as f:
             json.dump(vars(args), f, indent=2)
         adapter_dir = os.path.join(output_dir, "lora_adapter")
         model.save_pretrained(adapter_dir, safe_serialization=True)

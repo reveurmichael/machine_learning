@@ -6,7 +6,7 @@ from utils.factory_utils import SimpleFactory
 
 from .agent_q_learning import QLearningAgent
 from .agent_dqn import DQNAgent
-from .ppo_agent import PPOAgent
+from .agent_ppo import PPOAgent
 
 _factory = SimpleFactory("RLV03AgentFactory")
 _factory.register("Q_LEARNING", QLearningAgent)

@@ -122,6 +122,12 @@ Examples:
         help="Enable verbose output"
     )
     
+    parser.add_argument(
+        "--no-game-json",
+        action="store_true",
+        help="Skip writing per-game game_N.json files; still writes summary.json and datasets",
+    )
+    
     return parser
 
 
@@ -186,6 +192,7 @@ def main() -> None:
                 grid_size=args.grid_size,
                 verbose=args.verbose,
                 no_gui=True,
+                no_game_json=args.no_game_json,
             )
 
             game_manager = HeuristicGameManager(gm_args, agent=agent_instance)

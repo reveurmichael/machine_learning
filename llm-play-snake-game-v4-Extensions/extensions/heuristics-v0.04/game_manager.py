@@ -492,8 +492,9 @@ break
         # Generate game data with explanations and metrics
         game_data = self._generate_game_data(game_duration)
 
-        # Save game data using streamlined core saver
-        self.save_current_game_json(metadata={"algorithm": self.algorithm_name})
+        # Save game data using streamlined core saver (unless disabled)
+        if not getattr(self.args, "no_game_json", False):
+            self.save_current_game_json(metadata={"algorithm": self.algorithm_name})
 
         # Update datasets automatically
         self._update_datasets_incrementally([game_data])
